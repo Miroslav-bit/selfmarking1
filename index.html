@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Selfmarking - Snaga</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Selfmarking.com</h1>
+      <p>Vi ocenjujete druge i drugi ocenjuju Vas!</p>
+      <h2>Tema: Snaga</h2>
+    </header>
+
+    <section class="form-section">
+      <textarea id="postText" placeholder="Unesi svoju objavu o snazi..."></textarea>
+      <button onclick="addPost()">Dodaj objavu</button>
+    </section>
+
+    <section class="posts-section">
+      <h3>Objave</h3>
+      <div id="postsContainer"></div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
