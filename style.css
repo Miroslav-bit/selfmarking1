@@ -56,3 +56,10 @@ button:hover {
   color: gray;
   margin-bottom: 5px;
 }
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
