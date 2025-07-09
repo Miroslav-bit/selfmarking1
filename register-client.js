@@ -1,48 +1,44 @@
-window.onload = function () {
-  loadPosts();
-};
+document.getElementById("registerForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-function addPost() {
-  const textArea = document.getElementById("postText");
-  const text = textArea.value.trim();
+  const ime = document.getElementById("ime").value;
+  const prezime = document.getElementById("prezime").value;
+  const prebivaliste = document.getElementById("prebivaliste").value;
+  const avatar = document.getElementById("avatar").value;
+  const email = document.getElementById("email").value;
+  const lozinka = document.getElementById("lozinka").value;
 
-  if (text === "") {
-    alert("Unesi neki tekst.");
-    return;
-  }
-
-  const post = {
-    text: text,
-    date: new Date().toLocaleString("sr-RS")
+  const podaci = {
+    ime,
+    prezime,
+    prebivaliste,
+    avatar,
+    email,
+    lozinka
   };
 
-  let posts = JSON.parse(localStorage.getItem("snagaPosts")) || [];
-  posts.unshift(post);
-  localStorage.setItem("snagaPosts", JSON.stringify(posts));
+  try {
+    const res = await fetch("https://selfmarking-backend.onrender.com/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(podaci)
+    });
 
-  textArea.value = "";
-  loadPosts();
-}
+    const data = await res.json();
+    const poruka = document.getElementById("poruka");
 
-function loadPosts() {
-  const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = "";
-
-  const posts = JSON.parse(localStorage.getItem("snagaPosts")) || [];
-
-  posts.forEach(post => {
-    const postDiv = document.createElement("div");
-    postDiv.className = "post";
-
-    const date = document.createElement("div");
-    date.className = "post-date";
-    date.innerText = post.date;
-
-    const content = document.createElement("div");
-    content.innerText = post.text;
-
-    postDiv.appendChild(date);
-    postDiv.appendChild(content);
-    postsContainer.appendChild(postDiv);
-  });
-}
+    if (res.ok) {
+      poruka.innerText = "Registracija uspešna! Možete se prijaviti.";
+      poruka.style.color = "green";
+      document.getElementById("registerForm").reset();
+    } else {
+      poruka.innerText = data.msg || "Greška pri registraciji.";
+      poruka.style.color = "red";
+    }
+  } catch (err) {
+    console.error("Greška:", err);
+    document.getElementById("poruka").innerText = "Greška pri povezivanju sa serverom.";
+  }
+});
