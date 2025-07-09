@@ -2,28 +2,21 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <title>Selfmarking - Snaga</title>
+  <title>Prijava - Selfmarking</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>Selfmarking.com</h1>
-      <p>Vi ocenjujete druge i drugi ocenjuju Vas!</p>
-      <h2>Tema: Snaga</h2>
-    </header>
-
-    <section class="form-section">
-      <textarea id="postText" placeholder="Unesi svoju objavu o snazi..."></textarea>
-      <button onclick="addPost()">Dodaj objavu</button>
-    </section>
-
-    <section class="posts-section">
-      <h3>Objave</h3>
-      <div id="postsContainer"></div>
-    </section>
+    <h2>Prijava korisnika</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required><br>
+      <input type="password" id="lozinka" placeholder="Lozinka" required><br>
+      <button type="submit">Prijavi se</button>
+    </form>
+    <p id="poruka"></p>
+    <p><a href="register.html">Nemate nalog? Registrujte se ovde</a></p>
   </div>
 
-  <script src="script.js"></script>
+  <script src="login-client.js"></script>
 </body>
 </html>
