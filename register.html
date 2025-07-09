@@ -2,28 +2,25 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <title>Selfmarking - Snaga</title>
+  <title>Registracija - Selfmarking</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>Selfmarking.com</h1>
-      <p>Vi ocenjujete druge i drugi ocenjuju Vas!</p>
-      <h2>Tema: Snaga</h2>
-    </header>
-
-    <section class="form-section">
-      <textarea id="postText" placeholder="Unesi svoju objavu o snazi..."></textarea>
-      <button onclick="addPost()">Dodaj objavu</button>
-    </section>
-
-    <section class="posts-section">
-      <h3>Objave</h3>
-      <div id="postsContainer"></div>
-    </section>
+    <h2>Registracija korisnika</h2>
+    <form id="registerForm">
+      <input type="text" id="ime" placeholder="Ime" required><br>
+      <input type="text" id="prezime" placeholder="Prezime" required><br>
+      <input type="text" id="prebivaliste" placeholder="Mesto prebivališta"><br>
+      <input type="text" id="avatar" placeholder="URL slike avatara (opciono)"><br>
+      <input type="email" id="email" placeholder="Email" required><br>
+      <input type="password" id="lozinka" placeholder="Lozinka" required><br>
+      <button type="submit">Registruj se</button>
+    </form>
+    <p id="poruka"></p>
+    <p><a href="login.html">Već imate nalog? Prijavite se ovde</a></p>
   </div>
 
-  <script src="script.js"></script>
+  <script src="register-client.js"></script>
 </body>
 </html>
