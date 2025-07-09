@@ -2,28 +2,49 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <title>Selfmarking - Snaga</title>
+  <title>Dobrodošli - Selfmarking</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .home-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .home-buttons button {
+      font-size: 18px;
+      padding: 12px 24px;
+      width: 200px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .home-buttons button:hover {
+      background-color: #2980b9;
+    }
+
+    .logo {
+      max-width: 150px;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Selfmarking.com</h1>
-      <p>Vi ocenjujete druge i drugi ocenjuju Vas!</p>
-      <h2>Tema: Snaga</h2>
-    </header>
+  <div class="container" style="text-align:center;">
+    <img src="logo.png" alt="Selfmarking logo" class="logo">
+    <h1>Selfmarking.com</h1>
+    <p>Vi ocenjujete druge i drugi ocenjuju Vas!</p>
 
-    <section class="form-section">
-      <textarea id="postText" placeholder="Unesi svoju objavu o snazi..."></textarea>
-      <button onclick="addPost()">Dodaj objavu</button>
-    </section>
-
-    <section class="posts-section">
-      <h3>Objave</h3>
-      <div id="postsContainer"></div>
-    </section>
+    <div class="home-buttons">
+      <a href="register.html"><button>➕ Registruj se</button></a>
+      <a href="login.html"><button>🔑 Prijavi se</button></a>
+    </div>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
