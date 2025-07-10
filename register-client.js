@@ -9,12 +9,12 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   const lozinka = document.getElementById("lozinka").value;
 
   const podaci = {
-    ime,
-    prezime,
-    prebivaliste,
-    avatar,
-    email,
-    lozinka
+    name: ime,
+    surname: prezime,
+    city: prebivaliste,
+    avatarUrl: avatar,
+    email: email,
+    password: lozinka
   };
 
   try {
