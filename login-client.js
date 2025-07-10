@@ -24,9 +24,9 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       poruka.innerText = "Uspešno prijavljeni!";
       poruka.style.color = "green";
 
-      // Redirekcija na korisnički panel (npr. index.html)
+      // Preusmeravanje na novi nivo 2 (glavne kategorije)
       setTimeout(() => {
-        window.location.href = "panel.html";
+        window.location.href = "main-categories.html";
       }, 1500);
     } else {
       poruka.innerText = data.msg || "Greška pri prijavi.";
