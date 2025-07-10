@@ -1,0 +1,94 @@
+<!-- NIVO 2: Glavne kategorije -->
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Glavne kategorije - Selfmarking</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .category-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .category-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .category-icon {
+      width: 40px;
+    }
+    .category-rating {
+      color: gray;
+      font-size: 14px;
+    }
+    .category-button button {
+      padding: 8px 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .category-button button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Lična vrednost</h2>
+
+    <div class="category-block">
+      <div class="category-info">
+        <img src="icons/izgled.png" alt="Izgled" class="category-icon">
+        <div>
+          <strong>Izgled</strong><br>
+          <span class="category-rating">(ocena uskoro...)</span>
+        </div>
+      </div>
+      <div class="category-button">
+        <button onclick="goToSub('izgled')">Potkategorije</button>
+      </div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-info">
+        <img src="icons/zdravlje.png" alt="Zdravlje" class="category-icon">
+        <div>
+          <strong>Zdravlje</strong><br>
+          <span class="category-rating">(ocena uskoro...)</span>
+        </div>
+      </div>
+      <div class="category-button">
+        <button onclick="goToSub('zdravlje')">Potkategorije</button>
+      </div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-info">
+        <img src="icons/fizicka.png" alt="Fizička spremnost" class="category-icon">
+        <div>
+          <strong>Fizička spremnost</strong><br>
+          <span class="category-rating">(ocena uskoro...)</span>
+        </div>
+      </div>
+      <div class="category-button">
+        <button onclick="goToSub('fizicka-spremnost')">Potkategorije</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function goToSub(category) {
+      window.location.href = `subcategories.html?main=${category}`;
+    }
+  </script>
+</body>
+</html>

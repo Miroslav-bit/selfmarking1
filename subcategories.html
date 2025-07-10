@@ -1,0 +1,91 @@
+<!-- NIVO 3: Podkategorije -->
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Podkategorije - Selfmarking</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .subcategory-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .subcategory-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .subcategory-icon {
+      width: 40px;
+    }
+    .subcategory-rating {
+      color: gray;
+      font-size: 14px;
+    }
+    .subcategory-button button {
+      padding: 8px 16px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .subcategory-button button:hover {
+      background-color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 id="breadcrumb">Podkategorije</h2>
+
+    <div class="subcategory-block">
+      <div class="subcategory-info">
+        <img src="icons/snaga.png" alt="Snaga" class="subcategory-icon">
+        <div>
+          <strong>Snaga</strong><br>
+          <span class="subcategory-rating">(ocena uskoro...)</span>
+        </div>
+      </div>
+      <div class="subcategory-button">
+        <button onclick="goToPosts('snaga')">Objave</button>
+      </div>
+    </div>
+
+    <div class="subcategory-block">
+      <div class="subcategory-info">
+        <img src="icons/brzina.png" alt="Brzina" class="subcategory-icon">
+        <div>
+          <strong>Brzina</strong><br>
+          <span class="subcategory-rating">(ocena uskoro...)</span>
+        </div>
+      </div>
+      <div class="subcategory-button">
+        <button onclick="goToPosts('brzina')">Objave</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const main = params.get('main');
+    if (main) {
+      document.getElementById("breadcrumb").innerText = `Lična vrednost > ${capitalize(main)}`;
+    }
+
+    function capitalize(str) {
+      return str.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function goToPosts(sub) {
+      window.location.href = `posts.html?main=${main}&sub=${sub}`;
+    }
+  </script>
+</body>
+</html>
