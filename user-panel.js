@@ -1,25 +1,16 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  const username = params.get("user");
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("user");
 
-  fetch(`/api/users/${username}/panel`)
+if (!userId) {
+  document.body.innerHTML = "Greška: Nema ID korisnika.";
+} else {
+  fetch(`https://selfmarking-backend.onrender.com/api/user/${userId}/panel`)
     .then(res => res.json())
     .then(data => {
-      document.getElementById("user-name").innerText = data.name;
-      document.getElementById("user-location-age").innerText = `${data.age} godina • ${data.location}`;
-      document.getElementById("user-avatar").src = data.avatar || "avatar.png";
-
-      const container = document.getElementById("category-container");
-      data.categories.forEach(category => {
-        const div = document.createElement("div");
-        div.classList.add("category-block");
-        div.innerHTML = `<h3>${category.name}</h3>`;
-        category.subcategories.forEach(sub => {
-          const subDiv = document.createElement("div");
-          subDiv.innerHTML = `<a href="/posts.html?user=${username}&main=${category.name}&sub=${sub}">${sub}</a>`;
-          div.appendChild(subDiv);
-        });
-        container.appendChild(div);
-      });
+      console.log("Panel za korisnika:", data);
+      // Ovde dodaj prikaz podataka na stranici
+    })
+    .catch(err => {
+      console.error("Greška pri učitavanju panela:", err);
     });
-});
+}
