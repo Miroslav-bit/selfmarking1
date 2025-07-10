@@ -23,12 +23,13 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       localStorage.setItem("token", data.token);
       localStorage.setItem("userIme", data.user.name);
       localStorage.setItem("userAvatar", data.user.avatarUrl);
+      localStorage.setItem("userId", data.user.id);
 
       poruka.innerText = "Uspešno prijavljeni!";
       poruka.style.color = "green";
 
       setTimeout(() => {
-        window.location.href = "main-categories.html";
+        window.location.href = `user-panel.html?user=${data.user.id}`;
       }, 1500);
     } else {
       poruka.innerText = data.msg || "Greška pri prijavi.";
