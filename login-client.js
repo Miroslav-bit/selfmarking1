@@ -10,7 +10,10 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ email, lozinka })
+      body: JSON.stringify({
+        email,
+        password: lozinka
+      })
     });
 
     const data = await res.json();
@@ -18,13 +21,12 @@ document.getElementById("loginForm").addEventListener("submit", async function (
 
     if (res.ok) {
       localStorage.setItem("token", data.token);
-      localStorage.setItem("userIme", data.user.ime);
-      localStorage.setItem("userAvatar", data.user.avatar);
+      localStorage.setItem("userIme", data.user.name);
+      localStorage.setItem("userAvatar", data.user.avatarUrl);
 
       poruka.innerText = "Uspešno prijavljeni!";
       poruka.style.color = "green";
 
-      // Preusmeravanje na novi nivo 2 (glavne kategorije)
       setTimeout(() => {
         window.location.href = "main-categories.html";
       }, 1500);
