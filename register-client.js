@@ -3,7 +3,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
 
   const name = document.getElementById("ime").value;
   const surname = document.getElementById("prezime").value;
-  const city = document.getElementById("grad").value;
+  const city = document.getElementById("prebivaliste").value;
   const avatarUrl = document.getElementById("avatar").value;
   const email = document.getElementById("email").value;
   const lozinka = document.getElementById("lozinka").value;
@@ -49,4 +49,3 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     document.getElementById("poruka").innerText = "Greška pri povezivanju sa serverom.";
   }
 });
-
