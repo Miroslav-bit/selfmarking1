@@ -149,8 +149,8 @@
 
           const autor = document.createElement("div");
           autor.className = "post-autor";
-          autor.innerHTML = `<img src="${post.user?.avatar || 'default-avatar.png'}" class="avatar-small">
-                             <strong>${post.user?.ime || 'Nepoznat'}</strong>`;
+          autor.innerHTML = `<img src="${post.user?.avatarUrl || 'default-avatar.png'}" class="avatar-small">
+                             <strong>${post.user?.name || 'Nepoznat'} ${post.user?.surname || ''}</strong>`;
 
           const datum = document.createElement("div");
           datum.className = "post-date";
