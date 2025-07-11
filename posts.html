@@ -32,10 +32,25 @@
       border-radius: 50%;
       margin-right: 10px;
     }
+    .user-block {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .user-block img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div id="userIdBlock">Učitavanje korisnika...</div>
+
     <div class="breadcrumb" id="breadcrumb">Lična vrednost ></div>
     <h2 id="tema-naslov">Tema</h2>
 
@@ -54,13 +69,11 @@
     const params = new URLSearchParams(window.location.search);
     const main = params.get('main');
     const sub = params.get('sub');
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-    const ime = localStorage.getItem("userIme");
-    const avatar = localStorage.getItem("userAvatar");
+    const ownerId = params.get('user');
+    const viewerToken = localStorage.getItem("token");
 
-    if (!token || !main || !sub) {
-      alert("Niste pravilno prijavljeni ili nedostaju parametri.");
+    if (!main || !sub || !ownerId || !viewerToken) {
+      alert("Greška: Nedostaju podaci.");
       window.location.href = "login.html";
     }
 
@@ -68,9 +81,27 @@
     document.getElementById("breadcrumb").innerText = `Lična vrednost > ${format(main)} > ${format(sub)}`;
     document.getElementById("tema-naslov").innerText = `Tema: ${format(sub)}`;
 
+    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
+      headers: { "Authorization": "Bearer " + viewerToken }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const block = document.getElementById("userIdBlock");
+      block.innerHTML = `
+        <div class="user-block">
+          <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
+          <div>
+            <strong>${data.name || ''} ${data.surname || ''}</strong><br>
+            Živi u: ${data.city || 'Nepoznato'}<br>
+          </div>
+        </div>
+      `;
+    });
+
     async function addPost() {
       const textArea = document.getElementById("postText");
       const text = textArea.value.trim();
+      const token = localStorage.getItem("token");
 
       if (!text) {
         alert("Unesi neki tekst.");
@@ -84,7 +115,7 @@
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
           },
-          body: JSON.stringify({ text, main, sub })
+          body: JSON.stringify({ text: `[main:${main}][sub:${sub}]\n${text}` })
         });
 
         if (res.ok) {
@@ -126,7 +157,7 @@
           datum.innerText = new Date(post.date).toLocaleString("sr-RS");
 
           const tekst = document.createElement("div");
-          tekst.innerText = post.text;
+          tekst.innerText = post.text.replace(/\[main:.*?\]\[sub:.*?\]\n?/g, '');
 
           div.appendChild(autor);
           div.appendChild(datum);
