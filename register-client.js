@@ -8,20 +8,22 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   const email = document.getElementById("email").value;
   const lozinka = document.getElementById("lozinka").value;
 
+  const podaci = {
+    name,
+    surname,
+    city,
+    avatarUrl,
+    email,
+    password: lozinka
+  };
+
   try {
     const res = await fetch("https://selfmarking-backend.onrender.com/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        name,
-        surname,
-        city,
-        avatarUrl,
-        email,
-        password: lozinka
-      })
+      body: JSON.stringify(podaci)
     });
 
     const data = await res.json();
