@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="sr">
 <head>
@@ -38,7 +37,6 @@
 <body>
   <div class="container">
     <div class="breadcrumb" id="breadcrumb">Lična vrednost ></div>
-
     <h2 id="tema-naslov">Tema</h2>
 
     <section class="form-section">
@@ -56,32 +54,21 @@
     const params = new URLSearchParams(window.location.search);
     const main = params.get('main');
     const sub = params.get('sub');
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+    const ime = localStorage.getItem("userIme");
+    const avatar = localStorage.getItem("userAvatar");
 
-    const breadcrumb = document.getElementById("breadcrumb");
-    const naslov = document.getElementById("tema-naslov");
-
-    if (main && sub) {
-      const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      breadcrumb.innerText = `Lična vrednost > ${format(main)} > ${format(sub)}`;
-      naslov.innerText = `Tema: ${format(sub)}`;
+    if (!token || !main || !sub) {
+      alert("Niste pravilno prijavljeni ili nedostaju parametri.");
+      window.location.href = "login.html";
     }
 
-    window.onload = function () {
-      const ime = localStorage.getItem("userIme");
-      const avatar = localStorage.getItem("userAvatar");
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        alert("Morate biti prijavljeni.");
-        window.location.href = "login.html";
-        return;
-      }
-
-      loadPosts();
-    };
+    const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    document.getElementById("breadcrumb").innerText = `Lična vrednost > ${format(main)} > ${format(sub)}`;
+    document.getElementById("tema-naslov").innerText = `Tema: ${format(sub)}`;
 
     async function addPost() {
-      const token = localStorage.getItem("token");
       const textArea = document.getElementById("postText");
       const text = textArea.value.trim();
 
@@ -97,7 +84,7 @@
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
           },
-          body: JSON.stringify({ text })
+          body: JSON.stringify({ text, main, sub })
         });
 
         if (res.ok) {
@@ -121,7 +108,11 @@
         const container = document.getElementById("postsContainer");
         container.innerHTML = "";
 
-        posts.forEach(post => {
+        const filtered = posts.filter(p =>
+          p.text.includes(`[main:${main}]`) && p.text.includes(`[sub:${sub}]`)
+        );
+
+        filtered.forEach(post => {
           const div = document.createElement("div");
           div.className = "post";
 
@@ -148,6 +139,8 @@
         alert("Greška pri učitavanju objava.");
       }
     }
+
+    window.onload = loadPosts;
   </script>
 </body>
 </html>
