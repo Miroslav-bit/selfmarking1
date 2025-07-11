@@ -38,7 +38,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
       poruka.style.color = "green";
 
       setTimeout(() => {
-        window.location.href = `user-panel.html?user=${payload.id}`;
+        window.location.href = `main-categories.html`;
       }, 1500);
     } else {
       poruka.innerText = data.msg || "Greška pri registraciji.";
@@ -49,3 +49,4 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     document.getElementById("poruka").innerText = "Greška pri povezivanju sa serverom.";
   }
 });
+
