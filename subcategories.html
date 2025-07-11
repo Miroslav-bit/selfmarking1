@@ -37,10 +37,25 @@
     .subcategory-button button:hover {
       background-color: #27ae60;
     }
+    .user-block {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .user-block img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div id="userIdBlock">Učitavanje korisnika...</div>
+
     <h2 id="breadcrumb">Podkategorije</h2>
     <div id="subcategoryContainer">Učitavanje...</div>
   </div>
@@ -48,64 +63,75 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const mainSlug = params.get('main');
-    const userId = localStorage.getItem("userId");
+    const ownerId = params.get('user');
     const token = localStorage.getItem("token");
 
-    if (!token || !userId || !mainSlug) {
-      alert("Greška: Niste prijavljeni ili nema kategorije.");
+    if (!token || !ownerId || !mainSlug) {
+      alert("Greška: Nedostaju parametri ili niste prijavljeni.");
       window.location.href = "login.html";
-    } else {
-      const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      document.getElementById("breadcrumb").innerText = `Lična vrednost > ${format(mainSlug)}`;
-
-      fetch(`https://selfmarking-backend.onrender.com/api/user/${userId}/panel`, {
-        headers: { "Authorization": "Bearer " + token }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const category = data.categories.find(c => {
-          return c.name.toLowerCase().replace(/\s+/g, "-") === mainSlug;
-        });
-
-        const container = document.getElementById("subcategoryContainer");
-        container.innerHTML = "";
-
-        if (!category || !category.subcategories || category.subcategories.length === 0) {
-          container.innerText = "Nema potkategorija.";
-          return;
-        }
-
-        category.subcategories.forEach(sub => {
-          const subSlug = sub.name.toLowerCase().replace(/\s+/g, "-");
-          const iconPath = `icons/${subSlug}.png`;
-
-          const div = document.createElement("div");
-          div.className = "subcategory-block";
-
-          div.innerHTML = `
-            <div class="subcategory-info">
-              <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
-              <div>
-                <strong>${sub.name}</strong><br>
-                <span class="subcategory-rating">(ocena uskoro...)</span>
-              </div>
-            </div>
-            <div class="subcategory-button">
-              <button onclick="goToPosts('${subSlug}')">Objave</button>
-            </div>
-          `;
-
-          container.appendChild(div);
-        });
-      })
-      .catch(err => {
-        console.error("Greška:", err);
-        document.getElementById("subcategoryContainer").innerText = "Greška pri učitavanju potkategorija.";
-      });
     }
 
+    const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    document.getElementById("breadcrumb").innerText = `Lična vrednost > ${format(mainSlug)}`;
+
+    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const block = document.getElementById("userIdBlock");
+      block.innerHTML = `
+        <div class="user-block">
+          <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
+          <div>
+            <strong>${data.name || ''} ${data.surname || ''}</strong><br>
+            Živi u: ${data.city || 'Nepoznato'}<br>
+          </div>
+        </div>
+      `;
+
+      const category = data.categories.find(c =>
+        c.name.toLowerCase().replace(/\s+/g, "-") === mainSlug
+      );
+
+      const container = document.getElementById("subcategoryContainer");
+      container.innerHTML = "";
+
+      if (!category || !category.subcategories || category.subcategories.length === 0) {
+        container.innerText = "Nema podkategorija.";
+        return;
+      }
+
+      category.subcategories.forEach(sub => {
+        const subSlug = sub.name.toLowerCase().replace(/\s+/g, "-");
+        const iconPath = `icons/${subSlug}.png`;
+
+        const div = document.createElement("div");
+        div.className = "subcategory-block";
+
+        div.innerHTML = `
+          <div class="subcategory-info">
+            <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
+            <div>
+              <strong>${sub.name}</strong><br>
+              <span class="subcategory-rating">(ocena uskoro...)</span>
+            </div>
+          </div>
+          <div class="subcategory-button">
+            <button onclick="goToPosts('${subSlug}')">Objave</button>
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    })
+    .catch(err => {
+      console.error("Greška:", err);
+      document.getElementById("subcategoryContainer").innerText = "Greška pri učitavanju podataka.";
+    });
+
     function goToPosts(subSlug) {
-      window.location.href = `posts.html?main=${mainSlug}&sub=${subSlug}`;
+      window.location.href = `posts.html?main=${mainSlug}&sub=${subSlug}&user=${ownerId}`;
     }
   </script>
 </body>
