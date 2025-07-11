@@ -29,7 +29,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       poruka.style.color = "green";
 
       setTimeout(() => {
-        window.location.href = `user-panel.html?user=${data.user.id}`;
+        window.location.href = `main-categories.html`;
       }, 1500);
     } else {
       poruka.innerText = data.msg || "Greška pri prijavi.";
@@ -40,3 +40,4 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     document.getElementById("poruka").innerText = "Greška pri povezivanju sa serverom.";
   }
 });
+
