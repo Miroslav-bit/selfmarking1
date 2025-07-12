@@ -81,7 +81,7 @@
     document.getElementById("breadcrumb").innerHTML = `
   <a href="index.html">Home</a> &gt; Lična vrednost &gt; ${format(main)} &gt; ${format(sub)}
 `;
-    document.getElementById("tema-naslov").innerText = `Tema: ${format(sub)}`;
+    document.getElementById("tema-naslov").innerText = format(sub);
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
       headers: { "Authorization": "Bearer " + viewerToken }
