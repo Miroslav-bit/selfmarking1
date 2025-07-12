@@ -56,14 +56,19 @@
   <div class="container">
     <div id="userIdBlock">Učitavanje korisnika...</div>
 
+    <div class="breadcrumb" id="breadcrumb">Navigacija...</div>
+
     <h2>Lična vrednost</h2>
     <div id="categoryContainer">Učitavanje...</div>
-  </div>
 
   <script>
     const token = localStorage.getItem("token");
     const viewerId = localStorage.getItem("userId");
     const ownerId = new URLSearchParams(window.location.search).get("user");
+
+    document.getElementById("breadcrumb").innerHTML = `
+  <a href="index.html">Home</a> &gt; Lična vrednost
+`;
 
     if (!token || !ownerId) {
       alert("Greška: Niste prijavljeni ili fali ID korisnika.");
