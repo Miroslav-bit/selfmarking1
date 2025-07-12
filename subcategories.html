@@ -72,7 +72,9 @@
     }
 
     const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    document.getElementById("breadcrumb").innerText = `Lična vrednost > ${format(mainSlug)}`;
+    document.getElementById("breadcrumb").innerHTML = `
+  <a href="index.html">Home</a> &gt; Lična vrednost &gt; ${format(mainSlug)}
+`;
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
       headers: { "Authorization": "Bearer " + token }
@@ -136,3 +138,4 @@
   </script>
 </body>
 </html>
+
