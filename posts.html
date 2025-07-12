@@ -78,7 +78,7 @@
     }
 
     const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
+    document.getElementById("tema-naslov").innerText = format(sub);
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
       headers: { "Authorization": "Bearer " + viewerToken }
@@ -96,6 +96,7 @@
         </div>
       `;
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
+      document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
 
       document.getElementById("breadcrumb").innerHTML = `
         <a href="index.html">Home</a> &gt;
