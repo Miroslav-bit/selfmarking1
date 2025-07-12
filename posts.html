@@ -123,7 +123,12 @@
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
           },
-          body: JSON.stringify({ text: `[main:${main}][sub:${sub}]\n${text}` })
+          body: JSON.stringify({
+            text,
+            panelOwnerId: ownerId,
+            mainCategory: main,
+            subCategory: sub
+          })
         });
 
         if (res.ok) {
