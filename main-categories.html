@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Glavne kategorije - Selfmarking</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .category-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .category-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .category-icon {
+      width: 40px;
+    }
+    .category-rating {
+      color: gray;
+      font-size: 14px;
+    }
+    .category-button button {
+      padding: 8px 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .category-button button:hover {
+      background-color: #2980b9;
+    }
+    .user-block {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .user-block img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="userIdBlock">Učitavanje korisnika...</div>
+    <div class="breadcrumb" id="breadcrumb">Navigacija...</div>
+    <h2 id="maincat-title">Ime i prezime</h2>
+    <div id="categoryContainer">Učitavanje...</div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const viewerId = localStorage.getItem("userId");
+    const ownerId = new URLSearchParams(window.location.search).get("user");
+
+    if (!token || !ownerId) {
+      alert("Greška: Niste prijavljeni ili fali ID korisnika.");
+      window.location.href = "login.html";
+    }
+
+    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const block = document.getElementById("userIdBlock");
+      block.innerHTML = \`
+        <div class="user-block">
+          <img src="\${data.avatar || 'default-avatar.png'}" alt="avatar">
+          <div>
+            <strong>\${data.name || ''} \${data.surname || ''}</strong><br>
+            Živi u: \${data.city || 'Nepoznato'}<br>
+          </div>
+        </div>
+      \`;
+
+      const fullName = \`\${data.name || ''} \${data.surname || ''}\`.trim();
+      document.getElementById("breadcrumb").innerHTML = \`
+        <a href="index.html">Home</a> &gt; \${fullName}
+      \`;
+      document.getElementById("maincat-title").innerText = fullName;
+
+      const container = document.getElementById("categoryContainer");
+      container.innerHTML = "";
+
+      if (!data.categories || data.categories.length === 0) {
+        container.innerText = "Nema dostupnih kategorija.";
+        return;
+      }
+
+      data.categories.forEach(cat => {
+        const slug = cat.name.toLowerCase().replace(/\s+/g, "-");
+        const iconPath = \`icons/\${slug}.png\`;
+
+        const div = document.createElement("div");
+        div.className = "category-block";
+
+        div.innerHTML = \`
+          <div class="category-info">
+            <img src="\${iconPath}" alt="\${cat.name}" class="category-icon">
+            <div>
+              <strong>\${cat.name}</strong><br>
+              <span class="category-rating">(ocena uskoro...)</span>
+            </div>
+          </div>
+          <div class="category-button">
+            <button onclick="goToSub('\${slug}')">Potkategorije</button>
+          </div>
+        \`;
+
+        container.appendChild(div);
+      });
+    })
+    .catch(err => {
+      console.error("Greška:", err);
+      document.getElementById("categoryContainer").innerText = "Greška pri učitavanju podataka.";
+    });
+
+    function goToSub(categorySlug) {
+      window.location.href = \`subcategories.html?main=\${categorySlug}&user=\${ownerId}\`;
+    }
+  </script>
+</body>
+</html>
