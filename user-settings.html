@@ -2,17 +2,113 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <title>Moj panel</title>
+  <title>Moji podaci - Selfmarking</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+    }
+    .form-container h2 {
+      text-align: center;
+    }
+    .form-container label {
+      display: block;
+      margin-top: 10px;
+    }
+    .form-container input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    .form-container button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .form-container button:hover {
+      background-color: #2980b9;
+    }
+  </style>
 </head>
 <body>
-  <h1>Dobrodošli u Vaš Self Panel</h1>
+  <div class="form-container">
+    <h2>Izmeni svoje podatke</h2>
+    <label for="name">Ime:</label>
+    <input type="text" id="name">
 
-  <!-- Div za prikaz panela -->
-  <div id="panel">
-    <p>Učitavanje panela u toku...</p>
+    <label for="surname">Prezime:</label>
+    <input type="text" id="surname">
+
+    <label for="city">Grad:</label>
+    <input type="text" id="city">
+
+    <label for="email">Email:</label>
+    <input type="email" id="email">
+
+    <button onclick="saveChanges()">Sačuvaj izmene</button>
   </div>
 
-  <!-- Skripta za dinamičko učitavanje sadržaja -->
-  <script src="user-panel.js"></script>
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Niste prijavljeni.");
+      window.location.href = "login.html";
+    }
+
+    fetch("https://selfmarking-backend.onrender.com/api/user/me", {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(user => {
+      document.getElementById("name").value = user.name || "";
+      document.getElementById("surname").value = user.surname || "";
+      document.getElementById("city").value = user.city || "";
+      document.getElementById("email").value = user.email || "";
+    })
+    .catch(err => {
+      console.error("Greška pri učitavanju podataka:", err);
+      alert("Greška pri učitavanju korisnika.");
+    });
+
+    async function saveChanges() {
+      const updatedData = {
+        name: document.getElementById("name").value,
+        surname: document.getElementById("surname").value,
+        city: document.getElementById("city").value,
+        email: document.getElementById("email").value
+      };
+
+      try {
+        const res = await fetch("https://selfmarking-backend.onrender.com/api/user/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify(updatedData)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("Uspešno ste izmenili podatke.");
+        } else {
+          alert("Greška: " + data.msg);
+        }
+      } catch (err) {
+        console.error("Greška pri slanju zahteva:", err);
+        alert("Greška na serveru.");
+      }
+    }
+  </script>
 </body>
 </html>
