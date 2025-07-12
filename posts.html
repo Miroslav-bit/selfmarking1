@@ -78,7 +78,9 @@
     }
 
     const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    document.getElementById("breadcrumb").innerText = `Lična vrednost > ${format(main)} > ${format(sub)}`;
+    document.getElementById("breadcrumb").innerHTML = `
+  <a href="index.html">Home</a> &gt; Lična vrednost &gt; ${format(main)} &gt; ${format(sub)}
+`;
     document.getElementById("tema-naslov").innerText = `Tema: ${format(sub)}`;
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
