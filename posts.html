@@ -150,6 +150,12 @@
       `;
     });
 
+      document.querySelector(".rate").innerHTML = `
+        <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
+        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">☆ Ocenite</a>
+      `;
+    });
+
     async function addPost() {
       const textArea = document.getElementById("postText");
       const text = textArea.value.trim();
