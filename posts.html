@@ -77,6 +77,18 @@
       font-weight: bold;
       cursor: default;
     }
+    .rate a {
+      text-decoration: none;
+      color: #3498db;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 16px;
+      transition: background-color 0.3s ease;
+    }
+    .rate a:hover {
+      background-color: #e0f0ff;
+    }
   </style>
 </head>
 <body>
@@ -86,11 +98,10 @@
     <div class="breadcrumb" id="breadcrumb">Lična vrednost ></div>
     <h2 id="tema-naslov">Tema</h2>
 
-    <div class="rating-box">
-      <div class="rating-buttons">
-        <div class="raters"></div>
-        <div class="rate-button"><button class="oceni-dugme">☆ Oceni</button></div>
-      </div>
+    <div class="rating-buttons">
+      <div class="raters"></div>
+      <div class="rate"></div>
+      <div class="rate-button"><button class="oceni-dugme">☆ Oceni</button></div>
     </div>
 
     <section class="form-section">
@@ -150,7 +161,7 @@
       `;
       document.querySelector(".rate").innerHTML = `
         <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
-        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">☆ Ocenite</a>
+        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&user=${ownerId}">☆ Ocenite</a>
       `;
     });
 
