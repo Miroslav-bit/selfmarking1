@@ -82,7 +82,7 @@
 
     <div class="rating-box">
       <div class="rating-buttons">
-        <div class="raters"><img src="icons/raters.png" style="height:18px; vertical-align:middle;"><a href="raters.html?name=${data.name}&surname=${data.surname}&sub=${sub}">Ocenjivači</a></div>
+        <div class="raters"></div>
         <div class="rate-button"><button class="oceni-dugme">☆ Oceni</button></div>
       </div>
     </div>
@@ -136,6 +136,11 @@
         <a href="main-categories.html?user=${ownerId}">${fullName}</a> &gt;
         <a href="subcategories.html?main=${main}&user=${ownerId}">${format(main)}</a> &gt;
         ${format(sub)}
+      `;
+
+      document.querySelector(".raters").innerHTML = `
+        <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
+        <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
       `;
     });
 
