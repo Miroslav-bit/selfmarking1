@@ -41,11 +41,56 @@
       font-size: 16px;
       cursor: pointer;
     }
-
     #ocenjivac {
       margin-top: 50px;
       font-size: 16px;
       color: #555;
+    }
+    .rating-form {
+      position: relative;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .stars-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 32px;
+      padding: 10px 5px;
+      position: relative;
+    }
+    .stars-row .star {
+      flex: 1;
+      text-align: center;
+      color: gray;
+    }
+    .lines-row {
+      position: absolute;
+      top: 45px;
+      left: 5%;
+      right: 5%;
+      height: 60px;
+    }
+    .lines-row .line {
+      position: absolute;
+      width: 1px;
+      height: 50px;
+      background-color: #888;
+      top: 0;
+    }
+    .numbers-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-top: 50px;
+      padding: 0 5px;
+      color: #444;
+    }
+    .labels-row {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      font-size: 14px;
+      margin-top: 5px;
+      color: #333;
     }
   </style>
 </head>
@@ -57,7 +102,39 @@
 
     <div class="rating-subtitle">Ocenite</div>
 
-    <!-- Ovde će kasnije biti forma za ocenjivanje -->
+    <!-- Forma za ocenjivanje -->
+    <div class="rating-form">
+      <div class="stars-row">
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+        <span class="star">☆</span>
+      </div>
+      <div class="lines-row">
+        <div class="line" style="left: 9.1%;"></div>
+        <div class="line" style="left: 45.5%;"></div>
+        <div class="line" style="left: 54.5%;"></div>
+        <div class="line" style="left: 90.9%;"></div>
+      </div>
+      <div class="numbers-row">
+        <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+        <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+      </div>
+      <div class="labels-row">
+        <span style="grid-column: 1;">NIŠTA</span>
+        <span style="grid-column: 2 / span 4;">ISPOD PROSEKA</span>
+        <span style="grid-column: 6;">PROSEK</span>
+        <span style="grid-column: 7 / span 4;">IZNAD PROSEKA</span>
+        <span style="grid-column: 11;">PERFEKCIJA</span>
+      </div>
+    </div>
 
     <div id="ocenjivac">
       Ocenjivač: <span id="ocenjivac-ime">Učitavanje...</span>
