@@ -50,12 +50,12 @@
   </style>
 </head>
 <body>
-  <button class="dugme-zatvori" onclick="window.history.back()">Zatvori ✖</button>
-
   <div class="container">
-    <h2 id="naslov">Naslov se učitava...</h2>
+    <button class="close-button" onclick="window.history.back()">✖</button>
 
-    <div class="podnaslov">Ocenite</div>
+    <h2 id="naslov" class="rating-title">Naslov se učitava...</h2>
+
+    <div class="rating-subtitle">Ocenite</div>
 
     <!-- Ovde će kasnije biti forma za ocenjivanje -->
 
@@ -63,7 +63,6 @@
       Ocenjivač: <span id="ocenjivac-ime">Učitavanje...</span>
     </div>
   </div>
-
   <script>
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
