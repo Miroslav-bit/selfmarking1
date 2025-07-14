@@ -59,8 +59,8 @@
     const surname = params.get('surname') || '';
     const sub = params.get('sub') || '';
 
-    const naslov = `${name} ${surname} – ${sub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
-    document.getElementById("naslov").innerText = naslov;
+    const naslovTekst = `${name} ${surname} – ${sub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+    document.getElementById("naslov").innerText = naslovTekst;
 
     function goBack() {
       window.history.back();
@@ -68,7 +68,10 @@
 
     async function ucitajOcene() {
       try {
-        const res = await fetch(`https://selfmarking-backend.onrender.com/api/ratings/list?cardName=${encodeURIComponent(name + " " + surname)}&cardSub=${encodeURIComponent(sub.replace(/-/g, ' '))}`);
+        const cardName = document.getElementById("naslov").innerText.split(" – ")[0];
+        const cardSub = sub.replace(/-/g, ' ');
+
+        const res = await fetch(`https://selfmarking-backend.onrender.com/api/ratings/list?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`);
         const ratings = await res.json();
 
         const ocenjivaciDiv = document.createElement("div");
@@ -100,5 +103,6 @@
 
     window.onload = ucitajOcene;
   </script>
+
 </body>
 </html>
