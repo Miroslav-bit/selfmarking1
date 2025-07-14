@@ -168,6 +168,24 @@
     } else {
       document.getElementById("ocenjivac-ime").innerText = "Nepoznat";
     }
+
+    // Dodaj interaktivnost klikabilnim zvezdama
+    const zvezde = document.querySelectorAll(".star");
+
+    zvezde.forEach((zvezda, index) => {
+      zvezda.style.cursor = "pointer";
+      zvezda.addEventListener("click", () => {
+        zvezde.forEach((z, i) => {
+          if (i <= index) {
+            z.textContent = "★"; // popunjena zvezda
+            z.style.color = "crimson"; // crvena boja
+          } else {
+            z.textContent = "☆"; // prazna zvezda
+            z.style.color = "gray";
+          }
+        });
+      });
+    });
   </script>
 </body>
 </html>
