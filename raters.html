@@ -74,10 +74,14 @@
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     const surname = params.get('surname') || '';
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || '';
+    const surname = params.get('surname') || '';
     const rawSub = params.get('sub') || '';
 
     const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const rawSub = params.get("sub") || "";
+    const cardSub = format(rawSub);
+    const cardName = `${name} ${surname}`;
     const cardSub = rawSub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const cardName = `${name} ${surname}`;
 
