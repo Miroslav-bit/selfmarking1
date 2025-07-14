@@ -40,15 +40,6 @@
       border-bottom: 2px solid #ccc;
       padding-bottom: 5px;
     }
-    .columns-body {
-      display: flex;
-      justify-content: space-between;
-      max-width: 600px;
-      margin: auto;
-    }
-    #ratersList, #scoresList {
-      width: 48%;
-    }
   </style>
 </head>
 <body>
@@ -60,11 +51,8 @@
       <div>Ocenjivači:</div>
       <div>Ocene:</div>
     </div>
-  </div>
 
-  <div class="columns-body">
-    <div id="ratersList"></div>
-    <div id="scoresList"></div>
+    <!-- Ovde će kasnije ići dinamički spiskovi -->
   </div>
 
   <script>
@@ -73,43 +61,12 @@
     const surname = params.get('surname') || '';
     const sub = params.get('sub') || '';
 
-    const naslovTekst = `${name} ${surname} – ${sub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
-    document.getElementById("naslov").innerText = naslovTekst;
+    const naslov = `${name} ${surname} – ${sub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+    document.getElementById("naslov").innerText = naslov;
 
     function goBack() {
-      window.history.back();
+      window.history.back(); // ili window.location.href = 'posts.html?...';
     }
-
-    async function ucitajOcene() {
-      try {
-        const cardName = `${name} ${surname}`;
-        const cardSub = sub.replace(/-/g, ' ');
-
-        const res = await fetch(`https://selfmarking-backend.onrender.com/api/ratings/list?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`);
-        const ratings = await res.json();
-
-        const ocenjivaciDiv = document.getElementById("ratersList");
-        const oceneDiv = document.getElementById("scoresList");
-        ocenjivaciDiv.innerHTML = '';
-        oceneDiv.innerHTML = '';
-
-        ratings.forEach(r => {
-          const ime = document.createElement("div");
-          ime.innerText = r.rater;
-          ocenjivaciDiv.appendChild(ime);
-
-          const ocena = document.createElement("div");
-          ocena.innerText = r.score;
-          oceneDiv.appendChild(ocena);
-        });
-
-      } catch (err) {
-        console.error("Greška pri učitavanju ocena:", err);
-      }
-    }
-
-    window.onload = ucitajOcene;
   </script>
-
 </body>
 </html>
