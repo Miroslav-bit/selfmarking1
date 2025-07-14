@@ -40,74 +40,33 @@
       border-bottom: 2px solid #ccc;
       padding-bottom: 5px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 8px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
   <div class="modal-box">
     <button class="close-btn" onclick="goBack()">X</button>
-    <h2 id="naslov">Učitavanje...</h2>
+    <h2 id="naslov">Ime Prezime – Kategorija</h2>
 
     <div class="columns">
       <div>Ocenjivači:</div>
       <div>Ocene:</div>
     </div>
 
-    <table>
-      <thead>
-        <tr><th>Ocenjivač</th><th>Ocena</th></tr>
-      </thead>
-      <tbody id="tabela-ocena"></tbody>
-    </table>
+    <!-- Ovde će kasnije ići dinamički spiskovi -->
   </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     const surname = params.get('surname') || '';
-    const rawSub = params.get('sub') || '';
+    const sub = params.get('sub') || '';
 
-    const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const rawSub = params.get("sub") || "";
-    const cardSub = rawSub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const cardName = `${name} ${surname}`;
-
-    // Postavi naslov
-    const naslov = `${cardName} – ${cardSub}`;
+    const naslov = `${name} ${surname} – ${sub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
     document.getElementById("naslov").innerText = naslov;
 
     function goBack() {
-      window.history.back();
+      window.history.back(); // ili window.location.href = 'posts.html?...';
     }
-
-    // Učitaj podatke
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/list?cardName=${cardName}&cardSub=${cardSub}`)
-      .then(res => res.json())
-      .then(data => {
-        const tabela = document.getElementById("tabela-ocena");
-        data.forEach(entry => {
-          const row = document.createElement("tr");
-          const td1 = document.createElement("td");
-          td1.innerText = entry.rater;
-          const td2 = document.createElement("td");
-          td2.innerText = entry.score;
-          row.appendChild(td1);
-          row.appendChild(td2);
-          tabela.appendChild(row);
-        });
-      })
-      .catch(err => {
-        console.error("Greška pri čitanju ocena:", err);
-      });
   </script>
 </body>
 </html>
