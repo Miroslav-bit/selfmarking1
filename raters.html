@@ -51,8 +51,6 @@
       <div>Ocenjivači:</div>
       <div>Ocene:</div>
     </div>
-
-    <!-- Ovde će kasnije ići dinamički spiskovi -->
   </div>
 
   <script>
@@ -68,5 +66,33 @@
       window.history.back(); // ili window.location.href = 'posts.html?...';
     }
   </script>
+
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const cardName = params.get("name") + " " + params.get("surname");
+  const cardSub = params.get("sub") || "";
+
+  fetch(`https://selfmarking-backend.onrender.com/api/ratings/list?cardName=${cardName}&cardSub=${cardSub}`)
+    .then(res => res.json())
+    .then(data => {
+      const tabela = document.getElementById("tabela-ocena");
+      data.forEach(entry => {
+        const row = document.createElement("tr");
+        const td1 = document.createElement("td");
+        td1.innerText = entry.rater;
+        const td2 = document.createElement("td");
+        td2.innerText = entry.score;
+        row.appendChild(td1);
+        row.appendChild(td2);
+        tabela.appendChild(row);
+      });
+    });
+  </script>
+  <table border="1">
+    <thead>
+      <tr><th>Ocenjivači</th><th>Ocene</th></tr>
+    </thead>
+    <tbody id="tabela-ocena"></tbody>
+  </table>
 </body>
 </html>
