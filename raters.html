@@ -77,8 +77,7 @@
     const rawSub = params.get('sub') || '';
 
     const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const rawSub = params.get("sub") || "";
-    const cardSub = rawSub.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const cardSub = format(rawSub);
     const cardName = `${name} ${surname}`;
 
     // Postavi naslov
