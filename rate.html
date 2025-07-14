@@ -5,69 +5,93 @@
   <title>Ocenjivanje - Selfmarking</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .rating-card {
-      width: 80%;
-      max-width: 700px;
-      margin: 80px auto;
-      padding: 30px;
-      border: 3px solid #7ec9f5;
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #f9f9f9;
       border-radius: 12px;
-      background-color: #fff;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      position: relative;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
     }
-    .rating-title {
+
+    h2#naslov {
       font-size: 22px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+      color: #333;
     }
-    .rating-subtitle {
+
+    .podnaslov {
       font-size: 18px;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .close-button {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: red;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
+      margin: 30px 0 20px;
       font-weight: bold;
-      font-size: 16px;
+      color: #555;
+    }
+
+    .dugme-zatvori {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      background-color: #ddd;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
+    }
+
+    .dugme-zatvori:hover {
+      background-color: #ccc;
+    }
+
+    #ocenjivac {
+      margin-top: 50px;
+      font-size: 16px;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div class="rating-card">
-    <button class="close-button" onclick="goBack()">X</button>
-    <div id="naslov" class="rating-title">Naslov</div>
-    <div class="rating-subtitle">Ocenite:</div>
+  <button class="dugme-zatvori" onclick="window.history.back()">Zatvori ✖</button>
 
-    <!-- Ovde kasnije ide forma za ocenjivanje i ime ocenjivača -->
+  <div class="container">
+    <h2 id="naslov">Naslov se učitava...</h2>
+
+    <div class="podnaslov">Ocenite</div>
+
+    <!-- Ovde će kasnije biti forma za ocenjivanje -->
+
+    <div id="ocenjivac">
+      Ocenjivač: <span id="ocenjivac-ime">Učitavanje...</span>
+    </div>
   </div>
 
   <script>
-    // Čitanje parametara iz URL-a
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     const surname = params.get('surname') || '';
     const sub = params.get('sub') || '';
 
-    // Formatiranje
     const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const naslov = `${name} ${surname} – ${format(sub)}`;
-
-    // Prikaz naslova
     document.getElementById("naslov").innerText = naslov;
 
-    // Povratak na prethodnu stranicu
-    function goBack() {
-      window.history.back();  // Vraća korisnika na prethodnu stranicu
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("https://selfmarking-backend.onrender.com/api/user/me", {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const ime = data.name || '';
+        const prezime = data.surname || '';
+        document.getElementById("ocenjivac-ime").innerText = `${ime} ${prezime}`;
+      })
+      .catch(err => {
+        console.error("Greška pri učitavanju ocenjivača:", err);
+        document.getElementById("ocenjivac-ime").innerText = "Nepoznat";
+      });
+    } else {
+      document.getElementById("ocenjivac-ime").innerText = "Nepoznat";
     }
   </script>
 </body>
