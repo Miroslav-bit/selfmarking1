@@ -134,6 +134,9 @@
         <span style="grid-column: 7 / span 4;">IZNAD PROSEKA</span>
         <span style="grid-column: 11;">PERFEKCIJA</span>
       </div>
+      <button id="sacuvaj-btn" style="margin-top: 30px; padding: 10px 20px; font-size: 16px; background-color: #7ec9f5; border: none; border-radius: 8px; cursor: pointer;">
+        Sačuvajte
+      </button>
     </div>
 
     <div id="ocenjivac">
@@ -150,6 +153,8 @@
     const naslov = `${name} ${surname} – ${format(sub)}`;
     document.getElementById("naslov").innerText = naslov;
 
+    const zvezde = document.querySelectorAll(".star");
+
     const token = localStorage.getItem("token");
     if (token) {
       fetch("https://selfmarking-backend.onrender.com/api/user/me", {
@@ -160,6 +165,25 @@
         const ime = data.name || '';
         const prezime = data.surname || '';
         document.getElementById("ocenjivac-ime").innerText = `${ime} ${prezime}`;
+
+        const ocenjivacFull = `${ime} ${prezime}`;
+        const key = `ocena_${ocenjivacFull}_${naslov}`;
+        const sacuvanaOcena = localStorage.getItem(key);
+
+        if (sacuvanaOcena !== null) {
+          const index = parseInt(sacuvanaOcena);
+          selektovanaOcena = index;
+          zvezde.forEach((z, i) => {
+            if (i <= index) {
+              z.textContent = "★";
+              z.style.color = "crimson";
+            } else {
+              z.textContent = "☆";
+              z.style.color = "gray";
+            }
+          });
+        }
+
       })
       .catch(err => {
         console.error("Greška pri učitavanju ocenjivača:", err);
@@ -170,21 +194,33 @@
     }
 
     // Dodaj interaktivnost klikabilnim zvezdama
-    const zvezde = document.querySelectorAll(".star");
+    let selektovanaOcena = null;
 
     zvezde.forEach((zvezda, index) => {
       zvezda.style.cursor = "pointer";
       zvezda.addEventListener("click", () => {
+        selektovanaOcena = index; // zapamti ocenu 0–10
+
         zvezde.forEach((z, i) => {
           if (i <= index) {
-            z.textContent = "★"; // popunjena zvezda
-            z.style.color = "crimson"; // crvena boja
+            z.textContent = "★";
+            z.style.color = "crimson";
           } else {
-            z.textContent = "☆"; // prazna zvezda
+            z.textContent = "☆";
             z.style.color = "gray";
           }
         });
       });
+    });
+
+    document.getElementById("sacuvaj-btn").addEventListener("click", () => {
+      if (selektovanaOcena === null) return alert("Izaberite ocenu pre čuvanja.");
+
+      const ocenjivac = document.getElementById("ocenjivac-ime").innerText;
+      const kartica = naslov;
+      const key = `ocena_${ocenjivac}_${kartica}`;
+      localStorage.setItem(key, selektovanaOcena);
+      alert("Vaša ocena je sačuvana.");
     });
   </script>
 </body>
