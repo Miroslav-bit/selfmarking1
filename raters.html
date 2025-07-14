@@ -51,8 +51,6 @@
       <div>Ocenjivači:</div>
       <div>Ocene:</div>
     </div>
-
-    <!-- Ovde će kasnije ići dinamički spiskovi -->
   </div>
 
   <script>
@@ -65,8 +63,42 @@
     document.getElementById("naslov").innerText = naslov;
 
     function goBack() {
-      window.history.back(); // ili window.location.href = 'posts.html?...';
+      window.history.back();
     }
+
+    async function ucitajOcene() {
+      try {
+        const res = await fetch(`https://selfmarking-backend.onrender.com/api/ratings/list?cardName=${encodeURIComponent(name + " " + surname)}&cardSub=${encodeURIComponent(sub.replace(/-/g, ' '))}`);
+        const ratings = await res.json();
+
+        const ocenjivaciDiv = document.createElement("div");
+        const oceneDiv = document.createElement("div");
+
+        ratings.forEach(r => {
+          const ime = document.createElement("div");
+          ime.innerText = r.rater;
+          ocenjivaciDiv.appendChild(ime);
+
+          const ocena = document.createElement("div");
+          ocena.innerText = r.score;
+          oceneDiv.appendChild(ocena);
+        });
+
+        const container = document.querySelector(".modal-box");
+        container.appendChild(document.createElement("hr"));
+        const body = document.createElement("div");
+        body.style.display = "flex";
+        body.style.justifyContent = "space-between";
+        body.appendChild(ocenjivaciDiv);
+        body.appendChild(oceneDiv);
+        container.appendChild(body);
+
+      } catch (err) {
+        console.error("Greška pri učitavanju ocena:", err);
+      }
+    }
+
+    window.onload = ucitajOcene;
   </script>
 </body>
 </html>
