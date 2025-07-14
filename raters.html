@@ -40,6 +40,15 @@
       border-bottom: 2px solid #ccc;
       padding-bottom: 5px;
     }
+    .columns-body {
+      display: flex;
+      justify-content: space-between;
+      max-width: 600px;
+      margin: auto;
+    }
+    #ratersList, #scoresList {
+      width: 48%;
+    }
   </style>
 </head>
 <body>
@@ -51,6 +60,11 @@
       <div>Ocenjivači:</div>
       <div>Ocene:</div>
     </div>
+  </div>
+
+  <div class="columns-body">
+    <div id="ratersList"></div>
+    <div id="scoresList"></div>
   </div>
 
   <script>
@@ -68,14 +82,16 @@
 
     async function ucitajOcene() {
       try {
-        const cardName = document.getElementById("naslov").innerText.split(" – ")[0];
+        const cardName = `${name} ${surname}`;
         const cardSub = sub.replace(/-/g, ' ');
 
         const res = await fetch(`https://selfmarking-backend.onrender.com/api/ratings/list?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`);
         const ratings = await res.json();
 
-        const ocenjivaciDiv = document.createElement("div");
-        const oceneDiv = document.createElement("div");
+        const ocenjivaciDiv = document.getElementById("ratersList");
+        const oceneDiv = document.getElementById("scoresList");
+        ocenjivaciDiv.innerHTML = '';
+        oceneDiv.innerHTML = '';
 
         ratings.forEach(r => {
           const ime = document.createElement("div");
@@ -86,15 +102,6 @@
           ocena.innerText = r.score;
           oceneDiv.appendChild(ocena);
         });
-
-        const container = document.querySelector(".modal-box");
-        container.appendChild(document.createElement("hr"));
-        const body = document.createElement("div");
-        body.style.display = "flex";
-        body.style.justifyContent = "space-between";
-        body.appendChild(ocenjivaciDiv);
-        body.appendChild(oceneDiv);
-        container.appendChild(body);
 
       } catch (err) {
         console.error("Greška pri učitavanju ocena:", err);
