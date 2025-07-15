@@ -86,6 +86,16 @@
       justify-content: flex-end;
       margin-bottom: 10px;
     }
+    .star-rating {
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+      gap: 1px;
+    }
+    .star-rating svg {
+      width: 20px;
+      height: 20px;
+    }
     #averageScore {
       width: 90px;
       height: 30px;
@@ -114,6 +124,7 @@
 
     <div class="rating-box">
       <div class="average-score-box">
+        <div class="star-rating" id="starRating"></div>
         <div id="averageScore">–</div>
       </div>
       <div class="rating-buttons">
@@ -187,6 +198,7 @@
           const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
           const prosek = broj > 0 ? (zbir / broj).toFixed(2) : "–";
           document.getElementById("averageScore").innerText = prosek;
+          updateStarRating(parseFloat(prosek));
         })
         .catch(err => {
           console.error("Greška pri učitavanju broja ocenjivača:", err);
@@ -277,6 +289,52 @@
       }
     }
     window.onload = loadPosts;
+    function updateStarRating(score) {
+      const starContainer = document.getElementById("starRating");
+      if (!starContainer) return;
+
+      starContainer.innerHTML = "";
+
+      for (let i = 1; i <= 10; i++) {
+        let fill = 0;
+        if (i <= Math.floor(score)) {
+          fill = 1;
+        } else if (i - score < 1) {
+          fill = score % 1;
+        }
+
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+        // kontura zvezde
+        path.setAttribute("d", "M12 2l3 7h7l-5.7 4.1L18.6 21 12 16.8 5.4 21l2.3-7.9L2 9h7z");
+        path.setAttribute("fill", "white");
+        path.setAttribute("stroke", "red");
+        path.setAttribute("stroke-width", "1");
+
+        svg.appendChild(path);
+        starContainer.appendChild(svg);
+
+        if (fill > 0) {
+          const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          fillRect.setAttribute("x", "0");
+          fillRect.setAttribute("y", "0");
+          fillRect.setAttribute("width", `${24 * fill}`);
+          fillRect.setAttribute("height", "24");
+          fillRect.setAttribute("fill", "red");
+          fillRect.setAttribute("mask", "url(#starMask" + i + ")");
+
+          const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
+          mask.setAttribute("id", "starMask" + i);
+          const maskPath = path.cloneNode();
+          maskPath.setAttribute("fill", "white");
+          mask.appendChild(maskPath);
+          svg.appendChild(mask);
+          svg.appendChild(fillRect);
+        }
+      }
+    }
   </script>
 </body>
 </html>
