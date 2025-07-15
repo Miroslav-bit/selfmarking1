@@ -147,6 +147,7 @@
         ${format(sub)}
       `;
 
+      // Učitavanje brojčanika ocenjivača
       fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(data.name + ' ' + data.surname)}&cardSub=${encodeURIComponent(format(sub))}`)
         .then(res => res.json())
         .then(raters => {
@@ -162,13 +163,14 @@
             <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
             <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
           `;
-        }); 
+        });
 
-href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
-      `;
       document.querySelector(".rate").innerHTML = `
         <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
         <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&user=${ownerId}">☆ Ocenite</a>
+      `;
+
+href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&user=${ownerId}">☆ Ocenite</a>
       `;
     });
 
