@@ -80,6 +80,29 @@
     .rate a:hover {
       background-color: #e0f0ff;
     }
+    .average-score-box {
+      position: relative;
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+    #averageScore {
+      width: 90px;
+      height: 30px;
+      background-color: white;
+      border: 3px solid red;
+      clip-path: polygon(
+        50% 0%, 60% 35%, 100% 35%, 68% 60%,
+        80% 100%, 50% 75%, 20% 100%, 32% 60%,
+        0% 35%, 40% 35%
+      );
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: black;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -88,6 +111,10 @@
 
     <div class="breadcrumb" id="breadcrumb">Lična vrednost ></div>
     <h2 id="tema-naslov">Tema</h2>
+
+    <div class="average-score-box">
+      <div id="averageScore">–</div>
+    </div>
 
     <div class="rating-box">
       <div class="rating-buttons">
@@ -156,6 +183,11 @@
             <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
             <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači (${broj})</a>
           `;
+
+          // Izračunavanje prosečne ocene
+          const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
+          const prosek = broj > 0 ? (zbir / broj).toFixed(1) : "–";
+          document.getElementById("averageScore").innerText = prosek;
         })
         .catch(err => {
           console.error("Greška pri učitavanju broja ocenjivača:", err);
@@ -163,6 +195,7 @@
             <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
             <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
           `;
+          document.getElementById("averageScore").innerText = "–";
         });
 
       document.querySelector(".rate").innerHTML = `
