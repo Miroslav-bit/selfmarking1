@@ -147,9 +147,24 @@
         ${format(sub)}
       `;
 
-      document.querySelector(".raters").innerHTML = `
-        <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-        <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
+      fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(data.name + ' ' + data.surname)}&cardSub=${encodeURIComponent(format(sub))}`)
+        .then(res => res.json())
+        .then(raters => {
+          const broj = raters.length;
+          document.querySelector(".raters").innerHTML = `
+            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
+            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači (${broj})</a>
+          `;
+        })
+        .catch(err => {
+          console.error("Greška pri učitavanju broja ocenjivača:", err);
+          document.querySelector(".raters").innerHTML = `
+            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
+            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
+          `;
+        }); 
+
+href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
       `;
       document.querySelector(".rate").innerHTML = `
         <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
