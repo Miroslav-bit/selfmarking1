@@ -239,6 +239,9 @@
       .then(res => res.json())
       .then(res => {
         console.log("Upisano u bazu:", res);
+
+        // Redirekcija nazad na posts.html sa istim parametrima
+        window.location.href = `posts.html?main=${params.get("main")}&sub=${params.get("sub")}&user=${params.get("user")}`;
       })
       .catch(err => {
         console.error("Greška pri upisu ocene u bazu:", err);
