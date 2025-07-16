@@ -35,6 +35,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
       localStorage.setItem("userId", payload.id);
       localStorage.setItem("userIme", name);
       localStorage.setItem("userAvatar", avatarUrl);
+      localStorage.setItem("userPrezime", surname);
 
       poruka.innerText = "Uspešna registracija!";
       poruka.style.color = "green";
