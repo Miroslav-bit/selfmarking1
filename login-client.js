@@ -22,6 +22,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     if (res.ok) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("userIme", data.user.name);
+      localStorage.setItem("userPrezime", data.user.surname);
       localStorage.setItem("userAvatar", data.user.avatarUrl);
       localStorage.setItem("userId", data.user.id);
 
