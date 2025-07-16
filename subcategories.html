@@ -165,6 +165,41 @@
 
         div.appendChild(topRow);
         div.appendChild(bottomRow);
+
+        const raterButtonWrapper = document.createElement("div");
+        raterButtonWrapper.style.marginTop = "10px";
+        raterButtonWrapper.style.textAlign = "left";
+
+        const raterButton = document.createElement("button");
+        raterButton.style.padding = "6px 12px";
+        raterButton.style.border = "none";
+        raterButton.style.borderRadius = "6px";
+        raterButton.style.backgroundColor = "#3498db";
+        raterButton.style.color = "white";
+        raterButton.style.cursor = "pointer";
+
+        raterButton.addEventListener("click", () => {
+          const fullName = `${data.name || ''}`.trim();
+          const surname = `${data.surname || ''}`.trim();
+          const subName = sub.name.trim();
+          window.location.href = `raters.html?name=${encodeURIComponent(fullName)}&surname=${encodeURIComponent(surname)}&sub=${encodeURIComponent(subName)}`;
+        });
+
+        raterButton.innerText = "Ocenjivači (učitavanje...)";
+        raterButtonWrapper.appendChild(raterButton);
+        div.appendChild(raterButtonWrapper);
+
+        // Dovuci broj ocenjivača i ažuriraj dugme
+        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(data.name + " " + data.surname)}&cardSub=${encodeURIComponent(sub.name)}`)
+          .then(res => res.json())
+          .then(raters => {
+            raterButton.innerText = `Ocenjivači (${raters.length})`;
+          })
+          .catch(err => {
+            console.error("Greška pri dohvatu broja ocenjivača:", err);
+            raterButton.innerText = "Ocenjivači (?)";
+          });
+
         container.appendChild(div);
 
         // Dohvati prosečnu ocenu iz backenda
