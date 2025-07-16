@@ -194,8 +194,9 @@
         rateButtonWrapper.style.marginTop = "8px";
         rateButtonWrapper.style.textAlign = "right";
 
+        const returnUrl = encodeURIComponent(window.location.href);
         const rateButton = document.createElement("a");
-        rateButton.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}`;
+        rateButton.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}&return=${returnUrl}`;
         rateButton.style.color = "#6b4dc4";
         rateButton.style.textDecoration = "none";
         rateButton.style.fontWeight = "bold";
