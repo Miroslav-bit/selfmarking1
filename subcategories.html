@@ -124,14 +124,15 @@
               <div>
                 <strong>${sub.name}</strong>
               </div>
-              <div style="width: 100%; text-align: center; margin-top: 5px;">
-                <div style="font-weight: bold; font-size: 14px;">Srednja ocena</div>
-              </div>
             </div>
-            <div class="subcategory-button">
+            <div class="subcategory-button" style="margin-top: 10px;">
               <button onclick="goToPosts('${subSlug}')">Objave</button>
             </div>
-          `;
+            <div style="text-align: center; margin-top: 10px;">
+              <div style="font-weight: bold; font-size: 14px;">Srednja ocena</div>
+            </div>
+          </div>
+        `;
 
         container.appendChild(div);
       });
