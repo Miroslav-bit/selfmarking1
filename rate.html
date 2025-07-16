@@ -241,7 +241,12 @@
         console.log("Upisano u bazu:", res);
 
         // Redirekcija nazad na posts.html sa istim parametrima
-        window.location.href = `posts.html?main=${params.get("main")}&sub=${params.get("sub")}&user=${params.get("user")}`;
+        const returnUrl = params.get("return");
+        if (returnUrl) {
+          window.location.href = decodeURIComponent(returnUrl);
+        } else {
+          window.location.href = `posts.html?main=${params.get("main")}&sub=${params.get("sub")}&user=${params.get("user")}`;
+}
       })
       .catch(err => {
         console.error("Greška pri upisu ocene u bazu:", err);
