@@ -135,8 +135,8 @@
 
         const bottomRow = document.createElement("div");
         bottomRow.style.display = "flex";
-        bottomRow.style.justifyContent = "space-between";
-        bottomRow.style.alignItems = "center";
+        bottomRow.style.flexDirection = "column";
+        bottomRow.style.alignItems = "flex-start";
         bottomRow.style.marginTop = "10px";
         bottomRow.style.width = "100%";
 
@@ -147,6 +147,18 @@
 
         const starsWrapper = document.createElement("div");
         starsWrapper.className = "stars-placeholder";
+        starsWrapper.style.display = "flex";
+        starsWrapper.style.alignItems = "center";
+        starsWrapper.style.gap = "10px";
+
+        // Ovde dolazi brojčana vrednost
+        const scoreText = document.createElement("span");
+        scoreText.className = "score-text";
+        scoreText.style.fontWeight = "bold";
+        scoreText.style.fontSize = "14px";
+        scoreText.style.color = "black";
+
+        starsWrapper.appendChild(scoreText);
 
         bottomRow.appendChild(label);
         bottomRow.appendChild(starsWrapper);
@@ -167,6 +179,7 @@
             const prosek = broj > 0 ? zbir / broj : 0;
             const starRating = createStarRating(prosek);
             starsWrapper.appendChild(starRating);
+            scoreText.innerText = prosek.toFixed(2);
           })
           .catch(err => {
             console.error("Greška pri dohvatu ocene:", err);
