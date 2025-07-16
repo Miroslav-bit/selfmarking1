@@ -118,17 +118,20 @@
         div.className = "subcategory-block";
 
         div.innerHTML = `
-          <div class="subcategory-info">
-            <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
-            <div>
-              <strong>${sub.name}</strong><br>
-              <span class="subcategory-rating">(ocena uskoro...)</span>
+          <div style="flex: 1;">
+            <div class="subcategory-info">
+              <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
+              <div>
+                <strong>${sub.name}</strong>
+              </div>
+              <div style="width: 100%; text-align: center; margin-top: 5px;">
+                <div style="font-weight: bold; font-size: 14px;">Srednja ocena</div>
+              </div>
             </div>
-          </div>
-          <div class="subcategory-button">
-            <button onclick="goToPosts('${subSlug}')">Objave</button>
-          </div>
-        `;
+            <div class="subcategory-button">
+              <button onclick="goToPosts('${subSlug}')">Objave</button>
+            </div>
+          `;
 
         container.appendChild(div);
       });
