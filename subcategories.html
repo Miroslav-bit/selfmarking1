@@ -118,19 +118,17 @@
         div.className = "subcategory-block";
 
         div.innerHTML = `
-          <div style="flex: 1;">
-            <div class="subcategory-info">
+          <div class="subcategory-info" style="justify-content: space-between; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 15px;">
               <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
-              <div>
-                <strong>${sub.name}</strong>
-              </div>
+              <strong>${sub.name}</strong>
             </div>
-            <div class="subcategory-button" style="margin-top: 10px;">
+            <div class="subcategory-button">
               <button onclick="goToPosts('${subSlug}')">Objave</button>
             </div>
-            <div style="text-align: center; margin-top: 10px;">
-              <div style="font-weight: bold; font-size: 14px;">Srednja ocena</div>
-            </div>
+          </div>
+          <div style="width: 100%; text-align: center; margin-top: 12px;">
+            <div style="font-weight: bold; font-size: 14px;">Srednja ocena</div>
           </div>
         `;
 
