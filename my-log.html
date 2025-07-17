@@ -56,13 +56,24 @@
   </div>
 
   <script>
-    const ime = localStorage.getItem("userIme") || "Nepoznat korisnik";
-    const prezime = localStorage.getItem("userPrezime") || "";
-    const punoIme = `${ime} ${prezime}`.trim();
+    const token = localStorage.getItem("token");
 
-    document.getElementById("ocenjivac-ime").innerText = punoIme;
+    if (!token) {
+      alert("Niste prijavljeni.");
+      window.location.href = "login.html";
+    }
 
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/evaluated?rater=${encodeURIComponent(punoIme)}`)
+    fetch("https://selfmarking-backend.onrender.com/api/user/me", {
+      headers: { "Authorization": "Bearer " + token }
+    })
+      .then(res => res.json())
+      .then(user => {
+        const punoIme = `${user.name} ${user.surname}`;
+        document.getElementById("ocenjivac-ime").innerText = punoIme;
+
+        // Sada pozivamo backend da nam vrati sve koje je ovaj korisnik ocenio
+        return fetch(`https://selfmarking-backend.onrender.com/api/ratings/evaluated?rater=${encodeURIComponent(punoIme)}`);
+      })
       .then(res => res.json())
       .then(ocenjeni => {
         const container = document.getElementById("evaluatedList");
@@ -97,9 +108,9 @@
         });
       })
       .catch(err => {
-        console.error("Greška pri učitavanju imenika:", err);
-        document.getElementById("evaluatedList").innerHTML = "<p>Greška pri učitavanju podataka.</p>";
+        console.error("Greška pri učitavanju podataka:", err);
+        document.getElementById("evaluatedList").innerHTML = "<p>Greška pri učitavanju dnevnika.</p>";
       });
-  </script>
+  </script> 
 </body>
 </html>
