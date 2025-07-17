@@ -58,7 +58,48 @@
   <script>
     const ime = localStorage.getItem("userIme") || "Nepoznat korisnik";
     const prezime = localStorage.getItem("userPrezime") || "";
-    document.getElementById("ocenjivac-ime").innerText = `${ime} ${prezime}`.trim();
+    const punoIme = `${ime} ${prezime}`.trim();
+
+    document.getElementById("ocenjivac-ime").innerText = punoIme;
+
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/evaluated?rater=${encodeURIComponent(punoIme)}`)
+      .then(res => res.json())
+      .then(ocenjeni => {
+        const container = document.getElementById("evaluatedList");
+        container.innerHTML = "";
+
+        if (!Array.isArray(ocenjeni) || ocenjeni.length === 0) {
+          container.innerHTML = "<p>Još niste ocenili nijednog člana.</p>";
+          return;
+        }
+
+        ocenjeni.forEach(imePrezime => {
+          const red = document.createElement("div");
+          red.style.display = "flex";
+          red.style.justifyContent = "space-between";
+          red.style.marginBottom = "8px";
+          red.style.alignItems = "center";
+
+          const imeDiv = document.createElement("div");
+          imeDiv.innerText = imePrezime;
+
+          const dugme = document.createElement("a");
+          dugme.innerText = "Ocene >>";
+          const [ime, prezime] = imePrezime.split(" ");
+          dugme.href = `raters.html?name=${encodeURIComponent(ime)}&surname=${encodeURIComponent(prezime || "")}&sub=*`;
+          dugme.style.color = "#007bff";
+          dugme.style.fontWeight = "bold";
+          dugme.style.textDecoration = "none";
+
+          red.appendChild(imeDiv);
+          red.appendChild(dugme);
+          container.appendChild(red);
+        });
+      })
+      .catch(err => {
+        console.error("Greška pri učitavanju imenika:", err);
+        document.getElementById("evaluatedList").innerHTML = "<p>Greška pri učitavanju podataka.</p>";
+      });
   </script>
 </body>
 </html>
