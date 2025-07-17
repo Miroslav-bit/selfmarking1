@@ -84,7 +84,43 @@
     const punoIme = `${ime} ${prezime}`.trim();
     document.getElementById("ime-prezime").innerText = punoIme;
 
-    // Ovde ćemo u sledećoj etapi učitavati stvarne ocene iz baze
+    const params = new URLSearchParams(window.location.search);
+    const ime = params.get("name") || "";
+    const prezime = params.get("surname") || "";
+    const ratedName = `${ime} ${prezime}`.trim();
+    document.getElementById("ime-prezime").innerText = ratedName;
+
+    // Ime trenutno ulogovanog korisnika (pretpostavimo da je sačuvan u localStorage)
+    const loggedUser = localStorage.getItem("userFullName");
+
+    fetch(`/api/ratings/dossier?raterName=${loggedUser}&ratedName=${ratedName}`)
+      .then(res => res.json())
+      .then(data => {
+        const tabela = document.getElementById("tabela-ocene");
+        data.forEach(entry => {
+          const row = document.createElement("tr");
+
+          const kategorijaCell = document.createElement("td");
+          kategorijaCell.textContent = entry.subcategory || "-";
+
+          const ocenaCell = document.createElement("td");
+          ocenaCell.textContent = entry.rating || "-";
+
+          const parametriCell = document.createElement("td");
+          parametriCell.textContent = entry.timestamp
+            ? new Date(entry.timestamp).toLocaleString()
+            : "-";
+
+          row.appendChild(kategorijaCell);
+          row.appendChild(ocenaCell);
+          row.appendChild(parametriCell);
+          tabela.appendChild(row);
+        });
+      })
+      .catch(err => {
+        console.error("Greška:", err);
+      });
+
   </script>
 </body>
 </html>
