@@ -222,6 +222,8 @@
       localStorage.setItem(key, selektovanaOcena);
       alert("Vaša ocena je sačuvana.");
 
+      const raterId = localStorage.getItem("userId");
+
       // Nakon čuvanja u localStorage, sačuvaj i u bazu
       fetch("https://selfmarking-backend.onrender.com/api/ratings/save", {
         method: "POST",
