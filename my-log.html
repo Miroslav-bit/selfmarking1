@@ -62,9 +62,7 @@
 
     document.getElementById("ocenjivac-ime").innerText = punoIme;
 
-    const raterId = localStorage.getItem("userId");
-
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/evaluated?raterId=${raterId}`)
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/evaluated?rater=${encodeURIComponent(punoIme)}`)
       .then(res => res.json())
       .then(ocenjeni => {
         const container = document.getElementById("evaluatedList");
