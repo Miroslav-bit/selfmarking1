@@ -97,7 +97,7 @@
           const dugme = document.createElement("a");
           dugme.innerText = "Ocene >>";
           const [ime, prezime] = imePrezime.split(" ");
-          dugme.href = `raters.html?name=${encodeURIComponent(ime)}&surname=${encodeURIComponent(prezime || "")}&sub=*`;
+          dugme.href = `dossier.html?name=${encodeURIComponent(ime)}&surname=${encodeURIComponent(prezime || "")}`;
           dugme.style.color = "#007bff";
           dugme.style.fontWeight = "bold";
           dugme.style.textDecoration = "none";
