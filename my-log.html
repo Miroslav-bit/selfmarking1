@@ -63,7 +63,7 @@
     document.getElementById("ocenjivac-ime").innerText = punoIme;
 
     // Učitavanje imenika
-    fetch(`/api/log/rater/${encodeURIComponent(punoIme)}`)
+    fetch(`/api/ratings/log/rater/${encodeURIComponent(punoIme)}`)
       .then(res => res.json())
       .then(data => {
         const lista = document.getElementById("evaluatedList");
