@@ -240,6 +240,21 @@
       .then(res => {
         console.log("Upisano u bazu:", res);
 
+        // Snimanje evaluiranog člana u dnevnik ocenjivača
+        const raterName = localStorage.getItem("userIme") + " " + (localStorage.getItem("userPrezime") || "");
+        const evaluatedName = `${name} ${surname}`;
+
+        fetch("/api/log/add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            rater: raterName.trim(),
+            evaluated: evaluatedName.trim()
+          })
+        });
+
         // Redirekcija nazad na posts.html sa istim parametrima
         const returnUrl = params.get("return");
         if (returnUrl) {
