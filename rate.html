@@ -244,7 +244,7 @@
         const raterName = localStorage.getItem("userIme") + " " + (localStorage.getItem("userPrezime") || "");
         const evaluatedName = `${name} ${surname}`;
 
-        fetch("/api/log/add", {
+        fetch("/api/ratings/log/add", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
