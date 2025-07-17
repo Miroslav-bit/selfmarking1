@@ -80,13 +80,6 @@
     const params = new URLSearchParams(window.location.search);
     const ime = params.get("name") || "";
     const prezime = params.get("surname") || "";
-
-    const punoIme = `${ime} ${prezime}`.trim();
-    document.getElementById("ime-prezime").innerText = punoIme;
-
-    const params = new URLSearchParams(window.location.search);
-    const ime = params.get("name") || "";
-    const prezime = params.get("surname") || "";
     const ratedName = `${ime} ${prezime}`.trim();
     document.getElementById("ime-prezime").innerText = ratedName;
 
