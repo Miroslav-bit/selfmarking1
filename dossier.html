@@ -83,37 +83,51 @@
     const ratedName = `${ime} ${prezime}`.trim();
     document.getElementById("ime-prezime").innerText = ratedName;
 
-    // Ime trenutno ulogovanog korisnika (pretpostavimo da je sačuvan u localStorage)
     const loggedUser = localStorage.getItem("userFullName");
 
-    fetch(`/api/ratings/dossier?raterName=${loggedUser}&ratedName=${ratedName}`)
-      .then(res => res.json())
-      .then(data => {
-        const tabela = document.getElementById("tabela-ocene");
-        data.forEach(entry => {
-          const row = document.createElement("tr");
+    if (!loggedUser || !ratedName) {
+      console.error("Nedostaju podaci za pretragu:", { loggedUser, ratedName });
+    } else {
+      fetch(`/api/ratings/dossier?raterName=${loggedUser}&ratedName=${ratedName}`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error("Greška u zahtevu: " + res.status);
+          }
+          return res.json();
+        })
+        .then(data => {
+          const tabela = document.getElementById("tabela-ocene");
+          if (data.length === 0) {
+            tabela.innerHTML = '<tr><td colspan="3">Nema podataka za prikaz.</td></tr>';
+            return;
+          }
 
-          const kategorijaCell = document.createElement("td");
-          kategorijaCell.textContent = entry.subcategory || "-";
+          data.forEach(entry => {
+            const row = document.createElement("tr");
 
-          const ocenaCell = document.createElement("td");
-          ocenaCell.textContent = entry.rating || "-";
+            const kategorijaCell = document.createElement("td");
+            kategorijaCell.textContent = entry.cardSub || "-";
 
-          const parametriCell = document.createElement("td");
-          parametriCell.textContent = entry.timestamp
-            ? new Date(entry.timestamp).toLocaleString()
-            : "-";
+            const ocenaCell = document.createElement("td");
+            ocenaCell.textContent = entry.score || "-";
 
-          row.appendChild(kategorijaCell);
-          row.appendChild(ocenaCell);
-          row.appendChild(parametriCell);
-          tabela.appendChild(row);
+            const parametriCell = document.createElement("td");
+            parametriCell.textContent = entry.timestamp
+              ? new Date(entry.timestamp).toLocaleString()
+              : "-";
+
+            row.appendChild(kategorijaCell);
+            row.appendChild(ocenaCell);
+            row.appendChild(parametriCell);
+            tabela.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error("Greška:", err);
+          const tabela = document.getElementById("tabela-ocene");
+          tabela.innerHTML = '<tr><td colspan="3">Greška pri učitavanju podataka.</td></tr>';
         });
-      })
-      .catch(err => {
-        console.error("Greška:", err);
-      });
-
+    }
   </script>
 </body>
 </html>
