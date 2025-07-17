@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dosije ocenjenog člana</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .breadcrumb {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .main-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .sub-title {
+      font-size: 18px;
+      margin-top: 30px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    .ocenjivanje-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .ocenjivanje-tabela th,
+    .ocenjivanje-tabela td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .ocenjivanje-tabela th {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="my-log.html">Home</a> &gt; Ocenjeni član
+    </div>
+
+    <div class="main-title">Ocenjeni član: <span id="ime-prezime">Učitavanje...</span></div>
+
+    <table class="ocenjivanje-tabela">
+      <thead>
+        <tr>
+          <th>Kategorije:</th>
+          <th>Moje ocene:</th>
+          <th>Parametri:</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-ocene">
+        <!-- Dinamika dolazi u sledećim fazama -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ime = params.get("name") || "";
+    const prezime = params.get("surname") || "";
+
+    const punoIme = `${ime} ${prezime}`.trim();
+    document.getElementById("ime-prezime").innerText = punoIme;
+
+    // Ovde ćemo u sledećoj etapi učitavati stvarne ocene iz baze
+  </script>
+</body>
+</html>
