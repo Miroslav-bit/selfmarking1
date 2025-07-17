@@ -84,6 +84,10 @@
     document.getElementById("ime-prezime").innerText = ratedName;
 
     const loggedUser = localStorage.getItem("userFullName");
+    if (!loggedUser) {
+      alert("Greška: Nije moguće utvrditi ime ocenjivača (ulogovani korisnik).");
+      throw new Error("userFullName nije definisan u localStorage.");
+    }
 
     if (!loggedUser || !ratedName) {
       console.error("Nedostaju podaci za pretragu:", { loggedUser, ratedName });
