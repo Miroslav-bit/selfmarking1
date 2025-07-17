@@ -56,41 +56,9 @@
   </div>
 
   <script>
-    const ime = localStorage.getItem("userIme") || "";
+    const ime = localStorage.getItem("userIme") || "Nepoznat korisnik";
     const prezime = localStorage.getItem("userPrezime") || "";
-    const punoIme = `${ime} ${prezime}`.trim();
-
-    document.getElementById("ocenjivac-ime").innerText = punoIme;
-
-    // Učitavanje imenika
-    fetch(`/api/ratings/log/rater/${encodeURIComponent(punoIme)}`)
-      .then(res => res.json())
-      .then(data => {
-        const lista = document.getElementById("evaluatedList");
-        if (data.evaluated.length === 0) {
-          lista.innerText = "Još uvek niste ocenili nijednog člana.";
-          return;
-        }
-
-        data.evaluated.forEach(imePrezime => {
-          const div = document.createElement("div");
-          div.style.marginBottom = "10px";
-
-          const imeSpan = document.createElement("span");
-          imeSpan.innerText = imePrezime + " ";
-
-          const dugme = document.createElement("button");
-          dugme.innerText = "Ocene";
-          dugme.className = "btn";
-          dugme.onclick = () => {
-            alert(`Otvaram dosije za: ${imePrezime}`);
-          };
-
-          div.appendChild(imeSpan);
-          div.appendChild(dugme);
-          lista.appendChild(div);
-        });
-      });
+    document.getElementById("ocenjivac-ime").innerText = `${ime} ${prezime}`.trim();
   </script>
 </body>
 </html>
