@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="sr">
+<head>
+<meta charset="utf-8"/>
+<title>Dosije ocenjenog člana</title>
+<link href="style.css" rel="stylesheet"/>
+<style>
+    .breadcrumb {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+    .main-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .sub-title {
+      font-size: 18px;
+      margin-top: 30px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .ocenjivanje-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .ocenjivanje-tabela th,
+    .ocenjivanje-tabela td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    .ocenjivanje-tabela th {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<div class="breadcrumb">
+<a href="index.html">Home</a> &gt;
+      <a href="my-log.html">Moj dnevnik ocenjivanja</a> &gt;
+      Ocenjeni član
+    </div>
+<div class="main-title">Ocenjeni član: <span id="ime-prezime">Učitavanje...</span></div>
+<table class="ocenjivanje-tabela">
+<thead>
+<tr>
+<th>Kategorije:</th>
+<th>Moje ocene:</th>
+<th>Parametri:</th>
+</tr>
+</thead>
+<tbody id="tabela-ocene">
+<!-- Dinamika dolazi u sledećim fazama -->
+</tbody>
+</table>
+</div>
+<script>
+const BASE_URL = "https://selfmarking-backend.onrender.com";
+const params = new URLSearchParams(window.location.search);
+const ime = params.get("name") || "";
+const prezime = params.get("surname") || "";
+const ratedName = (ime + " " + prezime).trim();
+document.getElementById("ime-prezime").innerText = ratedName;
+
+const subToMainCategory = {
+  "Lice": "Izgled",
+  "Stas": "Izgled",
+  "OpšTe stanje": "Zdravlje",
+  "Kondicija": "Zdravlje",
+  "Snaga": "FizičKa snaga",
+  "IzdržLjivost": "FizičKa snaga"
+};
+
+const token = localStorage.getItem("token");
+if (!token) {
+  alert("Niste prijavljeni.");
+  window.location.href = "login.html";
+} else {
+  fetch(BASE_URL + "/api/user/me", {
+    headers: { "Authorization": "Bearer " + token }
+  })
+  .then(res => res.json())
+  .then(user => {
+    const loggedUser = (user.name + " " + user.surname).trim();
+    localStorage.setItem("userFullName", loggedUser);
+    ucitajOcene(loggedUser, ratedName);
+  })
+  .catch(err => {
+    console.error("Greška pri autentikaciji:", err);
+    alert("Greška pri učitavanju korisnika.");
+  });
+}
+
+function ucitajOcene(loggedUser, ratedName) {
+  fetch(BASE_URL + "/api/ratings/dossier?raterName=" + encodeURIComponent(loggedUser) + "&ratedName=" + encodeURIComponent(ratedName))
+    .then(res => {
+      if (!res.ok) throw new Error("Greška u zahtevu: " + res.status);
+      return res.json();
+    })
+    .then(data => {
+      const tabela = document.getElementById("tabela-ocene");
+      if (!data || data.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="3">Nema podataka za prikaz.</td></tr>';
+        return;
+      }
+
+      const grouped = {};
+      data.forEach(entry => {
+        const sub = entry.cardSub || "-";
+        const main = subToMainCategory[sub] || "Nepoznata kategorija";
+        if (!grouped[main]) grouped[main] = [];
+        grouped[main].push(entry);
+      });
+
+      Object.entries(grouped).forEach(([main, entries]) => {
+        const mainRow = document.createElement("tr");
+
+        const mainCell = document.createElement("td");
+        mainCell.textContent = main;
+        mainCell.style.fontWeight = "bold";
+        mainCell.style.fontSize = "16px";
+
+        const emptyScoreCell = document.createElement("td");
+        emptyScoreCell.textContent = "";
+
+        const paramCell = document.createElement("td");
+        paramCell.textContent = "a =  ; b=  ; x =  ; v =  ; w =  ; y =  ; z = ";
+        paramCell.style.fontSize = "12px";
+
+        mainRow.appendChild(mainCell);
+        mainRow.appendChild(emptyScoreCell);
+        mainRow.appendChild(paramCell);
+
+        tabela.appendChild(mainRow);
+
+        entries.forEach(e => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${e.cardSub || "-"}</td>
+            <td>${e.score ?? "-"}</td>
+            <td>${e.timestamp ? new Date(e.timestamp).toLocaleString() : "-"}</td>
+          `;
+          tabela.appendChild(row);
+        });
+      });
+    })
+    .catch(err => {
+      console.error("Greška:", err);
+      document.getElementById("tabela-ocene").innerHTML = '<tr><td colspan="3">Greška pri učitavanju podataka.</td></tr>';
+    });
+}
+</script>
+</body>
+</html>
