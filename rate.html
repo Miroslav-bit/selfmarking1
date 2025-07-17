@@ -143,93 +143,115 @@
       Ocenjivač: <span id="ocenjivac-ime">Učitavanje...</span>
     </div>
   </div>
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const name = params.get('name') || '';
-  const surname = params.get('surname') || '';
-  const sub = params.get('sub') || '';
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || '';
+    const surname = params.get('surname') || '';
+    const sub = params.get('sub') || '';
 
-  const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  const naslov = `${name} ${surname} – ${format(sub)}`;
-  document.getElementById("naslov").innerText = naslov;
+    const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const naslov = `${name} ${surname} – ${format(sub)}`;
+    document.getElementById("naslov").innerText = naslov;
 
-  const token = localStorage.getItem("token");
-  const raterName = localStorage.getItem("userIme") + " " + (localStorage.getItem("userPrezime") || "");
-  document.getElementById("ocenjivac-ime").innerText = raterName;
+    const zvezde = document.querySelectorAll(".star");
 
-  const zvezde = document.querySelectorAll(".star");
-  let selektovanaOcena = null;
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("https://selfmarking-backend.onrender.com/api/user/me", {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const ime = data.name || '';
+        const prezime = data.surname || '';
+        document.getElementById("ocenjivac-ime").innerText = `${ime} ${prezime}`;
 
-  zvezde.forEach((zvezda, index) => {
-    zvezda.style.cursor = "pointer";
-    zvezda.addEventListener("click", () => {
-      selektovanaOcena = index;
+        const ocenjivacFull = `${ime} ${prezime}`;
+        const key = `ocena_${ocenjivacFull}_${naslov}`;
+        const sacuvanaOcena = localStorage.getItem(key);
 
-      zvezde.forEach((z, i) => {
-        if (i <= index) {
-          z.textContent = "★";
-          z.style.color = "crimson";
-        } else {
-          z.textContent = "☆";
-          z.style.color = "gray";
+        if (sacuvanaOcena !== null) {
+          const index = parseInt(sacuvanaOcena);
+          selektovanaOcena = index;
+          zvezde.forEach((z, i) => {
+            if (i <= index) {
+              z.textContent = "★";
+              z.style.color = "crimson";
+            } else {
+              z.textContent = "☆";
+              z.style.color = "gray";
+            }
+          });
         }
+
+      })
+      .catch(err => {
+        console.error("Greška pri učitavanju ocenjivača:", err);
+        document.getElementById("ocenjivac-ime").innerText = "Nepoznat";
+      });
+    } else {
+      document.getElementById("ocenjivac-ime").innerText = "Nepoznat";
+    }
+
+    // Dodaj interaktivnost klikabilnim zvezdama
+    let selektovanaOcena = null;
+
+    zvezde.forEach((zvezda, index) => {
+      zvezda.style.cursor = "pointer";
+      zvezda.addEventListener("click", () => {
+        selektovanaOcena = index; // zapamti ocenu 0–10
+
+        zvezde.forEach((z, i) => {
+          if (i <= index) {
+            z.textContent = "★";
+            z.style.color = "crimson";
+          } else {
+            z.textContent = "☆";
+            z.style.color = "gray";
+          }
+        });
       });
     });
-  });
 
-  document.getElementById("sacuvaj-btn").addEventListener("click", async () => {
-    if (selektovanaOcena === null) return alert("Izaberite ocenu pre čuvanja.");
+    document.getElementById("sacuvaj-btn").addEventListener("click", () => {
+      if (selektovanaOcena === null) return alert("Izaberite ocenu pre čuvanja.");
 
-    const ocenjeni = `${name} ${surname}`;
-    const podkategorija = format(sub);
-    const ocenjivac = raterName.trim();
+      const ocenjivac = document.getElementById("ocenjivac-ime").innerText;
+      const kartica = naslov;
+      const key = `ocena_${ocenjivac}_${kartica}`;
+      localStorage.setItem(key, selektovanaOcena);
+      alert("Vaša ocena je sačuvana.");
 
-    try {
-      const ocenaRes = await fetch("https://selfmarking-backend.onrender.com/api/ratings/save", {
+      // Nakon čuvanja u localStorage, sačuvaj i u bazu
+      fetch("https://selfmarking-backend.onrender.com/api/ratings/save", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
         },
         body: JSON.stringify({
-          cardName: ocenjeni,
-          cardSub: podkategorija,
+          cardName: `${name} ${surname}`,
+          cardSub: format(sub),
           rater: ocenjivac,
           score: selektovanaOcena
         })
+      })
+      .then(res => res.json())
+      .then(res => {
+        console.log("Upisano u bazu:", res);
+
+        // Redirekcija nazad na posts.html sa istim parametrima
+        const returnUrl = params.get("return");
+        if (returnUrl) {
+          window.location.href = decodeURIComponent(returnUrl);
+        } else {
+          window.location.href = `posts.html?main=${params.get("main")}&sub=${params.get("sub")}&user=${params.get("user")}`;
+}
+      })
+      .catch(err => {
+        console.error("Greška pri upisu ocene u bazu:", err);
       });
-
-      if (!ocenaRes.ok) throw new Error("Greška prilikom čuvanja ocene.");
-      console.log("✅ Ocena uspešno upisana.");
-
-      const dnevnikRes = await fetch("https://selfmarking-backend.onrender.com/api/ratings/log/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          rater: ocenjivac,
-          evaluated: ocenjeni
-        })
-      });
-
-      if (!dnevnikRes.ok) throw new Error("Greška pri upisu u dnevnik.");
-      console.log("📝 Upisano u dnevnik ocenjivača.");
-
-      alert("Ocena je uspešno sačuvana.");
-
-      // Redirekcija nazad
-      const returnUrl = params.get("return");
-      if (returnUrl) {
-        window.location.href = decodeURIComponent(returnUrl);
-      } else {
-        window.location.href = `posts.html?main=${params.get("main")}&sub=${params.get("sub")}&user=${params.get("user")}`;
-      }
-
-    } catch (err) {
-      console.error("❌ Došlo je do greške:", err);
-      alert("Došlo je do greške prilikom čuvanja. Pokušajte ponovo.");
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
