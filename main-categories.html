@@ -198,7 +198,6 @@
             const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
             const broj = raters.length;
 
-            // Ako posmatrač NIJE već ocenio ovu kategoriju, pribavi njegovu indirektnu ocenu (z)
             const viewerAlreadyRated = raters.some(r => r.rater === viewerId);
 
             if (!viewerAlreadyRated && viewerId !== ownerId) {
@@ -219,12 +218,11 @@
                   starsWrapper.appendChild(stars);
                 });
             } else {
-              // Samo direktne ocene
               scoreText.innerText = broj > 0 ? (zbir / broj).toFixed(2) : "–";
               const stars = createStarRating(broj > 0 ? (zbir / broj) : 0);
               starsWrapper.appendChild(stars);
-             }
-           });
+            }
+          }) 
           .catch(err => {
             console.error("Greška pri dohvatu ocena:", err);
             ratersBtn.innerText = "Ocenjivači (?)";
