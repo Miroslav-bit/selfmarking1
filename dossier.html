@@ -142,9 +142,10 @@ function ucitajOcene(loggedUser, ratedName) {
         const countW = countY - countV;
         const sumB = countW * 5;
         const sumX = sumA + sumB;
+        const sumZ = sumX / countY;
 
         const paramCell = document.createElement("td");
-        paramCell.innerHTML = `a = ${sumA} ; b = ${sumB} ; x = ${sumX} ; v = ${countV} ; w = ${countY - countV} ; y = ${countY} ; z = `;
+        paramCell.innerHTML = `a = ${sumA} ; b = ${sumB} ; x = ${sumX} ; v = ${countV} ; w = ${countW} ; y = ${countY} ; z = ${sumZ}`;
 
         mainRow.appendChild(mainCell);
         mainRow.appendChild(emptyScoreCell);
@@ -171,4 +172,3 @@ function ucitajOcene(loggedUser, ratedName) {
 </script>
 </body>
 </html>
-
