@@ -137,9 +137,10 @@ function ucitajOcene(loggedUser, ratedName) {
         emptyScoreCell.textContent = "";
 
         const sumA = entries.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
+        const countV = entries.filter(e => typeof e.score === 'number').length;
+
         const paramCell = document.createElement("td");
-        paramCell.innerHTML = `a = ${sumA} ; b=  ; x =  ; v =  ; w =  ; y =  ; z = `;
-        paramCell.style.fontSize = "12px";
+        paramCell.innerHTML = `a = ${sumA} ; b=  ; x =  ; v = ${countV} ; w =  ; y =  ; z = `;
 
         mainRow.appendChild(mainCell);
         mainRow.appendChild(emptyScoreCell);
