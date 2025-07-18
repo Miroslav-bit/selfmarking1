@@ -163,26 +163,6 @@ function ucitajOcene(loggedUser, ratedName) {
 
         tabela.appendChild(mainRow);
 
-        const emptyScoreCell = document.createElement("td");
-        emptyScoreCell.textContent = "";
-
-        const sumA = entries.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
-        const countV = entries.filter(e => typeof e.score === 'number').length;
-        const countY = Object.entries(subToMainCategory).filter(([sub, cat]) => cat === main).length;
-        const countW = countY - countV;
-        const sumB = countW * 5;
-        const sumX = sumA + sumB;
-        const sumZ = sumX / countY;
-
-        const paramCell = document.createElement("td");
-        paramCell.innerHTML = `a = ${sumA} ; b = ${sumB} ; x = ${sumX} ; v = ${countV} ; w = ${countW} ; y = ${countY} ; z = ${sumZ}`;
-
-        mainRow.appendChild(mainCell);
-        mainRow.appendChild(emptyScoreCell);
-        mainRow.appendChild(paramCell);
-
-        tabela.appendChild(mainRow);
-
         entries.forEach(e => {
           const row = document.createElement("tr");
           row.innerHTML = `
