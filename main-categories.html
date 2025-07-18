@@ -77,27 +77,19 @@
     .then(res => res.json())
     .then(data => {
       const block = document.getElementById("userIdBlock");
+      const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
       block.innerHTML = `
         <div class="user-block">
           <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
           <div>
-            <strong>${data.name || ''} ${data.surname || ''}</strong><br>
+            <strong>${fullName}</strong><br>
             Živi u: ${data.city || 'Nepoznato'}<br>
           </div>
         </div>
       `;
-      const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
-      document.getElementById("breadcrumb").innerHTML = `
-        <a href="index.html">Home</a> &gt; ${fullName}
-      `;
-      document.getElementById("maincat-title").innerText = `${fullName}`;
-    });
+      document.getElementById("breadcrumb").innerHTML = `<a href="index.html">Home</a> &gt; ${fullName}`;
+      document.getElementById("maincat-title").innerText = fullName;
 
-    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
-      headers: { "Authorization": "Bearer " + token }
-    })
-    .then(res => res.json())
-    .then(data => {
       const container = document.getElementById("categoryContainer");
       container.innerHTML = "";
 
@@ -112,30 +104,157 @@
 
         const div = document.createElement("div");
         div.className = "category-block";
+        div.style.flexDirection = "column";
+        div.style.alignItems = "flex-start";
 
-        div.innerHTML = `
-          <div class="category-info">
-            <img src="${iconPath}" alt="${cat.name}" class="category-icon">
-            <div>
-              <strong>${cat.name}</strong><br>
-              <span class="category-rating">(ocena uskoro...)</span>
-            </div>
-          </div>
-          <div class="category-button">
-            <button onclick="goToSub('${slug}')">Potkategorije</button>
+        const topRow = document.createElement("div");
+        topRow.className = "category-info";
+        topRow.innerHTML = `
+          <img src="${iconPath}" alt="${cat.name}" class="category-icon">
+          <div>
+            <strong>${cat.name}</strong><br>
+            <span class="category-rating">(ocena uskoro...)</span>
           </div>
         `;
 
+        const middleRow = document.createElement("div");
+        middleRow.style.marginTop = "10px";
+        middleRow.innerHTML = `<div><strong>Srednja ocena</strong></div>`;
+
+        const starsBox = document.createElement("div");
+        starsBox.style.display = "flex";
+        starsBox.style.alignItems = "center";
+        starsBox.style.gap = "10px";
+        starsBox.style.marginTop = "5px";
+
+        const scoreText = document.createElement("span");
+        scoreText.style.fontWeight = "bold";
+        scoreText.style.fontSize = "14px";
+        scoreText.style.color = "black";
+
+        const starsWrapper = document.createElement("div");
+        starsWrapper.className = "star-rating";
+
+        starsBox.appendChild(starsWrapper);
+        starsBox.appendChild(scoreText);
+
+        const bottomRow = document.createElement("div");
+        bottomRow.style.display = "flex";
+        bottomRow.style.justifyContent = "space-between";
+        bottomRow.style.width = "100%";
+        bottomRow.style.marginTop = "10px";
+
+        const ratersBtn = document.createElement("button");
+        ratersBtn.style.padding = "6px 12px";
+        ratersBtn.style.border = "none";
+        ratersBtn.style.borderRadius = "6px";
+        ratersBtn.style.backgroundColor = "#3498db";
+        ratersBtn.style.color = "white";
+        ratersBtn.style.cursor = "pointer";
+        ratersBtn.innerText = "Ocenjivači (učitavanje...)";
+        ratersBtn.addEventListener("click", () => {
+          window.location.href = `raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(cat.name)}`;
+        });
+
+        const returnUrl = encodeURIComponent(window.location.href);
+        const rateLink = document.createElement("a");
+        rateLink.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(cat.name)}&return=${returnUrl}`;
+        rateLink.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
+        rateLink.style.color = "#6b4dc4";
+        rateLink.style.textDecoration = "none";
+        rateLink.style.fontWeight = "bold";
+
+        bottomRow.appendChild(ratersBtn);
+        bottomRow.appendChild(rateLink);
+
+        const buttonRow = document.createElement("div");
+        buttonRow.className = "category-button";
+        buttonRow.style.marginTop = "10px";
+        buttonRow.innerHTML = `<button onclick="goToSub('${slug}')">Potkategorije</button>`;
+
+        div.appendChild(topRow);
+        div.appendChild(middleRow);
+        div.appendChild(starsBox);
+        div.appendChild(bottomRow);
+        div.appendChild(buttonRow);
+
         container.appendChild(div);
+
+        // Dohvati ocenjivače
+        const cardName = `${data.name} ${data.surname}`;
+        const cardSub = cat.name;
+
+        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
+          .then(res => res.json())
+          .then(raters => {
+            ratersBtn.innerText = `Ocenjivači (${raters.length})`;
+            const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
+            const broj = raters.length;
+            const prosek = broj > 0 ? zbir / broj : 0;
+            scoreText.innerText = prosek.toFixed(2);
+            const stars = createStarRating(prosek);
+            starsWrapper.appendChild(stars);
+          })
+          .catch(err => {
+            console.error("Greška pri dohvatu ocena:", err);
+            ratersBtn.innerText = "Ocenjivači (?)";
+            scoreText.innerText = "–";
+          });
       });
-    })
-    .catch(err => {
-      console.error("Greška:", err);
-      document.getElementById("categoryContainer").innerText = "Greška pri učitavanju kategorija.";
     });
 
     function goToSub(categorySlug) {
       window.location.href = `subcategories.html?main=${categorySlug}&user=${ownerId}`;
+    }
+
+    function createStarRating(score) {
+      const container = document.createElement("div");
+      container.className = "star-rating";
+
+      for (let i = 1; i <= 10; i++) {
+        let fill = 0;
+        if (i <= Math.floor(score)) {
+          fill = 1;
+        } else if (i - score < 1) {
+          fill = score % 1;
+        }
+
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("width", "20");
+        svg.setAttribute("height", "20");
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M12 2l3 7h7l-5.7 4.1L18.6 21 12 16.8 5.4 21l2.3-7.9L2 9h7z");
+        path.setAttribute("fill", "white");
+        path.setAttribute("stroke", "red");
+        path.setAttribute("stroke-width", "1");
+
+        svg.appendChild(path);
+        container.appendChild(svg);
+
+        if (fill > 0) {
+          const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          fillRect.setAttribute("x", "0");
+          fillRect.setAttribute("y", "0");
+          fillRect.setAttribute("width", `${24 * fill}`);
+          fillRect.setAttribute("height", "24");
+          fillRect.setAttribute("fill", "red");
+
+          const maskId = `mask-${Math.random().toString(36).substr(2, 8)}`;
+          const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
+          mask.setAttribute("id", maskId);
+
+          const maskPath = path.cloneNode();
+          maskPath.setAttribute("fill", "white");
+          mask.appendChild(maskPath);
+
+          svg.appendChild(mask);
+          fillRect.setAttribute("mask", `url(#${maskId})`);
+          svg.appendChild(fillRect);
+        }
+      }
+      return container;
     }
   </script>
 </body>
