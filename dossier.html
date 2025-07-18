@@ -117,16 +117,51 @@ function ucitajOcene(loggedUser, ratedName) {
         return;
       }
 
-      const grouped = {};
       data.forEach(entry => {
         const sub = entry.cardSub || "-";
-        const main = subToMainCategory[sub] || "Nepoznata kategorija";
-        if (!grouped[main]) grouped[main] = [];
-        grouped[main].push(entry);
+        const main = entry.cardMain || "-";
+
+        // Ako je glavna kategorija ocenjivana sama (npr. Izgled = Izgled)
+        if (sub === main) {
+          if (!grouped[main]) grouped[main] = { entries: [], mainScore: null };
+          grouped[main].mainScore = entry.score;
+        } else {
+          // Ocenjena potkategorija
+          if (!grouped[main]) grouped[main] = { entries: [], mainScore: null };
+          grouped[main].entries.push(entry);
+        }
       });
 
-      Object.entries(grouped).forEach(([main, entries]) => {
+      Object.entries(grouped).forEach(([main, data]) => {
+        const entries = data.entries || [];
+        const mainScore = data.mainScore;
+
         const mainRow = document.createElement("tr");
+
+        const mainCell = document.createElement("td");
+        mainCell.textContent = main;
+        mainCell.style.fontWeight = "bold";
+        mainCell.style.fontSize = "16px";
+
+        const scoreCell = document.createElement("td");
+        scoreCell.innerHTML = mainScore !== null ? `<span style="color:red; font-size:18px;">${mainScore}</span>` : "";
+
+        const sumA = entries.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
+        const countV = entries.filter(e => typeof e.score === 'number').length;
+        const countY = Object.entries(subToMainCategory).filter(([sub, cat]) => cat === main).length;
+        const countW = countY - countV;
+        const sumB = countW * 5;
+        const sumX = sumA + sumB;
+        const sumZ = countY > 0 ? sumX / countY : "-";
+
+        const paramCell = document.createElement("td");
+        paramCell.innerHTML = `a = ${sumA} ; b = ${sumB} ; x = ${sumX} ; v = ${countV} ; w = ${countW} ; y = ${countY} ; z = ${sumZ}`;
+
+        mainRow.appendChild(mainCell);
+        mainRow.appendChild(scoreCell);
+        mainRow.appendChild(paramCell);
+
+        tabela.appendChild(mainRow);
 
         const mainCell = document.createElement("td");
         mainCell.textContent = main;
