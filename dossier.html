@@ -118,58 +118,65 @@ function ucitajOcene(loggedUser, ratedName) {
       }
 
       const grouped = {};
+      const glavneKategorije = ["Izgled", "Zdravlje", "FizičKa snaga"];
 
       data.forEach(entry => {
-        function normalize(str) {
-          return (str || "").trim().toLowerCase();
-        }
+        const sub = entry.cardSub || "-";
 
-        const sub = normalize(entry.cardSub);
-        let main = normalize(entry.cardMain);
-        if (!main) {
-          main = normalize(subToMainCategory[sub]) || "nepoznata kategorija";
-        }
-
-        if (!grouped[main]) {
-          grouped[main] = { entries: [], mainScore: null };
-        }
-
-        if (sub === main) {
-          grouped[main].mainScore = entry.score;
+        if (glavneKategorije.includes(sub)) {
+          // Direktno ocenjivanje glavne kategorije
+          if (!grouped[sub]) grouped[sub] = { glavno: null, pods: [] };
+          grouped[sub].glavno = entry;
         } else {
-          grouped[main].entries.push({ ...entry, cardSub: entry.cardSub }); // čuvamo originalni naziv
+          const main = subToMainCategory[sub] || "Nepoznata kategorija";
+          if (!grouped[main]) grouped[main] = { glavno: null, pods: [] };
+          grouped[main].pods.push(entry);
         }
       });
 
-      Object.entries(grouped).forEach(([main, data]) => {
-        const entries = data.entries || [];
-        const mainScore = data.mainScore;
-
+      Object.entries(grouped).forEach(([main, { glavno, pods }]) => {
         const mainRow = document.createElement("tr");
 
         const mainCell = document.createElement("td");
-        mainCell.textContent = main.charAt(0).toUpperCase() + main.slice(1);
+        mainCell.textContent = main;
         mainCell.style.fontWeight = "bold";
         mainCell.style.fontSize = "16px";
 
         const scoreCell = document.createElement("td");
-        scoreCell.innerHTML = mainScore !== null ? `<span style="color:red; font-size:18px;">${mainScore}</span>` : "";
-
-        const countV = entries.filter(e => typeof e.score === 'number').length;
-        const sumA = entries.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
-        const countY = Object.values(subToMainCategory).filter(cat => normalize(cat) === main).length;
-        const countW = countY - countV;
-        const sumB = countW * 5;
-        const sumX = sumA + sumB;
-        const sumZ = countY > 0 ? (sumX / countY).toFixed(1) : "-";
-
         const paramCell = document.createElement("td");
-        paramCell.innerHTML = `a = ${sumA} ; b = ${sumB} ; x = ${sumX} ; v = ${countV} ; w = ${countW} ; y = ${countY} ; z = ${sumZ}`;
+
+        const v = pods.filter(e => typeof e.score === 'number').length;
+        const y = Object.entries(subToMainCategory).filter(([sub, cat]) => cat === main).length;
+        const w = y - v;
+        const a = pods.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
+        const b = w * 5;
+        const x = a + b;
+        const z = y > 0 ? x / y : "-";
+
+        if (glavno) {
+          scoreCell.textContent = glavno.score ?? "-";
+        } else {
+          scoreCell.textContent = "";
+        }
+
+        paramCell.innerHTML = `a = ${a} ; b = ${b} ; x = ${x} ; v = ${v} ; w = ${w} ; y = ${y} ; z = ${z}`;
 
         mainRow.appendChild(mainCell);
         mainRow.appendChild(scoreCell);
         mainRow.appendChild(paramCell);
         tabela.appendChild(mainRow);
+
+        // Dodaj potkategorije
+        pods.forEach(e => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${e.cardSub || "-"}</td>
+            <td>${e.score ?? "-"}</td>
+            <td>${e.timestamp ? new Date(e.timestamp).toLocaleString() : "-"}</td>
+          `;
+          tabela.appendChild(row);
+        });
+      });
 
         entries.forEach(e => {
           const row = document.createElement("tr");
