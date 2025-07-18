@@ -111,9 +111,17 @@
         topRow.className = "category-info";
         topRow.innerHTML = `
           <img src="${iconPath}" alt="${cat.name}" class="category-icon">
-          <div>
-            <strong>${cat.name}</strong><br>
-            <span class="category-rating">(ocena uskoro...)</span>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <strong>${cat.name}</strong>
+            <button onclick="goToSub('${slug}')" style="
+              padding: 6px 12px;
+              background-color: #3498db;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 13px;
+            ">Potkategorije</button>
           </div>
         `;
 
