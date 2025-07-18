@@ -61,69 +61,6 @@
 <th>Moje ocene:</th>
 <th>Parametri:</th>
 </tr>
-</thead><!DOCTYPE html>
-
-<html lang="sr">
-<head>
-<meta charset="utf-8"/>
-<title>Dosije ocenjenog člana</title>
-<link href="style.css" rel="stylesheet"/>
-<style>
-    .breadcrumb {
-      font-size: 14px;
-      margin-bottom: 20px;
-      color: #555;
-    }
-    .breadcrumb a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .breadcrumb a:hover {
-      text-decoration: underline;
-    }
-    .main-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .sub-title {
-      font-size: 18px;
-      margin-top: 30px;
-      font-weight: bold;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-    }
-    .ocenjivanje-tabela {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    .ocenjivanje-tabela th,
-    .ocenjivanje-tabela td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-    .ocenjivanje-tabela th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-<div class="container">
-<div class="breadcrumb">
-<a href="index.html">Home</a> &gt;
-      <a href="my-log.html">Moj dnevnik ocenjivanja</a> &gt;
-      Ocenjeni član
-    </div>
-<div class="main-title">Ocenjeni član: <span id="ime-prezime">Učitavanje...</span></div>
-<table class="ocenjivanje-tabela">
-<thead>
-<tr>
-<th>Kategorije:</th>
-<th>Moje ocene:</th>
-<th>Parametri:</th>
-</tr>
 </thead>
 <tbody id="tabela-ocene">
 <!-- Dinamika dolazi u sledećim fazama -->
@@ -183,21 +120,24 @@ function ucitajOcene(loggedUser, ratedName) {
       const grouped = {};
 
       data.forEach(entry => {
-        const sub = entry.cardSub || "-";
-
-        let main = entry.cardMain;
-        if (!main || main.trim() === "") {
-          main = subToMainCategory[entry.cardSub] || "Nepoznata kategorija";
+        function normalize(str) {
+          return (str || "").trim().toLowerCase();
         }
 
-        // Ako je glavna kategorija ocenjivana sama (npr. Izgled = Izgled)
+        const sub = normalize(entry.cardSub);
+        let main = normalize(entry.cardMain);
+        if (!main) {
+          main = normalize(subToMainCategory[sub]) || "nepoznata kategorija";
+        }
+
+        if (!grouped[main]) {
+          grouped[main] = { entries: [], mainScore: null };
+        }
+
         if (sub === main) {
-          if (!grouped[main]) grouped[main] = { entries: [], mainScore: null };
           grouped[main].mainScore = entry.score;
         } else {
-          // Ocenjena potkategorija
-          if (!grouped[main]) grouped[main] = { entries: [], mainScore: null };
-          grouped[main].entries.push(entry);
+          grouped[main].entries.push({ ...entry, cardSub: entry.cardSub }); // čuvamo originalni naziv
         }
       });
 
@@ -208,20 +148,20 @@ function ucitajOcene(loggedUser, ratedName) {
         const mainRow = document.createElement("tr");
 
         const mainCell = document.createElement("td");
-        mainCell.textContent = main;
+        mainCell.textContent = main.charAt(0).toUpperCase() + main.slice(1);
         mainCell.style.fontWeight = "bold";
         mainCell.style.fontSize = "16px";
 
         const scoreCell = document.createElement("td");
         scoreCell.innerHTML = mainScore !== null ? `<span style="color:red; font-size:18px;">${mainScore}</span>` : "";
 
-        const sumA = entries.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
         const countV = entries.filter(e => typeof e.score === 'number').length;
-        const countY = Object.entries(subToMainCategory).filter(([sub, cat]) => cat === main).length;
+        const sumA = entries.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
+        const countY = Object.values(subToMainCategory).filter(cat => normalize(cat) === main).length;
         const countW = countY - countV;
         const sumB = countW * 5;
         const sumX = sumA + sumB;
-        const sumZ = countY > 0 ? sumX / countY : "-";
+        const sumZ = countY > 0 ? (sumX / countY).toFixed(1) : "-";
 
         const paramCell = document.createElement("td");
         paramCell.innerHTML = `a = ${sumA} ; b = ${sumB} ; x = ${sumX} ; v = ${countV} ; w = ${countW} ; y = ${countY} ; z = ${sumZ}`;
@@ -229,8 +169,18 @@ function ucitajOcene(loggedUser, ratedName) {
         mainRow.appendChild(mainCell);
         mainRow.appendChild(scoreCell);
         mainRow.appendChild(paramCell);
-
         tabela.appendChild(mainRow);
+
+        entries.forEach(e => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${e.cardSub || "-"}</td>
+            <td>${e.score ?? "-"}</td>
+            <td>${e.timestamp ? new Date(e.timestamp).toLocaleString() : "-"}</td>
+          `;
+          tabela.appendChild(row);
+        });
+      });
 
         entries.forEach(e => {
           const row = document.createElement("tr");
