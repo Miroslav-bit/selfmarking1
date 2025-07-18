@@ -117,6 +117,8 @@ function ucitajOcene(loggedUser, ratedName) {
         return;
       }
 
+      const grouped = {};
+
       data.forEach(entry => {
         const sub = entry.cardSub || "-";
         const main = entry.cardMain || "-";
