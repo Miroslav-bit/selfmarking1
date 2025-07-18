@@ -136,8 +136,9 @@ function ucitajOcene(loggedUser, ratedName) {
         const emptyScoreCell = document.createElement("td");
         emptyScoreCell.textContent = "";
 
+        const sumA = entries.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
         const paramCell = document.createElement("td");
-        paramCell.textContent = "a =  ; b=  ; x =  ; v =  ; w =  ; y =  ; z = ";
+        paramCell.innerHTML = `a = ${sumA} ; b=  ; x =  ; v =  ; w =  ; y =  ; z = `;
         paramCell.style.fontSize = "12px";
 
         mainRow.appendChild(mainCell);
