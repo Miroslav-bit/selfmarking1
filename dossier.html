@@ -141,7 +141,7 @@ function ucitajOcene(loggedUser, ratedName) {
         const countY = Object.entries(subToMainCategory).filter(([sub, cat]) => cat === main).length;
 
         const paramCell = document.createElement("td");
-        paramCell.innerHTML = `a = ${sumA} ; b =  ; x =  ; v = ${countV} ; w =  ; y = ${countY} ; z = `;
+        paramCell.innerHTML = `a = ${sumA} ; b =  ; x =  ; v = ${countV} ; w = ${countY - countV} ; y = ${countY} ; z = `;
 
         mainRow.appendChild(mainCell);
         mainRow.appendChild(emptyScoreCell);
