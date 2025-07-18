@@ -224,10 +224,6 @@
               const stars = createStarRating(broj > 0 ? (zbir / broj) : 0);
               starsWrapper.appendChild(stars);
             }
-            scoreText.innerText = prosek.toFixed(2);
-            const stars = createStarRating(prosek);
-            starsWrapper.appendChild(stars);
-          })
           .catch(err => {
             console.error("Greška pri dohvatu ocena:", err);
             ratersBtn.innerText = "Ocenjivači (?)";
