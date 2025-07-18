@@ -223,7 +223,8 @@
               scoreText.innerText = broj > 0 ? (zbir / broj).toFixed(2) : "–";
               const stars = createStarRating(broj > 0 ? (zbir / broj) : 0);
               starsWrapper.appendChild(stars);
-            }
+             }
+           });
           .catch(err => {
             console.error("Greška pri dohvatu ocena:", err);
             ratersBtn.innerText = "Ocenjivači (?)";
