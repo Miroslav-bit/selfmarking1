@@ -74,7 +74,12 @@
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
       headers: { "Authorization": "Bearer " + token }
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error("Greška pri dohvatanju podataka: " + res.status);
+      }
+      return res.json();
+    })
     .then(data => {
       const block = document.getElementById("userIdBlock");
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
