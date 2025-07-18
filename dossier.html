@@ -141,7 +141,7 @@ function ucitajOcene(loggedUser, ratedName) {
         const countY = Object.entries(subToMainCategory).filter(([sub, cat]) => cat === main).length;
         const countW = countY - countV;
         const sumB = countW * 5;
-        const sumX = countA + countB;
+        const sumX = sumA + sumB;
 
         const paramCell = document.createElement("td");
         paramCell.innerHTML = `a = ${sumA} ; b = ${sumB} ; x = ${sumX} ; v = ${countV} ; w = ${countY - countV} ; y = ${countY} ; z = `;
@@ -171,3 +171,4 @@ function ucitajOcene(loggedUser, ratedName) {
 </script>
 </body>
 </html>
+
