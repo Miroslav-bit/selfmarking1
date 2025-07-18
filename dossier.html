@@ -170,16 +170,6 @@ function ucitajOcene(loggedUser, ratedName) {
         mainRow.appendChild(scoreCell);
         mainRow.appendChild(paramCell);
         tabela.appendChild(mainRow);
-
-        entries.forEach(e => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${e.cardSub || "-"}</td>
-            <td>${e.score ?? "-"}</td>
-            <td>${e.timestamp ? new Date(e.timestamp).toLocaleString() : "-"}</td>
-          `;
-          tabela.appendChild(row);
-        });
       });
 
         entries.forEach(e => {
