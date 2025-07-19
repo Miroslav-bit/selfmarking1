@@ -108,7 +108,7 @@
     const naslov = `${cardName} – ${cardSub}`;
     document.getElementById("naslov").innerText = naslov;
 
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
+      fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?name=${encodeURIComponent(cardName)}&sub=${encodeURIComponent(cardSub)}`)
       .then(res => res.json())
       .then(data => {
         const listDiv = document.getElementById("raters-list");
