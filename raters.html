@@ -81,7 +81,7 @@
   const params = new URLSearchParams(window.location.search);
   const cardName = params.get("name");
   const cardSurname = params.get("surname");
-  const cardSub = params.get("sub");
+  const cardSub = params.get("subcategory") || params.get("sub");
 
   document.getElementById("naslov").textContent = `${cardName} ${cardSurname} – ${cardSub}`;
 
@@ -129,7 +129,7 @@
       });
 
     // 2. INDIREKTNI OCENJIVAČI
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?name=${encodeURIComponent(cardName)}&surname=${encodeURIComponent(cardSurname)}&sub=${encodeURIComponent(cardSub)}`)
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?name=${encodeURIComponent(cardName)}&surname=${encodeURIComponent(cardSurname)} &subcategory=${encodeURIComponent(cardSub)}`)
       .then(res => res.json())
       .then(indirectData => {
         const indirectDiv = document.getElementById("indirect-raters-list");
