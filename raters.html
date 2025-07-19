@@ -83,7 +83,7 @@
   const cardSurname = params.get("surname");
   const cardSub = params.get("sub");
 
-  document.getElementById("card-title").textContent = `${cardName} ${cardSurname} – ${cardSub}`;
+  document.getElementById("naslov").textContent = `${cardName} ${cardSurname} – ${cardSub}`;
 
   // VALIDACIJA parametara
   if (!cardName || !cardSurname || !cardSub) {
