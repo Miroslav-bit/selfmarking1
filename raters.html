@@ -94,8 +94,7 @@ const sub = params.get('sub') || '';
 
 const cardName = `${name} ${surname}`;
 const cardSub = formatText(sub);
-const naslov = `${cardName} – ${cardSub}`;
-document.getElementById("naslov").innerText = naslov;
+document.getElementById("naslov").innerText = `${cardName} – ${cardSub}`;
 
 const BASE_URL = "https://selfmarking-backend.onrender.com";
 const ratersListDiv = document.getElementById("raters-list");
@@ -119,11 +118,27 @@ fetch(`${BASE_URL}/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&c
         ratersListDiv.appendChild(row);
       });
     }
-    // 2) UČITAJ SVE IZ DOSIJE PODATAKA
-    return fetch(`${BASE_URL}/api/ratings/all-dossiers?cardName=${encodeURIComponent(cardName)}`);
+
+    // 2) UZMI PRIJAVLJENOG KORISNIKA I UČITAJ NJEGOVE OCENE
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Nema tokena");
+
+    return fetch(`${BASE_URL}/api/user/me`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
   })
   .then(res => res.json())
-  .then(allEntries => {
+  .then(user => {
+    const loggedUser = `${user.name} ${user.surname}`;
+    if (direktniRateri.includes(loggedUser)) return; // već dao direktnu ocenu
+
+    // Učitaj njegove ocene za ocenjenog člana
+    return fetch(`${BASE_URL}/api/ratings/dossier?raterName=${encodeURIComponent(loggedUser)}&ratedName=${encodeURIComponent(cardName)}`);
+  })
+  .then(res => res ? res.json() : null)
+  .then(data => {
+    if (!data || data.length === 0) return;
+
     const subToMainCategory = {
       "lice": "Izgled",
       "stas": "Izgled",
@@ -133,42 +148,29 @@ fetch(`${BASE_URL}/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&c
       "izdržljivost": "Fizička snaga"
     };
 
-    const relevantEntries = allEntries.filter(e => subToMainCategory[e.cardSub?.toLowerCase()] === cardSub);
+    const relevant = data.filter(e => subToMainCategory[e.cardSub?.toLowerCase()] === cardSub);
+    if (relevant.length === 0) return;
 
-    const groupedByRater = {};
+    const v = relevant.filter(e => typeof e.score === 'number').length;
+    const y = Object.entries(subToMainCategory).filter(([_, cat]) => cat === cardSub).length;
+    const w = y - v;
+    const a = relevant.reduce((sum, e) => sum + (typeof e.score === 'number' ? e.score : 0), 0);
+    const b = w * 5;
+    const x = a + b;
+    const z = y > 0 ? x / y : null;
 
-    relevantEntries.forEach(entry => {
-      const rater = entry.rater;
-      if (!groupedByRater[rater]) groupedByRater[rater] = [];
-      groupedByRater[rater].push(entry);
-    });
-
-    Object.entries(groupedByRater).forEach(([rater, ocene]) => {
-      const v = ocene.filter(e => typeof e.score === 'number').length;
-      const y = Object.entries(subToMainCategory).filter(([_, cat]) => cat === cardSub).length;
-      const w = y - v;
-      const a = ocene.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
-      const b = w * 5;
-      const x = a + b;
-      const z = y > 0 ? x / y : null;
-
-      if (z && !direktniRateri.includes(rater)) {
-        const row = document.createElement("div");
-        row.className = "rater-row";
-        row.innerHTML = `
-          <div>${rater} <span style="color: gray; font-size: 12px;">(indirektno)</span></div>
-          <div>${z.toFixed(2)}</div>
-        `;
-        ratersListDiv.appendChild(row);
-      }
-    });
-
-    if (ratersListDiv.innerHTML === "") {
-      ratersListDiv.innerHTML = "<p>Još uvek nema ocenjivača.</p>";
+    if (z) {
+      const row = document.createElement("div");
+      row.className = "rater-row";
+      row.innerHTML = `
+        <div>${localStorage.getItem("userFullName")} <span style="color: gray; font-size: 12px;">(indirektno)</span></div>
+        <div>${z.toFixed(2)}</div>
+      `;
+      ratersListDiv.appendChild(row);
     }
   })
   .catch(err => {
-    console.error("Greška pri učitavanju:", err);
+    console.error("Greška:", err);
     ratersListDiv.innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
   });
 </script>
