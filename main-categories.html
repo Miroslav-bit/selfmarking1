@@ -2,10 +2,10 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <title>Podkategorije - Selfmarking</title>
+  <title>Glavne kategorije - Selfmarking</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .subcategory-block {
+    .category-block {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -14,28 +14,28 @@
       margin: 10px 0;
       border-radius: 8px;
     }
-    .subcategory-info {
+    .category-info {
       display: flex;
       align-items: center;
       gap: 15px;
     }
-    .subcategory-icon {
+    .category-icon {
       width: 40px;
     }
-    .subcategory-rating {
+    .category-rating {
       color: gray;
       font-size: 14px;
     }
-    .subcategory-button button {
+    .category-button button {
       padding: 8px 16px;
-      background-color: #2ecc71;
+      background-color: #3498db;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    .subcategory-button button:hover {
-      background-color: #27ae60;
+    .category-button button:hover {
+      background-color: #2980b9;
     }
     .user-block {
       display: flex;
@@ -57,14 +57,15 @@
     <div id="userIdBlock">Učitavanje korisnika...</div>
 
     <div class="breadcrumb" id="breadcrumb">Navigacija...</div>
-    <h2 id="subcat-title">Naslov</h2>
-    <div id="subcategoryContainer">Učitavanje...</div>
-  </div>
+
+    <h2 id="maincat-title">Ime i prezime</h2>
+    <div id="categoryContainer">Učitavanje...</div>
 
   <script>
+
     function slugify(text) {
       return text.normalize("NFD")
-                 .replace(/[\u0300-\u036f]/g, "")
+                 .replace(/[\u0300-\u036f]/g, "") // uklanja kvačice
                  .toLowerCase()
                  .replace(/\s+/g, "-")
                  .replace(/[^\w\-]+/g, "")
@@ -73,18 +74,14 @@
                  .replace(/-+$/, "");
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const mainRaw = params.get("main");
-    const mainSlug = slugify(mainRaw);
-    const ownerId = params.get('user');
     const token = localStorage.getItem("token");
+    const viewerId = localStorage.getItem("userId");
+    const ownerId = new URLSearchParams(window.location.search).get("user");
 
-    if (!token || !ownerId || !mainSlug) {
-      alert("Greška: Nedostaju parametri ili niste prijavljeni.");
+    if (!token || !ownerId) {
+      alert("Greška: Niste prijavljeni ili fali ID korisnika.");
       window.location.href = "login.html";
     }
-
-    const format = txt => txt.replace(/-/g, ' ');
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
       headers: { "Authorization": "Bearer " + token }
@@ -92,183 +89,144 @@
     .then(res => res.json())
     .then(data => {
       const block = document.getElementById("userIdBlock");
+      const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
       block.innerHTML = `
         <div class="user-block">
           <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
           <div>
-            <strong>${data.name || ''} ${data.surname || ''}</strong><br>
+            <strong>${fullName}</strong><br>
             Živi u: ${data.city || 'Nepoznato'}<br>
           </div>
         </div>
       `;
-      const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
+      document.getElementById("breadcrumb").innerHTML = `<a href="index.html">Home</a> &gt; ${fullName}`;
+      document.getElementById("maincat-title").innerText = fullName;
 
-      const category = data.categories.find(c =>
-        slugify(c.name) === mainSlug
-      );
-
-      const originalName = category?.name || format(mainSlug);
-
-      document.getElementById("subcat-title").innerText = `${fullName} – ${originalName}`;
-
-      document.getElementById("breadcrumb").innerHTML = `
-        <a href="index.html">Home</a> &gt;
-        <a href="main-categories.html?user=${ownerId}">${fullName}</a> &gt;
-        ${originalName}
-      `;
-
-      const category = data.categories.find(c =>
-        slugify(c.name) === mainSlug
-      );
-
-      const container = document.getElementById("subcategoryContainer");
+      const container = document.getElementById("categoryContainer");
       container.innerHTML = "";
 
-      if (!category || !category.subcategories || category.subcategories.length === 0) {
-        container.innerText = "Nema podkategorija.";
+      if (!data.categories || data.categories.length === 0) {
+        container.innerText = "Nema dostupnih kategorija.";
         return;
       }
 
-      category.subcategories.forEach(sub => {
-        const subSlug = sub.name.toLowerCase().replace(/\s+/g, "-");
-        const iconPath = `icons/${subSlug}.png`;
+      data.categories.forEach(cat => {
+        const slug = cat.name.toLowerCase().replace(/\s+/g, "-");
+        const iconPath = `icons/${slug}.png`;
 
         const div = document.createElement("div");
-        div.className = "subcategory-block";
+        div.className = "category-block";
+        div.style.flexDirection = "column";
+        div.style.alignItems = "flex-start";
 
         const topRow = document.createElement("div");
-        topRow.style.display = "flex";
-        topRow.style.justifyContent = "space-between";
-        topRow.style.alignItems = "center";
-        topRow.style.width = "100%";
-
+        topRow.className = "category-info";
         topRow.innerHTML = `
+          <img src="${iconPath}" alt="${cat.name}" class="category-icon">
           <div style="display: flex; align-items: center; gap: 15px;">
-            <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
-            <strong>${sub.name}</strong>
-          </div>
-          <div class="subcategory-button">
-            <button onclick="goToPosts('${subSlug}')">Objave</button>
+            <strong>${cat.name}</strong>
+            <button onclick="goToSub('${cat.name}')"
+              padding: 6px 12px;
+              background-color: #3498db;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 13px;
+            ">Potkategorije</button>
           </div>
         `;
 
-        const bottomRow = document.createElement("div");
-        bottomRow.style.display = "flex";
-        bottomRow.style.flexDirection = "column";
-        bottomRow.style.alignItems = "flex-start";
-        bottomRow.style.marginTop = "10px";
-        bottomRow.style.width = "100%";
+        const middleRow = document.createElement("div");
+        middleRow.style.marginTop = "10px";
+        middleRow.innerHTML = `<div><strong>Srednja ocena</strong></div>`;
 
-        const label = document.createElement("div");
-        label.innerText = "Srednja ocena";
-        label.style.fontWeight = "bold";
-        label.style.fontSize = "14px";
+        const starsBox = document.createElement("div");
+        starsBox.style.display = "flex";
+        starsBox.style.alignItems = "center";
+        starsBox.style.gap = "10px";
+        starsBox.style.marginTop = "5px";
 
-        const starsWrapper = document.createElement("div");
-        starsWrapper.className = "stars-placeholder";
-        starsWrapper.style.display = "flex";
-        starsWrapper.style.alignItems = "center";
-        starsWrapper.style.gap = "10px";
-
-        // Ovde dolazi brojčana vrednost
         const scoreText = document.createElement("span");
-        scoreText.className = "score-text";
         scoreText.style.fontWeight = "bold";
         scoreText.style.fontSize = "14px";
         scoreText.style.color = "black";
 
-        starsWrapper.appendChild(scoreText);
+        const starsWrapper = document.createElement("div");
+        starsWrapper.className = "star-rating";
 
-        bottomRow.appendChild(label);
-        bottomRow.appendChild(starsWrapper);
+        starsBox.appendChild(starsWrapper);
+        starsBox.appendChild(scoreText);
 
-        div.appendChild(topRow);
-        div.appendChild(bottomRow);
+        const bottomRow = document.createElement("div");
+        bottomRow.style.display = "flex";
+        bottomRow.style.justifyContent = "space-between";
+        bottomRow.style.width = "100%";
+        bottomRow.style.marginTop = "10px";
 
-        const raterButtonWrapper = document.createElement("div");
-        raterButtonWrapper.style.marginTop = "10px";
-        raterButtonWrapper.style.textAlign = "left";
-
-        const raterButton = document.createElement("button");
-        raterButton.style.padding = "6px 12px";
-        raterButton.style.border = "none";
-        raterButton.style.borderRadius = "6px";
-        raterButton.style.backgroundColor = "#3498db";
-        raterButton.style.color = "white";
-        raterButton.style.cursor = "pointer";
-
-        raterButton.addEventListener("click", () => {
-          const fullName = `${data.name || ''}`.trim();
-          const surname = `${data.surname || ''}`.trim();
-          const subName = sub.name.trim();
-          window.location.href = `raters.html?name=${encodeURIComponent(fullName)}&surname=${encodeURIComponent(surname)}&sub=${encodeURIComponent(subName)}`;
+        const ratersBtn = document.createElement("button");
+        ratersBtn.style.padding = "6px 12px";
+        ratersBtn.style.border = "none";
+        ratersBtn.style.borderRadius = "6px";
+        ratersBtn.style.backgroundColor = "#3498db";
+        ratersBtn.style.color = "white";
+        ratersBtn.style.cursor = "pointer";
+        ratersBtn.innerText = "Ocenjivači (učitavanje...)";
+        ratersBtn.addEventListener("click", () => {
+          window.location.href = `raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(cat.name)}`;
         });
 
-        raterButton.innerText = "Ocenjivači (učitavanje...)";
-        raterButtonWrapper.appendChild(raterButton);
-        div.appendChild(raterButtonWrapper);
-
-        // Dugme "Oceni"
-        const rateButtonWrapper = document.createElement("div");
-        rateButtonWrapper.style.marginTop = "8px";
-        rateButtonWrapper.style.textAlign = "right";
-
         const returnUrl = encodeURIComponent(window.location.href);
-        const rateButton = document.createElement("a");
-        rateButton.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}&return=${returnUrl}`;
-        rateButton.style.color = "#6b4dc4";
-        rateButton.style.textDecoration = "none";
-        rateButton.style.fontWeight = "bold";
-        rateButton.style.display = "inline-flex";
-        rateButton.style.alignItems = "center";
-        rateButton.style.gap = "5px";
-        rateButton.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
+        const rateLink = document.createElement("a");
+        rateLink.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(cat.name)}&return=${returnUrl}`;
+        rateLink.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
+        rateLink.style.color = "#6b4dc4";
+        rateLink.style.textDecoration = "none";
+        rateLink.style.fontWeight = "bold";
 
-        rateButtonWrapper.appendChild(rateButton);
-        div.appendChild(rateButtonWrapper);
+        bottomRow.appendChild(ratersBtn);
+        bottomRow.appendChild(rateLink);
 
-        // Dovuci broj ocenjivača i ažuriraj dugme
-        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(data.name + " " + data.surname)}&cardSub=${encodeURIComponent(sub.name)}`)
-          .then(res => res.json())
-          .then(raters => {
-            raterButton.innerText = `Ocenjivači (${raters.length})`;
-          })
-          .catch(err => {
-            console.error("Greška pri dohvatu broja ocenjivača:", err);
-            raterButton.innerText = "Ocenjivači (?)";
-          });
+        const buttonRow = document.createElement("div");
+        buttonRow.className = "category-button";
+        buttonRow.style.marginTop = "10px";
+        buttonRow.innerHTML = `<button onclick="goToSub('${slug}')">Potkategorije</button>`;
+
+        div.appendChild(topRow);
+        div.appendChild(middleRow);
+        div.appendChild(starsBox);
+        div.appendChild(bottomRow);
 
         container.appendChild(div);
 
-        // Dohvati prosečnu ocenu iz backenda
+        // Dohvati ocenjivače
         const cardName = `${data.name} ${data.surname}`;
-        const cardSub = sub.name;
+        const cardSub = cat.name;
 
         fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
           .then(res => res.json())
           .then(raters => {
+            ratersBtn.innerText = `Ocenjivači (${raters.length})`;
             const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
             const broj = raters.length;
             const prosek = broj > 0 ? zbir / broj : 0;
-            const starRating = createStarRating(prosek);
-            starsWrapper.appendChild(starRating);
             scoreText.innerText = prosek.toFixed(2);
+            const stars = createStarRating(prosek);
+            starsWrapper.appendChild(stars);
           })
           .catch(err => {
-            console.error("Greška pri dohvatu ocene:", err);
-         });
-
-        container.appendChild(div);
+            console.error("Greška pri dohvatu ocena:", err);
+            ratersBtn.innerText = "Ocenjivači (?)";
+            scoreText.innerText = "–";
+          });
       });
-    })
-    .catch(err => {
-      console.error("Greška:", err);
-      document.getElementById("subcategoryContainer").innerText = "Greška pri učitavanju podataka.";
     });
 
-    function goToPosts(subSlug) {
-      window.location.href = `posts.html?main=${mainSlug}&sub=${subSlug}&user=${ownerId}`;
+    function goToSub(categoryName) {
+      const encoded = encodeURIComponent(categoryName);
+      window.location.href = `subcategories.html?main=${encoded}&user=${ownerId}`;
     }
+
     function createStarRating(score) {
       const container = document.createElement("div");
       container.className = "star-rating";
@@ -293,10 +251,18 @@
         path.setAttribute("stroke-width", "1");
 
         svg.appendChild(path);
+        container.appendChild(svg);
 
         if (fill > 0) {
+          const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          fillRect.setAttribute("x", "0");
+          fillRect.setAttribute("y", "0");
+          fillRect.setAttribute("width", `${24 * fill}`);
+          fillRect.setAttribute("height", "24");
+          fillRect.setAttribute("fill", "red");
+
+          const maskId = `mask-${Math.random().toString(36).substr(2, 8)}`;
           const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-          const maskId = `mask-${Math.random().toString(36).substring(2, 10)}`;
           mask.setAttribute("id", maskId);
 
           const maskPath = path.cloneNode();
@@ -304,21 +270,10 @@
           mask.appendChild(maskPath);
 
           svg.appendChild(mask);
-
-          const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-          fillRect.setAttribute("x", "0");
-          fillRect.setAttribute("y", "0");
-          fillRect.setAttribute("width", `${24 * fill}`);
-          fillRect.setAttribute("height", "24");
-          fillRect.setAttribute("fill", "red");
           fillRect.setAttribute("mask", `url(#${maskId})`);
-
           svg.appendChild(fillRect);
         }
-
-        container.appendChild(svg);
       }
-
       return container;
     }
   </script>
