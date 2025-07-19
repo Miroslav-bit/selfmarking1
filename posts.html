@@ -146,6 +146,18 @@
   </div>
 
   <script>
+
+    function slugify(text) {
+      return text.normalize("NFD")
+                 .replace(/[\u0300-\u036f]/g, "")
+                 .toLowerCase()
+                 .replace(/\s+/g, "-")
+                 .replace(/[^\w\-]+/g, "")
+                 .replace(/\-\-+/g, "-")
+                 .replace(/^-+/, "")
+                 .replace(/-+$/, "");
+    }
+
     const params = new URLSearchParams(window.location.search);
     const main = params.get('main');
     const sub = params.get('sub');
@@ -157,7 +169,7 @@
       window.location.href = "login.html";
     }
 
-    const format = txt => txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const format = txt => txt.replace(/-/g, ' ');
     document.getElementById("tema-naslov").innerText = format(sub);
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
@@ -176,7 +188,7 @@
         </div>
       `;
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
-      document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
+      document.getElementById("tema-naslov").innerText = `${fullName} – ${sub.replace(/-/g, ' ')}`;
 
       document.getElementById("breadcrumb").innerHTML = `
         <a href="index.html">Home</a> &gt;
