@@ -75,6 +75,14 @@ const prezime = params.get("surname") || "";
 const ratedName = (ime + " " + prezime).trim();
 document.getElementById("ime-prezime").innerText = ratedName;
 
+// Standardizovani nazivi glavnih kategorija
+const standardMainCategories = {
+  "izgled": "Izgled",
+  "zdravlje": "Zdravlje",
+  "fizička snaga": "Fizička snaga"
+};
+
+// Mapiranje potkategorija na glavne kategorije
 const subToMainCategory = {
   "lice": "Izgled",
   "stas": "Izgled",
@@ -83,8 +91,6 @@ const subToMainCategory = {
   "snaga": "Fizička snaga",
   "izdržljivost": "Fizička snaga"
 };
-
-const glavneKategorije = ["Izgled", "Zdravlje", "Fizička snaga"];
 
 const token = localStorage.getItem("token");
 if (!token) {
@@ -125,14 +131,18 @@ function ucitajOcene(loggedUser, ratedName) {
         const sub = entry.cardSub || "-";
         const subKey = sub.toLowerCase();
 
-        // Ako je glavna kategorija
-        if (glavneKategorije.map(g => g.toLowerCase()).includes(subKey)) {
-          if (!grouped[sub]) grouped[sub] = { glavno: null, pods: [] };
-          grouped[sub].glavno = entry;
+        const potentialMainKey = subKey;
+        const standardizedMain = standardMainCategories[potentialMainKey];
+
+        // Ako je glavna kategorija (npr. "FiziČka Snaga" iz baze)
+        if (standardizedMain) {
+          if (!grouped[standardizedMain]) grouped[standardizedMain] = { glavno: null, pods: [] };
+          grouped[standardizedMain].glavno = entry;
         } else {
-          const main = subToMainCategory[subKey] || "Nepoznata kategorija";
-          if (!grouped[main]) grouped[main] = { glavno: null, pods: [] };
-          grouped[main].pods.push(entry);
+          const subMapped = subToMainCategory[subKey];
+          const stdMain = subMapped ? standardMainCategories[subMapped.toLowerCase()] : "Nepoznata kategorija";
+          if (!grouped[stdMain]) grouped[stdMain] = { glavno: null, pods: [] };
+          grouped[stdMain].pods.push(entry);
         }
       });
 
