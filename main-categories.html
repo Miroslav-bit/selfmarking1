@@ -62,6 +62,18 @@
     <div id="categoryContainer">Učitavanje...</div>
 
   <script>
+
+    function slugify(text) {
+      return text.normalize("NFD")
+                 .replace(/[\u0300-\u036f]/g, "") // uklanja kvačice
+                 .toLowerCase()
+                 .replace(/\s+/g, "-")
+                 .replace(/[^\w\-]+/g, "")
+                 .replace(/\-\-+/g, "-")
+                 .replace(/^-+/, "")
+                 .replace(/-+$/, "");
+    }
+
     const token = localStorage.getItem("token");
     const viewerId = localStorage.getItem("userId");
     const ownerId = new URLSearchParams(window.location.search).get("user");
