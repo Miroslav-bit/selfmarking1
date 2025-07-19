@@ -165,6 +165,25 @@ function ucitajOcene(loggedUser, ratedName) {
         const x = a + b;
         const z = y > 0 ? x / y : "-";
 
+        // Ako nije već upisana direktna ocena, upiši indirektnu ocenu
+        if (!glavno && z !== "-") {
+         fetch(`${BASE_URL}/api/ratings/indirect`, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              rater: loggedUser,
+              rated: ratedName,
+              cardSub: main,
+              score: z
+            })
+          }).then(res => {
+            if (!res.ok) throw new Error("Neuspešan unos indirektne ocene");
+            console.log(`✅ Indirektna ocena za "${main}" uspešno sačuvana.`);
+          }).catch(err => {
+            console.warn(`⚠️ Indirektna ocena za "${main}" nije sačuvana:`, err);
+          });
+        }
+
         scoreCell.textContent = glavno ? (glavno.score ?? "-") : "";
         paramCell.innerHTML = `a = ${a} ; b = ${b} ; x = ${x} ; v = ${v} ; w = ${w} ; y = ${y} ; z = ${z}`;
 
