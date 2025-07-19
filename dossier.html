@@ -76,12 +76,12 @@ const ratedName = (ime + " " + prezime).trim();
 document.getElementById("ime-prezime").innerText = ratedName;
 
 const subToMainCategory = {
-  "Lice": "Izgled",
-  "Stas": "Izgled",
-  "Opšte stanje": "Zdravlje",
-  "Kondicija": "Zdravlje",
-  "Snaga": "Fizička snaga",
-  "Izdržljivost": "Fizička snaga"
+  "lice": "Izgled",
+  "stas": "Izgled",
+  "opšte stanje": "Zdravlje",
+  "kondicija": "Zdravlje",
+  "snaga": "Fizička snaga",
+  "izdržljivost": "Fizička snaga"
 };
 
 const token = localStorage.getItem("token");
@@ -122,6 +122,16 @@ function ucitajOcene(loggedUser, ratedName) {
 
       data.forEach(entry => {
         const sub = entry.cardSub || "-";
+        const subKey = sub.toLowerCase();
+
+        if (glavneKategorije.includes(sub)) {
+          if (!grouped[sub]) grouped[sub] = { glavno: null, pods: [] };
+          grouped[sub].glavno = entry;
+        } else {
+          const main = subToMainCategory[subKey] || "Nepoznata kategorija";
+          if (!grouped[main]) grouped[main] = { glavno: null, pods: [] };
+          grouped[main].pods.push(entry);
+        }
 
         if (glavneKategorije.includes(sub)) {
           // Direktno ocenjivanje glavne kategorije
