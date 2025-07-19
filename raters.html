@@ -139,7 +139,12 @@
         const indirectDiv = document.getElementById("indirect-raters-list");
         indirectDiv.innerHTML = "";
 
-        if (!indirectData || indirectData.length === 0) {
+        if (!Array.isArray(indirectData)) {
+          indirectDiv.innerHTML = "<p>Greška: nevažeći odgovor sa servera.</p>";
+          return;
+        }
+
+        if (indirectData.length === 0) {
           indirectDiv.innerHTML = "<p>Nema indirektnih ocenjivača.</p>";
           return;
         }
@@ -149,11 +154,11 @@
           row.className = "rater-row";
           row.innerHTML = `
             <div>${r.rater}</div>
-            <div>-</div>  <!-- za sada se ocena ne prikazuje -->
+            <div>-</div>
           `;
           indirectDiv.appendChild(row);
         });
-      })
+      });
       .catch(err => {
         console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
         document.getElementById("indirect-raters-list").innerHTML = "<p>Greška pri učitavanju indirektnih ocenjivača.</p>";
