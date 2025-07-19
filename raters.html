@@ -68,6 +68,18 @@
   </div>
 
   <script>
+
+    function slugify(text) {
+      return text.normalize("NFD")
+                 .replace(/[\u0300-\u036f]/g, "")
+                 .toLowerCase()
+                 .replace(/\s+/g, "-")
+                 .replace(/[^\w\-]+/g, "")
+                 .replace(/\-\-+/g, "-")
+                 .replace(/^-+/, "")
+                 .replace(/-+$/, "");
+    }
+
     function formatText(txt) {
       return txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
