@@ -75,22 +75,16 @@ const prezime = params.get("surname") || "";
 const ratedName = (ime + " " + prezime).trim();
 document.getElementById("ime-prezime").innerText = ratedName;
 
-// Standardizovani nazivi glavnih kategorija
-const standardMainCategories = {
-  "izgled": "Izgled",
-  "zdravlje": "Zdravlje",
-  "fizička snaga": "Fizička snaga"
+const subToMainCategory = {
+  "Lice": "Izgled",
+  "Stas": "Izgled",
+  "Opšte stanje": "Zdravlje",
+  "Kondicija": "Zdravlje",
+  "Snaga": "Fizička snaga",
+  "Izdržljivost": "Fizička snaga"
 };
 
-// Mapiranje potkategorija na glavne kategorije
-const subToMainCategory = {
-  "lice": "Izgled",
-  "stas": "Izgled",
-  "opšte stanje": "Zdravlje",
-  "kondicija": "Zdravlje",
-  "snaga": "Fizička snaga",
-  "izdržljivost": "Fizička snaga"
-};
+const glavneKategorije = ["Izgled", "Zdravlje", "Fizička snaga"];
 
 const token = localStorage.getItem("token");
 if (!token) {
@@ -128,21 +122,16 @@ function ucitajOcene(loggedUser, ratedName) {
       const grouped = {};
 
       data.forEach(entry => {
-        const sub = entry.cardSub || "-";
-        const subKey = sub.toLowerCase();
+        const sub = entry.cardSub?.normalize("NFC") || "-";
 
-        const potentialMainKey = subKey;
-        const standardizedMain = standardMainCategories[potentialMainKey];
-
-        // Ako je glavna kategorija (npr. "FiziČka Snaga" iz baze)
-        if (standardizedMain) {
-          if (!grouped[standardizedMain]) grouped[standardizedMain] = { glavno: null, pods: [] };
-          grouped[standardizedMain].glavno = entry;
+        // Ako je glavna kategorija
+        if (glavneKategorije.includes(sub)) {
+          if (!grouped[sub]) grouped[sub] = { glavno: null, pods: [] };
+          grouped[sub].glavno = entry;
         } else {
-          const subMapped = subToMainCategory[subKey];
-          const stdMain = subMapped ? standardMainCategories[subMapped.toLowerCase()] : "Nepoznata kategorija";
-          if (!grouped[stdMain]) grouped[stdMain] = { glavno: null, pods: [] };
-          grouped[stdMain].pods.push(entry);
+          const main = subToMainCategory[sub] || "Nepoznata kategorija";
+          if (!grouped[main]) grouped[main] = { glavno: null, pods: [] };
+          grouped[main].pods.push(entry);
         }
       });
 
@@ -190,5 +179,3 @@ function ucitajOcene(loggedUser, ratedName) {
     });
 }
 </script>
-</body>
-</html>
