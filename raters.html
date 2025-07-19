@@ -102,72 +102,28 @@ ratersListDiv.innerHTML = "";
 
 let direktniRateri = [];
 
-// 1) UČITAJ DIREKTNE OCENE
-fetch(`${BASE_URL}/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
+// 1) UČITAJ SVE OCENE (direktne i indirektne) sa novog endpointa
+fetch(`${BASE_URL}/api/ratings/raters-full?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
   .then(res => res.json())
   .then(data => {
-    if (data && data.length > 0) {
-      direktniRateri = data.map(r => r.rater);
-      data.forEach(r => {
-        const row = document.createElement("div");
-        row.className = "rater-row";
-        row.innerHTML = `
-          <div>${r.rater}</div>
-          <div>${r.score !== undefined ? r.score : "-"}</div>
-        `;
-        ratersListDiv.appendChild(row);
-      });
+    if (!data || data.length === 0) {
+      ratersListDiv.innerHTML = "<p>Nema ocena za ovu kategoriju.</p>";
+      return;
     }
 
-    // 2) UZMI PRIJAVLJENOG KORISNIKA I UČITAJ NJEGOVE OCENE
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Nema tokena");
+    // Sortiraj po oceni opadajuće
+    data.sort((a, b) => b.score - a.score);
 
-    return fetch(`${BASE_URL}/api/user/me`, {
-      headers: { "Authorization": "Bearer " + token }
-    });
-  })
-  .then(res => res.json())
-  .then(user => {
-    const loggedUser = `${user.name} ${user.surname}`;
-    if (direktniRateri.includes(loggedUser)) return; // već dao direktnu ocenu
-
-    // Učitaj njegove ocene za ocenjenog člana
-    return fetch(`${BASE_URL}/api/ratings/dossier?raterName=${encodeURIComponent(loggedUser)}&ratedName=${encodeURIComponent(cardName)}`);
-  })
-  .then(res => res ? res.json() : null)
-  .then(data => {
-    if (!data || data.length === 0) return;
-
-    const subToMainCategory = {
-      "lice": "Izgled",
-      "stas": "Izgled",
-      "opšte stanje": "Zdravlje",
-      "kondicija": "Zdravlje",
-      "snaga": "Fizička snaga",
-      "izdržljivost": "Fizička snaga"
-    };
-
-    const relevant = data.filter(e => subToMainCategory[e.cardSub?.toLowerCase()] === cardSub);
-    if (relevant.length === 0) return;
-
-    const v = relevant.filter(e => typeof e.score === 'number').length;
-    const y = Object.entries(subToMainCategory).filter(([_, cat]) => cat === cardSub).length;
-    const w = y - v;
-    const a = relevant.reduce((sum, e) => sum + (typeof e.score === 'number' ? e.score : 0), 0);
-    const b = w * 5;
-    const x = a + b;
-    const z = y > 0 ? x / y : null;
-
-    if (z) {
+    ratersListDiv.innerHTML = "";
+    data.forEach(r => {
       const row = document.createElement("div");
       row.className = "rater-row";
       row.innerHTML = `
-        <div>${localStorage.getItem("userFullName")} <span style="color: gray; font-size: 12px;">(indirektno)</span></div>
-        <div>${z.toFixed(2)}</div>
+        <div>${r.rater} ${r.isIndirect ? '<span style="color: gray; font-size: 12px;">(indirektno)</span>' : ''}</div>
+        <div>${r.score !== undefined ? r.score.toFixed(2) : "-"}</div>
       `;
       ratersListDiv.appendChild(row);
-    }
+    });
   })
   .catch(err => {
     console.error("Greška:", err);
