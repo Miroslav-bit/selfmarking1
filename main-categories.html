@@ -74,12 +74,7 @@
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
       headers: { "Authorization": "Bearer " + token }
     })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error("Greška pri dohvatanju podataka: " + res.status);
-      }
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
       const block = document.getElementById("userIdBlock");
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
@@ -202,32 +197,11 @@
             ratersBtn.innerText = `Ocenjivači (${raters.length})`;
             const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
             const broj = raters.length;
-
-            const viewerAlreadyRated = raters.some(r => r.rater === viewerId);
-
-            if (!viewerAlreadyRated && viewerId !== ownerId) {
-              fetch(`https://selfmarking-backend.onrender.com/api/ratings/z-score?raterName=${encodeURIComponent(viewerId)}&ratedName=${encodeURIComponent(cardName)}&mainCategory=${encodeURIComponent(cardSub)}`)
-                .then(res => res.json())
-                .then(zData => {
-                  const ukupno = zbir + zData.z;
-                  const ukupnoBroj = broj + 1;
-
-                  scoreText.innerText = ukupnoBroj > 0 ? (ukupno / ukupnoBroj).toFixed(2) : "–";
-                  const stars = createStarRating(ukupno / ukupnoBroj);
-                  starsWrapper.appendChild(stars);
-                })
-                .catch(err => {
-                  console.error("Greška pri dohvatanju z-score:", err);
-                  scoreText.innerText = broj > 0 ? (zbir / broj).toFixed(2) : "–";
-                  const stars = createStarRating(broj > 0 ? (zbir / broj) : 0);
-                  starsWrapper.appendChild(stars);
-                });
-            } else {
-              scoreText.innerText = broj > 0 ? (zbir / broj).toFixed(2) : "–";
-              const stars = createStarRating(broj > 0 ? (zbir / broj) : 0);
-              starsWrapper.appendChild(stars);
-            }
-          }) 
+            const prosek = broj > 0 ? zbir / broj : 0;
+            scoreText.innerText = prosek.toFixed(2);
+            const stars = createStarRating(prosek);
+            starsWrapper.appendChild(stars);
+          })
           .catch(err => {
             console.error("Greška pri dohvatu ocena:", err);
             ratersBtn.innerText = "Ocenjivači (?)";
