@@ -71,10 +71,6 @@
       <div>Indirektni ocenjivači</div>
       <div>Indirektne ocene</div>
     </div>
-
-    <div id="indirect-raters-list">
-      <p>Učitavanje indirektnih ocenjivača...</p>
-    </div>
   </div>
 
   <script>
@@ -108,7 +104,7 @@
     const naslov = `${cardName} – ${cardSub}`;
     document.getElementById("naslov").innerText = naslov;
 
-      fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?name=${encodeURIComponent(cardName)}&sub=${encodeURIComponent(cardSub)}`)
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
       .then(res => res.json())
       .then(data => {
         const listDiv = document.getElementById("raters-list");
@@ -133,49 +129,6 @@
         console.error("Greška pri dohvatu ocenjivača:", err);
         document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
       });
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
-      .then(res => res.json())
-      .then(indirectData => {
-        const indirectDiv = document.getElementById("indirect-raters-list");
-        indirectDiv.innerHTML = "";
-
-        if (!indirectData || indirectData.length === 0) {
-          indirectDiv.innerHTML = "<p>Nema indirektnih ocenjivača.</p>";
-          return;
-        }
-
-      fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
-        .then(res => res.json())
-        .then(indirectData => {
-          console.log("⬅️ Odgovor od API-ja:", indirectData); // <--- dodaj ovo
-
-          const indirectDiv = document.getElementById("indirect-raters-list");
-          indirectDiv.innerHTML = "";
-
-          if (!Array.isArray(indirectData)) {
-            indirectDiv.innerHTML = "<p>Nevažeći odgovor sa servera.</p>";
-            return;
-          }
-
-          if (indirectData.length === 0) {
-            indirectDiv.innerHTML = "<p>Nema indirektnih ocenjivača.</p>";
-            return;
-          }
-
-          indirectData.forEach(r => {
-            const row = document.createElement("div");
-            row.className = "rater-row";
-            row.innerHTML = `
-              <div>${r.rater}</div>
-              <div>-</div>
-            `;
-            indirectDiv.appendChild(row);
-          });
-        })
-        .catch(err => {
-          console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
-          document.getElementById("indirect-raters-list").innerHTML = "<p>Greška pri učitavanju indirektnih ocenjivača.</p>";
-        });
   </script>
 </body>
 </html>
