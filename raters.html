@@ -40,9 +40,6 @@
       border-bottom: 2px solid #ccc;
       padding-bottom: 5px;
     }
-    #raters-list {
-      margin-top: 10px;
-    }
     .rater-row {
       display: flex;
       justify-content: space-between;
@@ -55,7 +52,7 @@
 <body>
   <div class="modal-box">
     <button class="close-btn" onclick="goBack()">X</button>
-    <h2 id="naslov">Ime Prezime – Kategorija</h2>
+    <h2 id="card-title">Ime Prezime – Kategorija</h2>
 
     <div class="columns">
       <div>Ocenjivači:</div>
@@ -66,7 +63,8 @@
       <p>Učitavanje ocenjivača...</p>
     </div>
 
-    <!-- Novi statični red sa naslovima za indirektne ocene -->
+    <div id="scores-list"></div>
+
     <div class="columns" style="margin-top: 30px;">
       <div>Indirektni ocenjivači</div>
       <div>Indirektne ocene</div>
@@ -77,89 +75,82 @@
     </div>
   </div>
 
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const cardName = params.get("name");
-  const cardSurname = params.get("surname");
-  const cardSub = params.get("subcategory") || params.get("sub");
+  <script>
+    function goBack() {
+      window.history.back();
+    }
 
-  document.getElementById("naslov").textContent = `${cardName} ${cardSurname} – ${cardSub}`;
+    const params = new URLSearchParams(window.location.search);
+    const cardName = params.get("name");
+    const cardSurname = params.get("surname");
+    const cardSub = params.get("subcategory") || params.get("sub");
 
-  // VALIDACIJA parametara
-  if (!cardName || !cardSurname || !cardSub) {
-    console.error("Nedostaju parametri: name, surname ili sub.");
-    document.getElementById("raters-list").innerHTML = "<p>Greška: nedostaju parametri.</p>";
-    document.getElementById("indirect-raters-list").innerHTML = "<p>Greška: nedostaju parametri.</p>";
-  } else {
-    // 1. DIREKTNI OCENJIVAČI
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?name=${encodeURIComponent(cardName)}&surname=${encodeURIComponent(cardSurname)}&subcategory=${encodeURIComponent(cardSub)}`)
-      .then(res => res.json())
-      .then(data => {
-        const ratersDiv = document.getElementById("raters-list");
-        const scoresDiv = document.getElementById("scores-list");
-        ratersDiv.innerHTML = "";
-        scoresDiv.innerHTML = "";
+    document.getElementById("card-title").textContent = `${cardName} ${cardSurname} – ${cardSub}`;
 
-        if (!Array.isArray(data)) {
-          ratersDiv.innerHTML = "<p>Greška: nevažeći odgovor sa servera.</p>";
+    if (!cardName || !cardSurname || !cardSub) {
+      document.getElementById("raters-list").innerHTML = "<p>Greška: nedostaju parametri.</p>";
+      document.getElementById("indirect-raters-list").innerHTML = "<p>Greška: nedostaju parametri.</p>";
+    } else {
+      // Direktni ocenjivači
+      fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?name=${encodeURIComponent(cardName)}&surname=${encodeURIComponent(cardSurname)}&subcategory=${encodeURIComponent(cardSub)}`)
+        .then(res => res.json())
+        .then(data => {
+          const ratersDiv = document.getElementById("raters-list");
+          const scoresDiv = document.getElementById("scores-list");
+          ratersDiv.innerHTML = "";
           scoresDiv.innerHTML = "";
-          return;
-        }
 
-        if (data.length === 0) {
-          ratersDiv.innerHTML = "<p>Nema ocenjivača.</p>";
-          return;
-        }
+          if (!Array.isArray(data)) {
+            ratersDiv.innerHTML = "<p>Greška: nevažeći odgovor sa servera.</p>";
+            return;
+          }
 
-        data.forEach(r => {
-          const raterRow = document.createElement("div");
-          raterRow.className = "rater-row";
-          raterRow.innerHTML = `<div>${r.rater}</div>`;
-          ratersDiv.appendChild(raterRow);
+          if (data.length === 0) {
+            ratersDiv.innerHTML = "<p>Nema ocenjivača.</p>";
+            return;
+          }
 
-          const scoreRow = document.createElement("div");
-          scoreRow.className = "rater-row";
-          scoreRow.innerHTML = `<div>${r.grade}</div>`;
-          scoresDiv.appendChild(scoreRow);
+          data.forEach(r => {
+            const raterRow = document.createElement("div");
+            raterRow.className = "rater-row";
+            raterRow.innerHTML = `<div>${r.rater}</div><div>${r.grade}</div>`;
+            ratersDiv.appendChild(raterRow);
+          });
+        })
+        .catch(err => {
+          console.error("Greška pri dohvatu direktnih ocenjivača:", err);
+          document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
         });
-      })
-      .catch(err => {
-        console.error("Greška pri dohvatu direktnih ocenjivača:", err);
-        document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
-      });
 
-    // 2. INDIREKTNI OCENJIVAČI
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?name=${encodeURIComponent(cardName)}&surname=${encodeURIComponent(cardSurname)} &subcategory=${encodeURIComponent(cardSub)}`)
-      .then(res => res.json())
-      .then(indirectData => {
-        const indirectDiv = document.getElementById("indirect-raters-list");
-        indirectDiv.innerHTML = "";
+      // Indirektni ocenjivači
+      fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?name=${encodeURIComponent(cardName)}&surname=${encodeURIComponent(cardSurname)}&subcategory=${encodeURIComponent(cardSub)}`)
+        .then(res => res.json())
+        .then(indirectData => {
+          const indirectDiv = document.getElementById("indirect-raters-list");
+          indirectDiv.innerHTML = "";
 
-        if (!Array.isArray(indirectData)) {
-          indirectDiv.innerHTML = "<p>Greška: nevažeći odgovor sa servera.</p>";
-          return;
-        }
+          if (!Array.isArray(indirectData)) {
+            indirectDiv.innerHTML = "<p>Greška: nevažeći odgovor sa servera.</p>";
+            return;
+          }
 
-        if (indirectData.length === 0) {
-          indirectDiv.innerHTML = "<p>Nema indirektnih ocenjivača.</p>";
-          return;
-        }
+          if (indirectData.length === 0) {
+            indirectDiv.innerHTML = "<p>Nema indirektnih ocenjivača.</p>";
+            return;
+          }
 
-        indirectData.forEach(r => {
-          const row = document.createElement("div");
-          row.className = "rater-row";
-          row.innerHTML = `
-            <div>${r.rater}</div>
-            <div>-</div>
-          `;
-          indirectDiv.appendChild(row);
+          indirectData.forEach(r => {
+            const row = document.createElement("div");
+            row.className = "rater-row";
+            row.innerHTML = `<div>${r.rater}</div><div>${r.grade ?? "-"}</div>`;
+            indirectDiv.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
+          document.getElementById("indirect-raters-list").innerHTML = "<p>Greška pri učitavanju indirektnih ocenjivača.</p>";
         });
-      })
-      .catch(err => {
-        console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
-        document.getElementById("indirect-raters-list").innerHTML = "<p>Greška pri učitavanju indirektnih ocenjivača.</p>";
-      });
-  }
-</script>
+    }
+  </script>
 </body>
 </html>
