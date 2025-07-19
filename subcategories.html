@@ -74,7 +74,8 @@
     }
 
     const params = new URLSearchParams(window.location.search);
-    const mainSlug = params.get('main');
+    const mainRaw = params.get("main");
+    const mainSlug = slugify(mainRaw);
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
 
