@@ -102,19 +102,12 @@
         </div>
       `;
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
-
-      const category = data.categories.find(c =>
-        slugify(c.name) === mainSlug
-      );
-
-      const originalName = category?.name || format(mainSlug);
-
-      document.getElementById("subcat-title").innerText = `${fullName} – ${originalName}`;
+      document.getElementById("subcat-title").innerText = `${fullName} – ${format(mainSlug)}`;
 
       document.getElementById("breadcrumb").innerHTML = `
         <a href="index.html">Home</a> &gt;
         <a href="main-categories.html?user=${ownerId}">${fullName}</a> &gt;
-        ${originalName}
+        ${format(mainSlug)}
       `;
 
       const category = data.categories.find(c =>
