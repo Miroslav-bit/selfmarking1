@@ -161,6 +161,7 @@
     const params = new URLSearchParams(window.location.search);
     const main = params.get('main');
     const sub = params.get('sub');
+    const subDisplay = format(sub); 
     const ownerId = params.get('user');
     const viewerToken = localStorage.getItem("token");
 
@@ -224,8 +225,7 @@
 
       document.querySelector(".rate").innerHTML = `
         <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
-        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&user=${ownerId}">☆ Ocenite</a>
-      `;
+        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&subDisplay=${encodeURIComponent(subDisplay)}&user=${ownerId}">
     });
 
     async function addPost() {
