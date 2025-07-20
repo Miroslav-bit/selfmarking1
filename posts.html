@@ -224,7 +224,7 @@
 
       document.querySelector(".rate").innerHTML = `
         <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
-        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&user=${ownerId}">☆ Ocenite</a>
+        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&subDisplay=${encodeURIComponent(category.name)}&user=${ownerId}">☆ Ocenite</a>
       `;
     });
 
