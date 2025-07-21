@@ -4,6 +4,53 @@
   <meta charset="UTF-8">
   <title>Ocenjivači</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .modal-box {
+      max-width: 600px;
+      margin: 50px auto;
+      border: 4px solid #87CEFA;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .close-btn {
+      float: right;
+      background: red;
+      color: white;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .columns {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .columns > div {
+      width: 48%;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
+    #raters-list {
+      margin-top: 10px;
+    }
+    .rater-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
   <div class="modal-box">
@@ -37,12 +84,13 @@
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     const surname = params.get('surname') || '';
-    const main = params.get('main') || '';
-    const sub = params.get('sub') || '';
 
-    const cardName = formatText(main);
-    const cardSub = formatText(sub);
-    const naslov = `${name} ${surname} – ${cardSub}`;
+    // Logika za glavnu i potkategoriju:
+    const hasMain = params.has('main');
+    const cardName = hasMain ? formatText(params.get('main')) : formatText(params.get('sub') || '');
+    const cardSub = hasMain ? formatText(params.get('sub') || '') : '';
+
+    const naslov = `${name} ${surname} – ${cardSub || cardName}`;
     document.getElementById("naslov").innerText = naslov;
 
     fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
