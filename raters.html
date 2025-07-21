@@ -99,8 +99,13 @@
     const surname = params.get('surname') || '';
     const sub = params.get('sub') || '';
 
-const main = params.get('main') || '';
-const cardName = formatText(main);  // npr. "karakterne osobine"
+let cardName = '';
+const main = params.get('main');
+if (main) {
+  cardName = formatText(main); // koristi 'main' ako postoji
+} else {
+  cardName = 'Obrazovanje'; // fallback vrednost za testiranje
+}
 const cardSub = formatText(sub);
 const naslov = `${name} ${surname} – ${cardSub}`;
     document.getElementById("naslov").innerText = naslov;
