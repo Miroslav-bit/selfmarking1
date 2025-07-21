@@ -121,6 +121,39 @@
         alert("Greška na serveru.");
       }
     }
+    document.getElementById("delete-account-btn").addEventListener("click", async () => {
+      const confirmation = prompt("Da li ste sigurni da želite da obrišete nalog? Ako jeste, unesite: OBRIŠI");
+
+      if (confirmation !== "OBRIŠI") {
+        alert("Brisanje otkazano.");
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await fetch(`/api/users/${userId}/delete`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Vaš nalog je uspešno obrisan.");
+          localStorage.clear();
+          window.location.href = "index.html";
+        } else {
+          alert(data.msg || "Greška pri brisanju.");
+        }
+      } catch (err) {
+        alert("Greška u vezi sa serverom.");
+        console.error(err);
+      }
+    });
   </script>
 </body>
 </html>
