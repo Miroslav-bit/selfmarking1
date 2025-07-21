@@ -130,10 +130,9 @@
       }
 
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
 
       try {
-        const res = await fetch(`https://selfmarking-backend.onrender.com/api/user/${userId}/delete`, {
+        const res = await fetch(`https://selfmarking-backend.onrender.com/api/user/me/delete`, {
           method: 'DELETE',
           headers: {
             'Authorization': 'Bearer ' + token
