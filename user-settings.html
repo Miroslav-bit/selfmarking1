@@ -133,15 +133,27 @@
       const userId = localStorage.getItem("userId");
 
       try {
-        const res = await fetch(`/api/users/${userId}/delete`, {
+        const res = await fetch(`https://selfmarking-backend.onrender.com/api/user/${userId}/delete`, {
           method: 'DELETE',
           headers: {
             'Authorization': 'Bearer ' + token
           }
         });
 
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (e) {
+          data.msg = "Nema dodatnih informacija od servera.";
+        }
 
+        if (res.ok) {
+          alert("Vaš nalog je uspešno obrisan.");
+          localStorage.clear();
+          window.location.href = "index.html";
+        } else {
+          alert(data.msg || "Greška pri brisanju.");
+        }
         if (res.ok) {
           alert("Vaš nalog je uspešno obrisan.");
           localStorage.clear();
