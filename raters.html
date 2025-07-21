@@ -66,6 +66,7 @@
       <p>Učitavanje ocenjivača...</p>
     </div>
 
+    <!-- Novi statični red sa naslovima za indirektne ocene -->
     <div class="columns" style="margin-top: 30px;">
       <div>Indirektni ocenjivači</div>
       <div>Indirektne ocene</div>
@@ -73,6 +74,18 @@
   </div>
 
   <script>
+
+    function slugify(text) {
+      return text.normalize("NFD")
+                 .replace(/[\u0300-\u036f]/g, "")
+                 .toLowerCase()
+                 .replace(/\s+/g, "-")
+                 .replace(/[^\w\-]+/g, "")
+                 .replace(/\-\-+/g, "-")
+                 .replace(/^-+/, "")
+                 .replace(/-+$/, "");
+    }
+
     function formatText(txt) {
       return txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
@@ -84,13 +97,11 @@
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     const surname = params.get('surname') || '';
+    const sub = params.get('sub') || '';
 
-    // Logika za glavnu i potkategoriju:
-    const hasMain = params.has('main');
-    const cardName = hasMain ? formatText(params.get('main')) : formatText(params.get('sub') || '');
-    const cardSub = hasMain ? formatText(params.get('sub') || '') : '';
-
-    const naslov = `${name} ${surname} – ${cardSub || cardName}`;
+    const cardName = `${name} ${surname}`;
+    const cardSub = formatText(sub);
+    const naslov = `${cardName} – ${cardSub}`;
     document.getElementById("naslov").innerText = naslov;
 
     fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
@@ -99,7 +110,7 @@
         const listDiv = document.getElementById("raters-list");
         listDiv.innerHTML = "";
 
-        if (!Array.isArray(data) || data.length === 0) {
+        if (!data || data.length === 0) {
           listDiv.innerHTML = "<p>Još uvek nema ocenjivača.</p>";
           return;
         }
