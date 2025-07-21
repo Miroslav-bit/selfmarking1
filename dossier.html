@@ -75,13 +75,27 @@ const prezime = params.get("surname") || "";
 const ratedName = (ime + " " + prezime).trim();
 document.getElementById("ime-prezime").innerText = ratedName;
 
+// Standardizovani nazivi glavnih kategorija
+const standardMainCategories = {
+  "obrazovanje": "Obrazovanje",
+  "inteligencija": "Inteligencija",
+  "karakterne osobine": "Karakterne osobine"
+};
+
+// Mapiranje potkategorija na glavne kategorije
 const subToMainCategory = {
-  "Lice": "Izgled",
-  "Stas": "Izgled",
-  "OpšTe stanje": "Zdravlje",
-  "Kondicija": "Zdravlje",
-  "Snaga": "FizičKa snaga",
-  "IzdržLjivost": "FizičKa snaga"
+  "matematika": "Obrazovanje",
+  "fizika": "Obrazovanje",
+  "hemija": "Obrazovanje",
+  "astronomija": "Obrazovanje",
+  "geologija": "Obrazovanje",
+  "logika": "Inteligencija"
+  "komunikativnost": "Inteligencija"
+  "duhovitost": "Inteligencija"
+  "hrabrost": "karakterne osobine",
+  "samouverenost": "karakterne osobine",
+  "smirenost": "karakterne osobine",
+  "empatija": "karakterne osobine",
 };
 
 const token = localStorage.getItem("token");
@@ -118,24 +132,54 @@ function ucitajOcene(loggedUser, ratedName) {
       }
 
       const grouped = {};
+
       data.forEach(entry => {
         const sub = entry.cardSub || "-";
-        const main = subToMainCategory[sub] || "Nepoznata kategorija";
-        if (!grouped[main]) grouped[main] = [];
-        grouped[main].push(entry);
+        const subKey = sub.toLowerCase();
+
+        const potentialMainKey = subKey;
+        const standardizedMain = standardMainCategories[potentialMainKey];
+
+        // Ako je glavna kategorija (npr. "FiziČka Snaga" iz baze)
+        if (standardizedMain) {
+          if (!grouped[standardizedMain]) grouped[standardizedMain] = { glavno: null, pods: [] };
+          grouped[standardizedMain].glavno = entry;
+        } else {
+          const subMapped = subToMainCategory[subKey];
+          const stdMain = subMapped ? standardMainCategories[subMapped.toLowerCase()] : "Nepoznata kategorija";
+          if (!grouped[stdMain]) grouped[stdMain] = { glavno: null, pods: [] };
+          grouped[stdMain].pods.push(entry);
+        }
       });
 
-      Object.entries(grouped).forEach(([main, entries]) => {
+      Object.entries(grouped).forEach(([main, { glavno, pods }]) => {
         const mainRow = document.createElement("tr");
+
         const mainCell = document.createElement("td");
-        mainCell.colSpan = 3;
         mainCell.textContent = main;
         mainCell.style.fontWeight = "bold";
         mainCell.style.fontSize = "16px";
+
+        const scoreCell = document.createElement("td");
+        const paramCell = document.createElement("td");
+
+        const v = pods.filter(e => typeof e.score === 'number').length;
+        const y = Object.entries(subToMainCategory).filter(([_, cat]) => cat === main).length;
+        const w = y - v;
+        const a = pods.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
+        const b = w * 5;
+        const x = a + b;
+        const z = y > 0 ? x / y : "-";
+
+        scoreCell.textContent = glavno ? (glavno.score ?? "-") : "";
+        paramCell.innerHTML = `a = ${a} ; b = ${b} ; x = ${x} ; v = ${v} ; w = ${w} ; y = ${y} ; z = ${z}`;
+
         mainRow.appendChild(mainCell);
+        mainRow.appendChild(scoreCell);
+        mainRow.appendChild(paramCell);
         tabela.appendChild(mainRow);
 
-        entries.forEach(e => {
+        pods.forEach(e => {
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${e.cardSub || "-"}</td>
