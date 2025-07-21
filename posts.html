@@ -136,6 +136,7 @@
 
     <section class="form-section">
       <textarea id="postText" placeholder="Unesi svoju objavu..."></textarea>
+      <input type="text" id="imageUrl" placeholder="Unesi URL slike (opciono)" style="width:100%; padding:10px; margin-top:10px; border-radius:5px;">
       <button onclick="addPost()">Dodaj objavu</button>
     </section>
 
@@ -230,7 +231,9 @@
 
     async function addPost() {
       const textArea = document.getElementById("postText");
+      const imageUrlInput = document.getElementById("imageUrl");
       const text = textArea.value.trim();
+      const imageUrl = imageUrlInput.value.trim();
       const token = localStorage.getItem("token");
 
       if (!text) {
@@ -247,6 +250,7 @@
           },
           body: JSON.stringify({
             text,
+            imageUrl: imageUrl || null,
             panelOwnerId: ownerId,
             mainCategory: main,
             subCategory: sub
@@ -255,6 +259,7 @@
 
         if (res.ok) {
           textArea.value = "";
+          imageUrlInput.value = "";
           loadPosts();
         } else {
           const data = await res.json();
@@ -289,6 +294,17 @@
 
           const tekst = document.createElement("div");
           tekst.innerText = post.text;
+          div.appendChild(tekst);
+
+          // ako postoji slika
+          if (post.imageUrl) {
+            const img = document.createElement("img");
+            img.src = post.imageUrl;
+            img.style.maxWidth = "100%";
+            img.style.marginTop = "10px";
+            img.alt = "Korisnička slika";
+            div.appendChild(img);
+          }
 
           div.appendChild(autor);
           div.appendChild(datum);
