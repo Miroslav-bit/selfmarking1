@@ -77,19 +77,25 @@ document.getElementById("ime-prezime").innerText = ratedName;
 
 // Standardizovani nazivi glavnih kategorija
 const standardMainCategories = {
-  "izgled": "Izgled",
-  "zdravlje": "Zdravlje",
-  "fizička snaga": "Fizička snaga"
+  "obrazovanje": "Obrazovanje",
+  "inteligencija": "Inteligencija",
+  "karakterne osobine": "Karakterne osobine"
 };
 
 // Mapiranje potkategorija na glavne kategorije
 const subToMainCategory = {
-  "lice": "Izgled",
-  "stas": "Izgled",
-  "opšte stanje": "Zdravlje",
-  "kondicija": "Zdravlje",
-  "snaga": "Fizička snaga",
-  "izdržljivost": "Fizička snaga"
+  "matematika": "Obrazovanje",
+  "fizika": "Obrazovanje",
+  "hemija": "Obrazovanje",
+  "astronomija": "Obrazovanje",
+  "geologija": "Obrazovanje",
+  "logika": "Inteligencija"
+  "komunikativnost": "Inteligencija"
+  "duhovitost": "Inteligencija"
+  "hrabrost": "karakterne osobine",
+  "samouverenost": "karakterne osobine",
+  "smirenost": "karakterne osobine",
+  "empatija": "karakterne osobine",
 };
 
 const token = localStorage.getItem("token");
