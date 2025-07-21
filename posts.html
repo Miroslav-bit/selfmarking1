@@ -294,9 +294,11 @@
 
           const tekst = document.createElement("div");
           tekst.innerText = post.text;
+
+          div.appendChild(autor);
+          div.appendChild(datum);
           div.appendChild(tekst);
 
-          // ako postoji slika
           if (post.imageUrl) {
             const img = document.createElement("img");
             img.src = post.imageUrl;
@@ -307,10 +309,6 @@
             img.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
             div.appendChild(img);
           }
-
-          div.appendChild(autor);
-          div.appendChild(datum);
-          div.appendChild(tekst);
 
           container.appendChild(div);
         });
