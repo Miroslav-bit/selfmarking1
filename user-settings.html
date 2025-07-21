@@ -61,6 +61,13 @@
     <button onclick="saveChanges()">Sačuvaj izmene</button>
   </div>
 
+    <hr>
+    <div style="margin-top: 40px;">
+      <button id="delete-account-btn" style="background-color: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+        Trajno obriši moj nalog
+      </button>
+    </div>
+
   <script>
     const token = localStorage.getItem("token");
     if (!token) {
