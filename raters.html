@@ -4,53 +4,6 @@
   <meta charset="UTF-8">
   <title>Ocenjivači</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .modal-box {
-      max-width: 600px;
-      margin: 50px auto;
-      border: 4px solid #87CEFA;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    .close-btn {
-      float: right;
-      background: red;
-      color: white;
-      border: none;
-      font-size: 18px;
-      font-weight: bold;
-      padding: 5px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .columns {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .columns > div {
-      width: 48%;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 5px;
-    }
-    #raters-list {
-      margin-top: 10px;
-    }
-    .rater-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 16px;
-    }
-  </style>
 </head>
 <body>
   <div class="modal-box">
@@ -66,7 +19,6 @@
       <p>Učitavanje ocenjivača...</p>
     </div>
 
-    <!-- Novi statični red sa naslovima za indirektne ocene -->
     <div class="columns" style="margin-top: 30px;">
       <div>Indirektni ocenjivači</div>
       <div>Indirektne ocene</div>
@@ -74,18 +26,6 @@
   </div>
 
   <script>
-
-    function slugify(text) {
-      return text.normalize("NFD")
-                 .replace(/[\u0300-\u036f]/g, "")
-                 .toLowerCase()
-                 .replace(/\s+/g, "-")
-                 .replace(/[^\w\-]+/g, "")
-                 .replace(/\-\-+/g, "-")
-                 .replace(/^-+/, "")
-                 .replace(/-+$/, "");
-    }
-
     function formatText(txt) {
       return txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
@@ -97,17 +37,12 @@
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     const surname = params.get('surname') || '';
+    const main = params.get('main') || '';
     const sub = params.get('sub') || '';
 
-let cardName = '';
-const main = params.get('main');
-if (main) {
-  cardName = formatText(main); // koristi 'main' ako postoji
-} else {
-  cardName = 'Obrazovanje'; // fallback vrednost za testiranje
-}
-const cardSub = formatText(sub);
-const naslov = `${name} ${surname} – ${cardSub}`;
+    const cardName = formatText(main);
+    const cardSub = formatText(sub);
+    const naslov = `${name} ${surname} – ${cardSub}`;
     document.getElementById("naslov").innerText = naslov;
 
     fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
@@ -116,7 +51,7 @@ const naslov = `${name} ${surname} – ${cardSub}`;
         const listDiv = document.getElementById("raters-list");
         listDiv.innerHTML = "";
 
-        if (!data || data.length === 0) {
+        if (!Array.isArray(data) || data.length === 0) {
           listDiv.innerHTML = "<p>Još uvek nema ocenjivača.</p>";
           return;
         }
