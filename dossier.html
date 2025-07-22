@@ -75,13 +75,27 @@ const prezime = params.get("surname") || "";
 const ratedName = (ime + " " + prezime).trim();
 document.getElementById("ime-prezime").innerText = ratedName;
 
+// Standardizovani nazivi glavnih kategorija
+const standardMainCategories = {
+  "obrazovanje": "Obrazovanje",
+  "inteligencija": "Inteligencija",
+  "karakterne osobine": "Karakterne osobine"
+};
+
+// Mapiranje potkategorija na glavne kategorije
 const subToMainCategory = {
-  "Lice": "Izgled",
-  "Stas": "Izgled",
-  "OpšTe stanje": "Zdravlje",
-  "Kondicija": "Zdravlje",
-  "Snaga": "FizičKa snaga",
-  "IzdržLjivost": "FizičKa snaga"
+  "matematika": "Obrazovanje",
+  "fizika": "Obrazovanje",
+  "hemija": "Obrazovanje",
+  "astronomija": "Obrazovanje",
+  "geologija": "Obrazovanje",
+  "logika": "Inteligencija",
+  "komunikativnost": "Inteligencija",
+  "duhovitost": "Inteligencija",
+  "hrabrost": "karakterne osobine",
+  "samouverenost": "karakterne osobine",
+  "smirenost": "karakterne osobine",
+  "empatija": "karakterne osobine",
 };
 
 const token = localStorage.getItem("token");
@@ -118,19 +132,23 @@ function ucitajOcene(loggedUser, ratedName) {
       }
 
       const grouped = {};
-      const glavneKategorije = ["Izgled", "Zdravlje", "FizičKa snaga"];
 
       data.forEach(entry => {
         const sub = entry.cardSub || "-";
+        const subKey = sub.toLowerCase();
 
-        if (glavneKategorije.includes(sub)) {
-          // Direktno ocenjivanje glavne kategorije
-          if (!grouped[sub]) grouped[sub] = { glavno: null, pods: [] };
-          grouped[sub].glavno = entry;
+        const potentialMainKey = subKey;
+        const standardizedMain = standardMainCategories[potentialMainKey];
+
+        // Ako je glavna kategorija (npr. "FiziČka Snaga" iz baze)
+        if (standardizedMain) {
+          if (!grouped[standardizedMain]) grouped[standardizedMain] = { glavno: null, pods: [] };
+          grouped[standardizedMain].glavno = entry;
         } else {
-          const main = subToMainCategory[sub] || "Nepoznata kategorija";
-          if (!grouped[main]) grouped[main] = { glavno: null, pods: [] };
-          grouped[main].pods.push(entry);
+          const subMapped = subToMainCategory[subKey];
+          const stdMain = subMapped ? standardMainCategories[subMapped.toLowerCase()] : "Nepoznata kategorija";
+          if (!grouped[stdMain]) grouped[stdMain] = { glavno: null, pods: [] };
+          grouped[stdMain].pods.push(entry);
         }
       });
 
@@ -146,19 +164,14 @@ function ucitajOcene(loggedUser, ratedName) {
         const paramCell = document.createElement("td");
 
         const v = pods.filter(e => typeof e.score === 'number').length;
-        const y = Object.entries(subToMainCategory).filter(([sub, cat]) => cat === main).length;
+        const y = Object.entries(subToMainCategory).filter(([_, cat]) => cat === main).length;
         const w = y - v;
         const a = pods.reduce((acc, e) => acc + (typeof e.score === 'number' ? e.score : 0), 0);
         const b = w * 5;
         const x = a + b;
         const z = y > 0 ? x / y : "-";
 
-        if (glavno) {
-          scoreCell.textContent = glavno.score ?? "-";
-        } else {
-          scoreCell.textContent = "";
-        }
-
+        scoreCell.textContent = glavno ? (glavno.score ?? "-") : "";
         paramCell.innerHTML = `a = ${a} ; b = ${b} ; x = ${x} ; v = ${v} ; w = ${w} ; y = ${y} ; z = ${z}`;
 
         mainRow.appendChild(mainCell);
@@ -166,7 +179,6 @@ function ucitajOcene(loggedUser, ratedName) {
         mainRow.appendChild(paramCell);
         tabela.appendChild(mainRow);
 
-        // Dodaj potkategorije
         pods.forEach(e => {
           const row = document.createElement("tr");
           row.innerHTML = `
