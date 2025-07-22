@@ -34,5 +34,20 @@
       <!-- Dinamički sadržaj u sledećoj fazi -->
     </div>
   </div>
+
+  <script>
+    const postId = new URLSearchParams(window.location.search).get("postId");
+    fetch(`/api/posts/validators/${postId}`)
+      .then(res => res.json())
+      .then(data => {
+        const lista = document.getElementById("demanti-lista");
+        data.deniers.forEach(ime => {
+          const p = document.createElement("p");
+          p.innerText = ime;
+          lista.appendChild(p);
+        });
+      });
+  </script>
+
 </body>
 </html>
