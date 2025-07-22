@@ -385,10 +385,15 @@
     }
 
     function loadReplies(postId, container) {
-      fetch(`/api/replies/${postId}`)
+      // Očisti stare replike, ako ih ima
+      const oldReplies = container.querySelector(".reply-list");
+      if (oldReplies) oldReplies.remove();
+
+      fetch(`https://selfmarking-backend.onrender.com/api/replies/${postId}`)
         .then(res => res.json())
         .then(replies => {
           const replyList = document.createElement("div");
+          replyList.className = "reply-list";
           replyList.style.marginTop = "10px";
           replies.forEach(reply => {
             const replyDiv = document.createElement("div");
