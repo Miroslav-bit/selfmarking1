@@ -264,6 +264,7 @@
         if (res.ok) {
           textArea.value = "";
           imageUrlInput.value = "";
+          videoUrlInput.value = "";
           loadPosts();
         } else {
           const data = await res.json();
