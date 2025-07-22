@@ -407,7 +407,7 @@
 
       submitBtn.onclick = () => {
         const token = localStorage.getItem("token");
-        fetch('/api/replies', {
+        fetch('https://selfmarking-backend.onrender.com/api/replies', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
