@@ -416,9 +416,13 @@
           body: JSON.stringify({ postId, text: textarea.value })
         })
         .then(res => res.json())
-        .then(() => {
+        .then((newReply) => {
           alert("Replika sačuvana!");
           textarea.value = "";
+
+          const replyDiv = document.createElement("div");
+          replyDiv.innerHTML = `<strong>Vi:</strong> ${newReply.text}`;
+          container.appendChild(replyDiv);
         });
       };
 
