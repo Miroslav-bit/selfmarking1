@@ -37,7 +37,7 @@
 
   <script>
     const postId = new URLSearchParams(window.location.search).get("postId");
-    fetch(`/api/posts/validators/${postId}`)
+    fetch(`https://selfmarking-backend.onrender.com/api/posts/validators/${postId}`)
       .then(res => res.json())
       .then(data => {
         const lista = document.getElementById("demanti-lista");
@@ -51,3 +51,4 @@
 
 </body>
 </html>
+
