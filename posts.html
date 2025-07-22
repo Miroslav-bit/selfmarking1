@@ -417,12 +417,9 @@
         })
         .then(res => res.json())
         .then((newReply) => {
-          alert("Replika sačuvana!");
           textarea.value = "";
-
-          const replyDiv = document.createElement("div");
-          replyDiv.innerHTML = `<strong>Vi:</strong> ${newReply.text}`;
-          container.appendChild(replyDiv);
+          alert("Replika sačuvana!");
+          loadReplies(postId, container);
         });
       };
 
