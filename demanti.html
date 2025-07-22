@@ -2,17 +2,37 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <title>Moj panel</title>
+  <title>Demanti</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .modal-box {
+      border: 3px solid #7ec9f5;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .close-btn {
+      float: right;
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Dobrodošli u Vaš Self Panel</h1>
-
-  <!-- Div za prikaz panela -->
-  <div id="panel">
-    <p>Učitavanje panela u toku...</p>
+  <div class="modal-box">
+    <button class="close-btn" onclick="window.history.back()">X</button>
+    <h2>Demantovali objavu:</h2>
+    <div id="demanti-lista">
+      <!-- Dinamički sadržaj u sledećoj fazi -->
+    </div>
   </div>
-
-  <!-- Skripta za dinamičko učitavanje sadržaja -->
-  <script src="user-panel.js"></script>
 </body>
 </html>
