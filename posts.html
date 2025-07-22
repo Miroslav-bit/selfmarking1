@@ -397,7 +397,11 @@
           replyList.style.marginTop = "10px";
           replies.forEach(reply => {
             const replyDiv = document.createElement("div");
-            replyDiv.innerHTML = `<strong>${reply.user.name} ${reply.user.surname}:</strong> ${reply.text}`;
+            const authorName = reply.user?.name && reply.user?.surname
+              ? `${reply.user.name} ${reply.user.surname}`
+              : "Nepoznat član";
+
+            replyDiv.innerHTML = `<strong>${authorName}:</strong> ${reply.text}`;
             replyList.appendChild(replyDiv);
           });
           container.appendChild(replyList);
