@@ -364,6 +364,18 @@
             div.appendChild(videoWrapper);
           }
 
+          // Dugme za prikaz replika
+          const showRepliesBtn = document.createElement("button");
+          showRepliesBtn.textContent = "Replike";
+          showRepliesBtn.onclick = () => loadReplies(post._id, div);
+          div.appendChild(showRepliesBtn);
+
+          // Dugme za unos nove replike
+          const replyBtn = document.createElement("button");
+          replyBtn.textContent = "Repliciraj";
+          replyBtn.onclick = () => showReplyForm(post._id, div);
+          div.appendChild(replyBtn);
+
           container.appendChild(div);
         });
       } catch (err) {
@@ -371,6 +383,50 @@
         alert("Greška pri učitavanju objava.");
       }
     }
+
+    function loadReplies(postId, container) {
+      fetch(`/api/replies/${postId}`)
+        .then(res => res.json())
+        .then(replies => {
+          const replyList = document.createElement("div");
+          replyList.style.marginTop = "10px";
+          replies.forEach(reply => {
+            const replyDiv = document.createElement("div");
+            replyDiv.innerHTML = `<strong>${reply.user.name} ${reply.user.surname}:</strong> ${reply.text}`;
+            replyList.appendChild(replyDiv);
+          });
+          container.appendChild(replyList);
+        });
+    }
+
+    function showReplyForm(postId, container) {
+      const formDiv = document.createElement("div");
+      const textarea = document.createElement("textarea");
+      const submitBtn = document.createElement("button");
+      submitBtn.textContent = "Pošalji";
+
+      submitBtn.onclick = () => {
+        const token = localStorage.getItem("token");
+        fetch('/api/replies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ postId, text: textarea.value })
+        })
+        .then(res => res.json())
+        .then(() => {
+          alert("Replika sačuvana!");
+          textarea.value = "";
+        });
+      };
+
+      formDiv.appendChild(textarea);
+      formDiv.appendChild(submitBtn);
+      container.appendChild(formDiv);
+    }
+
     window.onload = loadPosts;
     function updateStarRating(score) {
       const starContainer = document.getElementById("starRating");
