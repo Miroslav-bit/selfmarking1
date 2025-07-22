@@ -137,6 +137,7 @@
     <section class="form-section">
       <textarea id="postText" placeholder="Unesi svoju objavu..."></textarea>
       <input type="text" id="imageUrl" placeholder="Unesi URL slike (opciono)" style="width:100%; padding:10px; margin-top:10px; border-radius:5px;">
+      <input type="text" id="videoUrl" placeholder="Unesi URL video snimka (opciono)" style="width:100%; padding:10px; margin-top:10px; border-radius:5px;">
       <button onclick="addPost()">Dodaj objavu</button>
     </section>
 
@@ -235,6 +236,8 @@
       const text = textArea.value.trim();
       const imageUrl = imageUrlInput.value.trim();
       const token = localStorage.getItem("token");
+      const videoUrlInput = document.getElementById("videoUrl");
+      const videoUrl = videoUrlInput.value.trim();
 
       if (!text) {
         alert("Unesi neki tekst.");
@@ -251,6 +254,7 @@
           body: JSON.stringify({
             text,
             imageUrl: imageUrl || null,
+            videoUrl: videoUrl || null,
             panelOwnerId: ownerId,
             mainCategory: main,
             subCategory: sub
@@ -308,6 +312,55 @@
             img.style.borderRadius = "8px";
             img.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
             div.appendChild(img);
+          }
+
+          if (post.videoUrl) {
+            const videoWrapper = document.createElement("div");
+            videoWrapper.style.marginTop = "10px";
+
+            if (post.videoUrl.endsWith(".mp4")) {
+              const video = document.createElement("video");
+              video.src = post.videoUrl;
+              video.controls = true;
+              video.style.maxWidth = "100%";
+              video.style.borderRadius = "8px";
+              videoWrapper.appendChild(video);
+            } else if (post.videoUrl.includes("youtube.com/watch?v=")) {
+              const videoId = post.videoUrl.split("v=")[1].split("&")[0];
+              const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+              const iframe = document.createElement("iframe");
+              iframe.src = embedUrl;
+              iframe.allowFullscreen = true;
+              iframe.style.width = "100%";
+              iframe.style.height = "315px";
+              iframe.style.border = "none";
+              iframe.style.borderRadius = "8px";
+              videoWrapper.appendChild(iframe);
+            } else if (post.videoUrl.includes("youtu.be/")) {
+              const videoId = post.videoUrl.split("youtu.be/")[1].split("?")[0];
+              const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+              const iframe = document.createElement("iframe");
+              iframe.src = embedUrl;
+              iframe.allowFullscreen = true;
+              iframe.style.width = "100%";
+              iframe.style.height = "315px";
+              iframe.style.border = "none";
+              iframe.style.borderRadius = "8px";
+              videoWrapper.appendChild(iframe);
+            } else if (post.videoUrl.includes("vimeo.com")) {
+              const videoId = post.videoUrl.split("vimeo.com/")[1].split("/")[0];
+              const embedUrl = `https://player.vimeo.com/video/${videoId}`;
+              const iframe = document.createElement("iframe");
+              iframe.src = embedUrl;
+              iframe.allowFullscreen = true;
+              iframe.style.width = "100%";
+              iframe.style.height = "315px";
+              iframe.style.border = "none";
+              iframe.style.borderRadius = "8px";
+              videoWrapper.appendChild(iframe);
+            }
+
+            div.appendChild(videoWrapper);
           }
 
           container.appendChild(div);
