@@ -113,6 +113,37 @@
       color: black;
       font-size: 16px;
     }
+    .validation-buttons {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .confirm-button,
+    .deny-button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .confirm-button {
+      background-color: #27ae60;
+    }
+
+    .confirm-button.active {
+      background-color: #145e32;
+    }
+
+    .deny-button {
+      background-color: #e74c3c;
+    }
+
+    .deny-button.active {
+      background-color: #992d22;
+    }
   </style>
 </head>
 <body>
@@ -386,6 +417,22 @@
           replyBtn.onclick = () => showReplyForm(post._id, div);
           div.appendChild(replyBtn);
 
+          // Dugmad za potvrdu/demantovanje
+          const validationDiv = document.createElement("div");
+          validationDiv.className = "validation-buttons";
+
+          const confirmBtn = document.createElement("button");
+          confirmBtn.className = "confirm-button";
+          confirmBtn.textContent = "Potvrdi";
+
+          const denyBtn = document.createElement("button");
+          denyBtn.className = "deny-button";
+          denyBtn.textContent = "Demantuj";
+
+          validationDiv.appendChild(confirmBtn);
+          validationDiv.appendChild(denyBtn);
+          div.appendChild(validationDiv);
+
           container.appendChild(div);
         });
       } catch (err) {
@@ -502,6 +549,37 @@
         }
       }
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('.confirm-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const denyButton = button.parentElement.querySelector('.deny-button');
+          const isActive = button.classList.contains('active');
+
+          if (isActive) {
+            button.classList.remove('active');
+          } else {
+            button.classList.add('active');
+            denyButton.classList.remove('active');
+          }
+        });
+      });
+
+      document.querySelectorAll('.deny-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const confirmButton = button.parentElement.querySelector('.confirm-button');
+          const isActive = button.classList.contains('active');
+
+          if (isActive) {
+            button.classList.remove('active');
+          } else {
+            button.classList.add('active');
+            confirmButton.classList.remove('active');
+          }
+        });
+      });
+    });
+
   </script>
 </body>
 </html>
