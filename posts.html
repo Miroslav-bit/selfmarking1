@@ -364,9 +364,19 @@
             div.appendChild(videoWrapper);
           }
 
-          // Dugme za prikaz replika
+          // Dugme za prikaz replika sa brojačem
           const showRepliesBtn = document.createElement("button");
-          showRepliesBtn.textContent = "Replike";
+
+          fetch(`https://selfmarking-backend.onrender.com/api/replies/${post._id}`)
+            .then(res => res.json())
+            .then(replies => {
+              const brojReplika = replies.length;
+              showRepliesBtn.textContent = `Replike (${brojReplika})`;
+            })
+            .catch(() => {
+              showRepliesBtn.textContent = "Replike (0)";
+            });
+
           showRepliesBtn.onclick = () => loadReplies(post._id, div);
           div.appendChild(showRepliesBtn);
 
@@ -429,6 +439,14 @@
           textarea.value = "";
           alert("Replika sačuvana!");
           loadReplies(postId, container);
+
+          // Ažuriranje brojača replika
+          fetch(`https://selfmarking-backend.onrender.com/api/replies/${postId}`)
+            .then(res => res.json())
+            .then(replies => {
+              const btn = container.querySelector("button");
+              if (btn) btn.textContent = `Replike (${replies.length})`;
+            });
         });
       };
 
