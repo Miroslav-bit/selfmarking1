@@ -436,6 +436,13 @@
               headers: {
                 "Authorization": "Bearer " + token
               }
+            })
+            .then(res => res.json())
+            .then(data => {
+              alert("Uspešno potvrđeno.");
+            })
+            .catch(err => {
+              alert("Greška pri potvrđivanju.");
             });
           };
 
