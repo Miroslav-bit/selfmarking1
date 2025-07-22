@@ -433,6 +433,14 @@
           validationDiv.appendChild(denyBtn);
           div.appendChild(validationDiv);
 
+          // Dugmad za prikaz stranica "Potvrde" i "Demanti"
+          const dodatnaDugmad = document.createElement("div");
+          dodatnaDugmad.innerHTML = `
+            <button onclick="window.location.href='potvrde.html'" style="background-color: green; color: white; border: none; padding: 5px 10px; margin-left: 5px;">Potvrde</button>
+            <button onclick="window.location.href='demanti.html'" style="background-color: red; color: white; border: none; padding: 5px 10px; margin-left: 5px;">Demanti</button>
+          `;
+          div.appendChild(dodatnaDugmad);
+
           container.appendChild(div);
         });
       } catch (err) {
