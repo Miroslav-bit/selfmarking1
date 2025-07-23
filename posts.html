@@ -223,6 +223,9 @@
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
       document.getElementById("tema-naslov").innerText = `${fullName} – ${sub.replace(/-/g, ' ')}`;
 
+      localStorage.setItem("ime", data.name || "");
+      localStorage.setItem("prezime", data.surname || "");
+
       document.getElementById("breadcrumb").innerHTML = `
         <a href="index.html">Home</a> &gt;
         <a href="main-categories.html?user=${ownerId}">${fullName}</a> &gt;
