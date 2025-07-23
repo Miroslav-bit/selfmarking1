@@ -442,11 +442,17 @@
           })
           .then(res => res.json())
           .then(statusData => {
-            if (statusData.confirmed) {
+            // Reset dugmadi
+            confirmBtn.classList.remove("active");
+            confirmBtn.textContent = "Potvrdi";
+            denyBtn.classList.remove("active");
+            denyBtn.textContent = "Demantuj";
+
+            // Personalizovani prikaz za ulogovanog korisnika
+            if (statusData.confirmed === true) {
               confirmBtn.classList.add("active");
               confirmBtn.textContent = "POTVRĐENO";
-            }
-            if (statusData.denied) {
+            } else if (statusData.denied === true) {
               denyBtn.classList.add("active");
               denyBtn.textContent = "DEMANTOVANO";
             }
