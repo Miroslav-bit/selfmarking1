@@ -442,10 +442,11 @@
           })
           .then(res => res.json())
           .then(statusData => {
-            if (statusData.status === "confirmed") {
+            if (statusData.confirmed) {
               confirmBtn.classList.add("active");
               confirmBtn.textContent = "POTVRĐENO";
-            } else if (statusData.status === "denied") {
+            }
+            if (statusData.denied) {
               denyBtn.classList.add("active");
               denyBtn.textContent = "DEMANTOVANO";
             }
