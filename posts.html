@@ -469,16 +469,6 @@
              });
           };
 
-          denyBtn.onclick = () => {
-            const token = localStorage.getItem("token");
-            fetch(`https://selfmarking-backend.onrender.com/api/posts/deny/${post._id}`, {
-              method: "POST",
-              headers: {
-                "Authorization": "Bearer " + token
-              }
-            });
-          };
-
           validationDiv.appendChild(confirmBtn);
           validationDiv.appendChild(denyBtn);
           div.appendChild(validationDiv);
