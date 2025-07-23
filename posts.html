@@ -223,9 +223,6 @@
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
       document.getElementById("tema-naslov").innerText = `${fullName} – ${sub.replace(/-/g, ' ')}`;
 
-      localStorage.setItem("ime", data.name || "");
-      localStorage.setItem("prezime", data.surname || "");
-
       document.getElementById("breadcrumb").innerHTML = `
         <a href="index.html">Home</a> &gt;
         <a href="main-categories.html?user=${ownerId}">${fullName}</a> &gt;
@@ -428,48 +425,35 @@
           confirmBtn.className = "confirm-button";
           confirmBtn.textContent = "Potvrdi";
 
-          confirmBtn.onclick = () => {
-            const token = localStorage.getItem("token");
-            const ime = localStorage.getItem("ime") + " " + localStorage.getItem("prezime");
-
-            fetch(`https://selfmarking-backend.onrender.com/api/posts/validators/${post._id}`)
-              .then(res => res.json())
-              .then(data => {
-                const većPotvrdio = data.confirmators.includes(ime);
-                const metod = većPotvrdio ? "remove" : "add";
-
-                fetch(`https://selfmarking-backend.onrender.com/api/posts/confirm/${post._id}?mode=${metod}`, {
-                  method: "POST",
-                  headers: {
-                    "Authorization": "Bearer " + token
-                  }
-                })
-                .then(() => location.reload());
-              });
-          };
-
           const denyBtn = document.createElement("button");
           denyBtn.className = "deny-button";
           denyBtn.textContent = "Demantuj";
 
+          confirmBtn.onclick = () => {
+            const token = localStorage.getItem("token");
+            fetch(`https://selfmarking-backend.onrender.com/api/posts/confirm/${post._id}`, {
+              method: "POST",
+              headers: {
+                "Authorization": "Bearer " + token
+              }
+            })
+            .then(res => res.json())
+            .then(data => {
+              alert("Uspešno potvrđeno.");
+            })
+            .catch(err => {
+              alert("Greška pri potvrđivanju.");
+            });
+          };
+
           denyBtn.onclick = () => {
             const token = localStorage.getItem("token");
-            const ime = localStorage.getItem("ime") + " " + localStorage.getItem("prezime");
-
-            fetch(`https://selfmarking-backend.onrender.com/api/posts/validators/${post._id}`)
-              .then(res => res.json())
-              .then(data => {
-                const većDemantovao = data.deniers.includes(ime);
-                const metod = većDemantovao ? "remove" : "add";
-
-                fetch(`https://selfmarking-backend.onrender.com/api/posts/deny/${post._id}?mode=${metod}`, {
-                  method: "POST",
-                  headers: {
-                    "Authorization": "Bearer " + token
-                  }
-                })
-                .then(() => location.reload());
-             });
+            fetch(`https://selfmarking-backend.onrender.com/api/posts/deny/${post._id}`, {
+              method: "POST",
+              headers: {
+                "Authorization": "Bearer " + token
+              }
+            });
           };
 
           validationDiv.appendChild(confirmBtn);
