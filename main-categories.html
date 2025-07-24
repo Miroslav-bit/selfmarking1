@@ -205,7 +205,7 @@
 
         Promise.all([
           fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`).then(res => res.json()),
-          fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`).then(res => res.json())
+          fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
         ])
         .then(([directRaters, indirectRaters]) => {
           // Kombinuj sve ocenjivače
