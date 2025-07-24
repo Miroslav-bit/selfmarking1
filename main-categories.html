@@ -201,21 +201,22 @@
 
         // Dohvati ocenjivače
         const cardName = `${data.name} ${data.surname}`;
-        const cardSub = cat.name;
+        const cardMain = cat.name.toLowerCase(); // za indirektne ocene
+        const cardSub = cat.name; // za direktne ocene
 
         Promise.all([
           fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`).then(res => res.json()),
-          fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
+          fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardMain)}`).then(res => res.json())
         ])
         .then(([directRaters, indirectRaters]) => {
           // Kombinuj sve ocenjivače
           const allRaters = [...directRaters, ...indirectRaters];
 
-          // Ukloni duplikate po korisničkom imenu (ako postoji name i surname)
+          // Ukloni duplikate po imenu ocenjivača
           const uniqueRaters = [];
           const seen = new Set();
           for (const r of allRaters) {
-            const key = r.raterId || `${r.name} ${r.surname}`;
+            const key = r.rater || `${r.name} ${r.surname}`; // za svaki slučaj
             if (!seen.has(key)) {
               seen.add(key);
               uniqueRaters.push(r);
@@ -224,7 +225,7 @@
 
           ratersBtn.innerText = `Ocenjivači (${uniqueRaters.length})`;
 
-          // Računaj prosek na osnovu direktnih ocena (samo directRaters)
+          // Računaj prosek na osnovu direktnih ocena
           const zbir = directRaters.reduce((sum, r) => sum + (r.score || 0), 0);
           const broj = directRaters.length;
           const prosek = broj > 0 ? zbir / broj : 0;
@@ -232,11 +233,11 @@
           const stars = createStarRating(prosek);
           starsWrapper.appendChild(stars);
         })
-          .catch(err => {
-            console.error("Greška pri dohvatu ocena:", err);
-            ratersBtn.innerText = "Ocenjivači (?)";
-            scoreText.innerText = "–";
-          });
+        .catch(err => {
+          console.error("Greška pri dohvatu ocena:", err);
+          ratersBtn.innerText = "Ocenjivači (?)";
+          scoreText.innerText = "–";
+        });
       });
     });
 
