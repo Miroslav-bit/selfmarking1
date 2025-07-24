@@ -255,28 +255,14 @@
       const fullName = `${data.name} ${data.surname}`;
       const subName = format(sub);
 
-      fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(fullName)}&cardSub=${encodeURIComponent(subName)}`)
-        .then(res => res.json())
-        .then(raters => {
-          const broj = raters.length;
-          const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
-          const prosek = broj > 0 ? (zbir / broj).toFixed(2) : "–";
-
-          document.querySelector(".raters").innerHTML = `
-            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači (${broj})</a>
-          `;
-          document.getElementById("averageScore").innerText = prosek;
-          updateStarRating(parseFloat(prosek));
-        })
-        .catch(err => {
-          console.error("Greška pri učitavanju broja ocenjivača:", err);
-          document.querySelector(".raters").innerHTML = `
-            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
-          `;
-          document.getElementById("averageScore").innerText = "–";
-        });
+      getRatingAndRaters(fullName, subName, ({ broj, prosek }) => {
+        document.querySelector(".raters").innerHTML = `
+          <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
+          <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači (${broj})</a>
+        `;
+        document.getElementById("averageScore").innerText = prosek;
+        updateStarRating(parseFloat(prosek));
+      });
 
       document.querySelector(".rate").innerHTML = `
         <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
@@ -720,8 +706,7 @@
         });
       });
     });
-
-    src="common-rating.js"
   </script>
+  <script src="common-rating.js"></script>
 </body>
 </html>
