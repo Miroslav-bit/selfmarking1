@@ -220,50 +220,11 @@
       window.location.href = "login.html";
     }
 
-    const format = txt => txt.replace(/-/g, ' ');
-    const slugify = txt => txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "-");
-
-    let realSubName = format(sub); // fallback ako ništa ne nađe
-
-    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
-      headers: { "Authorization": "Bearer " + viewerToken }
-    })
-    .then(res => res.json())
-    .then(data => {
-      const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
-
-      const category = data.categories.find(c => slugify(c.name) === main);
-      const subcategory = category?.subcategories.find(s => slugify(s.name) === sub);
-      if (subcategory) realSubName = subcategory.name;
-
-      document.getElementById("tema-naslov").innerText = `${fullName} – ${realSubName}`;
-      document.getElementById("breadcrumb").innerHTML = `
-        <a href="index.html">Home</a> &gt;
-        <a href="main-categories.html?user=${ownerId}">${fullName}</a> &gt;
-        <a href="subcategories.html?main=${main}&user=${ownerId}">${category?.name || format(main)}</a> &gt;
-        ${realSubName}
-      `;
-
-      fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(fullName)}&cardSub=${encodeURIComponent(realSubName)}`)
-        .then(res => res.json())
-        .then(raters => {
-          const broj = raters.length;
-          document.querySelector(".raters").innerHTML = `
-            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(realSubName)}">Ocenjivači (${broj})</a>
-          `;
-
-          const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
-          const prosek = broj > 0 ? (zbir / broj).toFixed(2) : "–";
-          document.getElementById("averageScore").innerText = prosek;
-          updateStarRating(parseFloat(prosek));
-        });
-  
-      document.querySelector(".rate").innerHTML = `
-        <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
-        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(realSubName)}&user=${ownerId}">☆ Ocenite</a>
-      `;
-    });
+    const format = txt => {
+      const text = txt.replace(/-/g, ' ');
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    };
+    document.getElementById("tema-naslov").innerText = format(sub);
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
       headers: { "Authorization": "Bearer " + viewerToken }
