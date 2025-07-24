@@ -220,36 +220,32 @@
         rateButtonWrapper.appendChild(rateButton);
         div.appendChild(rateButtonWrapper);
 
-        // Dovuci broj ocenjivača i ažuriraj dugme
-        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(data.name + " " + data.surname)}&cardSub=${encodeURIComponent(sub.name)}`)
-          .then(res => res.json())
-          .then(raters => {
-            raterButton.innerText = `Ocenjivači (${raters.length})`;
-          })
-          .catch(err => {
-            console.error("Greška pri dohvatu broja ocenjivača:", err);
-            raterButton.innerText = "Ocenjivači (?)";
-          });
-
         container.appendChild(div);
 
         // Dohvati prosečnu ocenu iz backenda
         const cardName = `${data.name} ${data.surname}`;
         const cardSub = sub.name;
 
+        // Ujedinjeno: Prosečna ocena + broj ocenjivača
         fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
           .then(res => res.json())
           .then(raters => {
             const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
             const broj = raters.length;
-            const prosek = broj > 0 ? zbir / broj : 0;
-            const starRating = createStarRating(prosek);
-            starsWrapper.appendChild(starRating);
-            scoreText.innerText = prosek.toFixed(2);
+            const prosek = broj > 0 ? (zbir / broj).toFixed(2) : "–";
+
+            // Ažuriraj prikaz broja ocenjivača
+            raterButton.innerText = `Ocenjivači (${broj})`;
+
+            // Ažuriraj prikaz ocene i zvezdica
+            scoreText.innerText = prosek;
+            starsWrapper.appendChild(createStarRating(parseFloat(prosek)));
           })
           .catch(err => {
-            console.error("Greška pri dohvatu ocene:", err);
-         });
+            console.error("Greška pri dohvatu ocene/ocenjivača:", err);
+            raterButton.innerText = "Ocenjivači (?)";
+            scoreText.innerText = "–";
+          });
 
         container.appendChild(div);
       });
@@ -314,6 +310,8 @@
 
       return container;
     }
+
+    src="common-rating.js"
   </script>
 </body>
 </html>
