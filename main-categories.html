@@ -203,7 +203,7 @@
         const cardName = `${data.name} ${data.surname}`;
         const cardSub = cat.name;
 
-        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
+        fetch(`https://selfmarking-backend.onrender.com/api/ratings/all-raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
           .then(res => res.json())
           .then(raters => {
             ratersBtn.innerText = `Ocenjivači (${raters.length})`;
