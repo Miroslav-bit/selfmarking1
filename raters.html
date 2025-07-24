@@ -73,6 +73,10 @@
     </div>
   </div>
 
+  <div id="indirect-raters-list">
+    <p>Učitavanje...</p>
+  </div>
+
   <script>
 
     function slugify(text) {
@@ -131,25 +135,29 @@
       });
 
     // NOVO: Prikaz indirektnih ocenjivača glavne kategorije
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
+fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
       .then(res => res.json())
       .then(data => {
-        const listDiv = document.getElementById("raters-list");
+        const indirectDiv = document.getElementById("indirect-raters-list");
+        indirectDiv.innerHTML = "";
 
         if (data && data.length > 0) {
           data.forEach(r => {
             const row = document.createElement("div");
             row.className = "rater-row";
             row.innerHTML = `
-              <div><strong>${r.rater}</strong></div>
+              <div>${r.rater}</div>
               <div>${r.score}</div>
             `;
-            listDiv.appendChild(row);
+            indirectDiv.appendChild(row);
           });
+        } else {
+          indirectDiv.innerHTML = "<p>Još uvek nema indirektnih ocenjivača.</p>";
         }
       })
       .catch(err => {
         console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
+        document.getElementById("indirect-raters-list").innerHTML = "<p>Greška pri učitavanju indirektnih ocenjivača.</p>";
       });
 
   </script>
