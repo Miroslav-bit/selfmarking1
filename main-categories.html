@@ -203,17 +203,40 @@
         const cardName = `${data.name} ${data.surname}`;
         const cardSub = cat.name;
 
-        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
-          .then(res => res.json())
-          .then(raters => {
-            ratersBtn.innerText = `Ocenjivači (${raters.length})`;
-            const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
-            const broj = raters.length;
-            const prosek = broj > 0 ? zbir / broj : 0;
-            scoreText.innerText = prosek.toFixed(2);
-            const stars = createStarRating(prosek);
-            starsWrapper.appendChild(stars);
-          })
+        Promise.all([
+          fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`).then(res => res.json()),
+          fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`).then(res => res.json())
+        ])
+        .then(([directRaters, indirectRaters]) => {
+          // Kombinuj sve ocenjivače
+          const allRaters = [...directRaters, ...indirectRaters];
+
+          // Ukloni duplikate po korisničkom imenu (ako postoji name i surname)
+          const uniqueRaters = [];
+          const seen = new Set();
+          for (const r of allRaters) {
+            const key = r.raterId || `${r.name} ${r.surname}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              uniqueRaters.push(r);
+            }
+          }
+
+          ratersBtn.innerText = `Ocenjivači (${uniqueRaters.length})`;
+
+          // Računaj prosek na osnovu direktnih ocena (samo directRaters)
+          const zbir = directRaters.reduce((sum, r) => sum + (r.score || 0), 0);
+          const broj = directRaters.length;
+          const prosek = broj > 0 ? zbir / broj : 0;
+          scoreText.innerText = prosek.toFixed(2);
+          const stars = createStarRating(prosek);
+          starsWrapper.appendChild(stars);
+        })
+        .catch(err => {
+          console.error("Greška pri dohvatu ocena:", err);
+          ratersBtn.innerText = "Ocenjivači (?)";
+          scoreText.innerText = "–";
+        });
           .catch(err => {
             console.error("Greška pri dohvatu ocena:", err);
             ratersBtn.innerText = "Ocenjivači (?)";
