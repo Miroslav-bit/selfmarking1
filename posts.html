@@ -242,7 +242,7 @@
         </div>
       `;
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
-      document.getElementById("tema-naslov").innerText = `${fullName} – ${sub.replace(/-/g, ' ')}`;
+      document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
 
       localStorage.setItem("ime", data.name || "");
       localStorage.setItem("prezime", data.surname || "");
@@ -261,7 +261,7 @@
           const broj = raters.length;
           document.querySelector(".raters").innerHTML = `
             <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači (${broj})</a>
+            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">Ocenjivači (${broj})</a>
           `;
 
           // Izračunavanje prosečne ocene
@@ -274,14 +274,14 @@
           console.error("Greška pri učitavanju broja ocenjivača:", err);
           document.querySelector(".raters").innerHTML = `
             <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub)}">Ocenjivači</a>
+            <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">Ocenjivači</a>
           `;
           document.getElementById("averageScore").innerText = "–";
         });
 
       document.querySelector(".rate").innerHTML = `
         <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
-        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(sub)}&user=${ownerId}">☆ Ocenite</a>
+        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(format(sub))}&user=${ownerId}">☆ Ocenite</a>
       `;
     });
 
@@ -312,7 +312,7 @@
             videoUrl: videoUrl || null,
             panelOwnerId: ownerId,
             mainCategory: main,
-            subCategory: sub
+            subCategory: format(sub)
           })
         });
 
