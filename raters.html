@@ -73,28 +73,6 @@
     </div>
   </div>
 
-// NOVO: Prikaz indirektnih ocenjivača glavne kategorije
-fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
-  .then(res => res.json())
-  .then(data => {
-    const listDiv = document.getElementById("raters-list");
-
-    if (data && data.length > 0) {
-      data.forEach(r => {
-        const row = document.createElement("div");
-        row.className = "rater-row";
-        row.innerHTML = `
-          <div><strong>${r.rater}</strong></div>
-          <div>${r.score}</div>
-        `;
-        listDiv.appendChild(row);
-      });
-    }
-  })
-  .catch(err => {
-    console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
-  });
-
   <script>
 
     function slugify(text) {
@@ -151,6 +129,29 @@ fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?card
         console.error("Greška pri dohvatu ocenjivača:", err);
         document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
       });
+
+    // NOVO: Prikaz indirektnih ocenjivača glavne kategorije
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
+      .then(res => res.json())
+      .then(data => {
+        const listDiv = document.getElementById("raters-list");
+
+        if (data && data.length > 0) {
+          data.forEach(r => {
+            const row = document.createElement("div");
+            row.className = "rater-row";
+            row.innerHTML = `
+              <div><strong>${r.rater}</strong></div>
+              <div>${r.score}</div>
+            `;
+            listDiv.appendChild(row);
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
+      });
+
   </script>
 </body>
 </html>
