@@ -215,9 +215,14 @@
     const ownerId = params.get('user');
     const viewerToken = localStorage.getItem("token");
 
-    if (!main || !sub || !ownerId || !viewerToken) {
-      alert("Greška: Nedostaju podaci.");
-      window.location.href = "login.html";
+    if (!viewerToken) {
+      const formSection = document.querySelector(".form-section");
+      if (formSection) formSection.style.display = "none";
+    }
+
+    if (!main || !sub || !ownerId) {
+      alert("Greška: Nedostaju parametri za prikaz objava.");
+      window.location.href = "index.html";
     }
 
     const format = txt => {
@@ -226,8 +231,7 @@
     };
     document.getElementById("tema-naslov").innerText = format(sub);
 
-    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
-      headers: { "Authorization": "Bearer " + viewerToken }
+    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
     })
     .then(res => res.json())
     .then(data => {
