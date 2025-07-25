@@ -209,14 +209,12 @@
           fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardMain)}`).then(res => res.json())
         ])
         .then(([directRaters, indirectRaters]) => {
-          // Kombinuj sve ocenjivače
           const allRaters = [...directRaters, ...indirectRaters];
 
-          // Ukloni duplikate po imenu ocenjivača
           const uniqueRaters = [];
           const seen = new Set();
           for (const r of allRaters) {
-            const key = r.rater || `${r.name} ${r.surname}`; // za svaki slučaj
+            const key = r.rater || `${r.name} ${r.surname}`;
             if (!seen.has(key)) {
               seen.add(key);
               uniqueRaters.push(r);
@@ -225,10 +223,8 @@
 
           ratersBtn.innerText = `Ocenjivači (${uniqueRaters.length})`;
 
-          // Računaj prosek uključujući i indirektne ocene
           const zbirDirektnih = directRaters.reduce((sum, r) => sum + (r.score || 0), 0);
           const brojDirektnih = directRaters.length;
-
           const zbirIndirektnih = indirectRaters.reduce((sum, r) => sum + (r.score || 0), 0);
           const brojIndirektnih = indirectRaters.length;
 
@@ -240,6 +236,7 @@
           scoreText.innerText = prosek.toFixed(2);
           const stars = createStarRating(prosek);
           starsWrapper.appendChild(stars);
+        })
         .catch(err => {
           console.error("Greška pri dohvatu ocena:", err);
           ratersBtn.innerText = "Ocenjivači (?)";
