@@ -102,7 +102,15 @@
     const sub = params.get('sub') || '';
 
     const cardName = `${name} ${surname}`;
-    const cardSub = formatText(sub);
+    function normalizeSub(sub) {
+      const map = {
+        "karakterne-osobine": "Karakterne osobine",
+        // Dodaj sve glavne kategorije koje imaju više reči
+      };
+      return map[sub.toLowerCase()] || formatText(sub);
+    }
+
+const cardSub = normalizeSub(sub);
     const naslov = `${cardName} – ${cardSub}`;
     document.getElementById("naslov").innerText = naslov;
 
