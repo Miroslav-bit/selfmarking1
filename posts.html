@@ -316,12 +316,6 @@
           })
         });
 
-        if (res.status === 401) {
-          alert("Molimo Vas da se prijavite.");
-          window.location.href = "login.html";
-          return;
-        }
-
         if (res.ok) {
           textArea.value = "";
           imageUrlInput.value = "";
@@ -331,7 +325,6 @@
           const data = await res.json();
           alert(data.msg || "Greška pri objavljivanju.");
         }
-
       } catch (err) {
         console.error("Greška:", err);
         alert("Greška pri slanju objave.");
@@ -496,14 +489,7 @@
                 "Authorization": "Bearer " + token
               }
             })
-            .then(res => {
-              if (res.status === 401) {
-                alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
-                window.location.href = "login.html";
-                return;
-              }
-              return res.json();
-            })
+            .then(res => res.json())
             .then(() => {
               confirmBtn.classList.add("active");
               confirmBtn.textContent = "POTVRĐENO";
@@ -520,14 +506,7 @@
                 "Authorization": "Bearer " + token
               }
             })
-            .then(res => {
-              if (res.status === 401) {
-                alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
-                window.location.href = "login.html";
-                return;
-              }
-              return res.json();
-            })
+            .then(res => res.json())
             .then(() => {
               denyBtn.classList.add("active");
               denyBtn.textContent = "DEMANTOVANO";
@@ -644,14 +623,7 @@
           },
           body: JSON.stringify({ postId, text: textarea.value })
         })
-        .then(res => {
-          if (res.status === 401) {
-            alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
-            window.location.href = "login.html";
-            return;
-          }
-          return res.json();
-        })
+        .then(res => res.json())
         .then((newReply) => {
           textarea.value = "";
           alert("Replika sačuvana!");
