@@ -232,8 +232,7 @@
     document.getElementById("tema-naslov").innerText = format(sub);
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
-    })
-    .then(res => res.json())
+      .then(res => res.json())
     .then(data => {
       const block = document.getElementById("userIdBlock");
       block.innerHTML = `
