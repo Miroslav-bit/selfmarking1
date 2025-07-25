@@ -78,7 +78,14 @@
     fetch("https://selfmarking-backend.onrender.com/api/user/me", {
       headers: { "Authorization": "Bearer " + token }
     })
-    .then(res => res.json())
+    .then(res => {
+      if (res.status === 401) {
+        alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
+        window.location.href = "login.html";
+        return;
+      }
+      return res.json();
+    })
     .then(user => {
       document.getElementById("name").value = user.name || "";
       document.getElementById("surname").value = user.surname || "";
@@ -109,6 +116,12 @@
           },
           body: JSON.stringify(updatedData)
         });
+
+        if (res.status === 401) {
+          alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
+          window.location.href = "login.html";
+          return;
+        }
 
         const data = await res.json();
         if (res.ok) {
@@ -144,6 +157,12 @@
           data = await res.json();
         } catch (e) {
           data.msg = "Nema dodatnih informacija od servera.";
+        }
+
+        if (res.status === 401) {
+          alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
+          window.location.href = "login.html";
+          return;
         }
 
         if (res.ok) {
