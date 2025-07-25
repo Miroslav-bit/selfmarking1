@@ -50,9 +50,31 @@
       height: 60px;
       border-radius: 50%;
     }
+    .login-reminder {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      font-size: 14px;
+      z-index: 9999;
+    }
+
+    .login-reminder a {
+      color: #0b5394;
+      font-weight: bold;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+  <div id="loginReminder" class="login-reminder" style="display:none;">
+    Da biste mogli pristupiti ocenjivanju, molimo Vas da se ulogujete <a href="login.html">ovde</a>.
+  </div>
   <div class="container">
     <div id="userIdBlock">Učitavanje korisnika...</div>
 
@@ -78,6 +100,11 @@
     const mainSlug = slugify(mainRaw);
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
+
+    // Prikaz banera ako korisnik nije ulogovan
+    if (!token) {
+      document.getElementById("loginReminder").style.display = "block";
+    }
 
     if (!ownerId || !mainSlug) {
       alert("Greška: Nedostaju parametri za prikaz podkategorija.");
