@@ -18,5 +18,12 @@
   </div>
 
   <script src="login-client.js"></script>
+  <script>
+    // Očisti autofill vrednosti iz email i lozinke kada se stranica učita
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('email').value = '';
+      document.getElementById('lozinka').value = '';
+    });
+  </script>
 </body>
 </html>
