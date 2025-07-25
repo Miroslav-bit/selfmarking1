@@ -68,6 +68,12 @@
       </button>
     </div>
 
+    <div style="margin-top: 15px;">
+      <button id="logout-btn" style="background-color: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+        Odjavi se
+      </button>
+    </div>
+
   <script>
     const token = localStorage.getItem("token");
     if (!token) {
@@ -183,6 +189,11 @@
         alert("Greška u vezi sa serverom.");
         console.error(err);
       }
+    });
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      alert("Uspešno ste se odjavili.");
+      window.location.href = "login.html";
     });
   </script>
 </body>
