@@ -4,9 +4,21 @@ const userId = params.get("user");
 if (!userId) {
   document.body.innerHTML = "Greška: Nema ID korisnika.";
 } else {
-  fetch(`https://selfmarking-backend.onrender.com/api/user/${userId}/panel`)
-    .then(res => res.json())
+  fetch(`https://selfmarking-backend.onrender.com/api/user/${userId}/panel`, {
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem("token")
+    }
+  })
+    .then(res => {
+      if (res.status === 401) {
+        alert("Molimo Vas da se prijavite.");
+        window.location.href = "login.html";
+        return;
+      }
+      return res.json();
+    })
     .then(panel => {
+      if (!panel) return;
       console.log("Panel:", panel);
       const panelDiv = document.getElementById("panel");
       panelDiv.innerHTML = "";
