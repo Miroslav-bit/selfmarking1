@@ -89,9 +89,9 @@
     const viewerId = localStorage.getItem("userId");
     const ownerId = new URLSearchParams(window.location.search).get("user");
 
-    if (!token || !ownerId) {
-      alert("Greška: Niste prijavljeni ili fali ID korisnika.");
-      window.location.href = "login.html";
+    if (!ownerId) {
+      alert("Greška: Nedostaje ID korisnika čiji panel želite da pregledate.");
+      window.location.href = "index.html";
     }
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
