@@ -445,6 +445,11 @@
           replyBtn.onclick = () => showReplyForm(post._id, div);
           div.appendChild(replyBtn);
 
+          // Sakrij dugmad ako korisnik nije prijavljen
+          if (!token) {
+            replyBtn.style.display = "none";
+          }
+
           // Dugmad za potvrdu/demantovanje
           const validationDiv = document.createElement("div");
           validationDiv.className = "validation-buttons";
@@ -456,6 +461,12 @@
           const denyBtn = document.createElement("button");
           denyBtn.className = "deny-button";
           denyBtn.textContent = "Demantuj";
+
+          // Sakrij dugmad za validaciju ako korisnik nije prijavljen
+          if (!token) {
+            confirmBtn.style.display = "none";
+            denyBtn.style.display = "none";
+          }
 
           // ✅ Provera statusa validacije za ovog korisnika
           fetch(`https://selfmarking-backend.onrender.com/api/posts/validation-status/${post._id}`, {
