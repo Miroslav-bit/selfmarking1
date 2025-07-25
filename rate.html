@@ -170,7 +170,14 @@
       fetch("https://selfmarking-backend.onrender.com/api/user/me", {
         headers: { "Authorization": "Bearer " + token }
       })
-      .then(res => res.json())
+      .then(res => {
+        if (res.status === 401) {
+          alert("Molimo Vas da se prijavite.");
+          window.location.href = "login.html";
+          return;
+        }
+        return res.json();
+      })
       .then(data => {
         const ime = data.name || '';
         const prezime = data.surname || '';
@@ -246,7 +253,14 @@
           score: selektovanaOcena
         })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (res.status === 401) {
+          alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
+          window.location.href = "login.html";
+          return;
+        }
+        return res.json();
+      })
       .then(res => {
         console.log("Upisano u bazu:", res);
 
