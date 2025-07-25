@@ -202,24 +202,26 @@ fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
         raterButtonWrapper.appendChild(raterButton);
         div.appendChild(raterButtonWrapper);
 
-        // Dugme "Oceni"
-        const rateButtonWrapper = document.createElement("div");
-        rateButtonWrapper.style.marginTop = "8px";
-        rateButtonWrapper.style.textAlign = "right";
+        // Dugme "Oceni" – prikazuje se samo ako je korisnik prijavljen
+        if (token) {
+          const rateButtonWrapper = document.createElement("div");
+          rateButtonWrapper.style.marginTop = "8px";
+          rateButtonWrapper.style.textAlign = "right";
 
-        const returnUrl = encodeURIComponent(window.location.href);
-        const rateButton = document.createElement("a");
-        rateButton.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}&return=${returnUrl}`;
-        rateButton.style.color = "#6b4dc4";
-        rateButton.style.textDecoration = "none";
-        rateButton.style.fontWeight = "bold";
-        rateButton.style.display = "inline-flex";
-        rateButton.style.alignItems = "center";
-        rateButton.style.gap = "5px";
-        rateButton.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
+          const returnUrl = encodeURIComponent(window.location.href);
+          const rateButton = document.createElement("a");
+          rateButton.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}&return=${returnUrl}`;
+          rateButton.style.color = "#6b4dc4";
+          rateButton.style.textDecoration = "none";
+          rateButton.style.fontWeight = "bold";
+          rateButton.style.display = "inline-flex";
+          rateButton.style.alignItems = "center";
+          rateButton.style.gap = "5px";
+          rateButton.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
 
-        rateButtonWrapper.appendChild(rateButton);
-        div.appendChild(rateButtonWrapper);
+          rateButtonWrapper.appendChild(rateButton);
+          div.appendChild(rateButtonWrapper);
+        }
 
         // Dovuci broj ocenjivača i ažuriraj dugme
         fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(data.name + " " + data.surname)}&cardSub=${encodeURIComponent(sub.name)}`)
