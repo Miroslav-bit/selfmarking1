@@ -195,15 +195,18 @@
         });
 
         const returnUrl = encodeURIComponent(window.location.href);
-        const rateLink = document.createElement("a");
-        rateLink.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(cat.name)}&return=${returnUrl}`;
-        rateLink.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
-        rateLink.style.color = "#6b4dc4";
-        rateLink.style.textDecoration = "none";
-        rateLink.style.fontWeight = "bold";
-
         bottomRow.appendChild(ratersBtn);
-        bottomRow.appendChild(rateLink);
+
+        if (token) {
+          const rateLink = document.createElement("a");
+          rateLink.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(cat.name)}&return=${returnUrl}`;
+          rateLink.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
+          rateLink.style.color = "#6b4dc4";
+          rateLink.style.textDecoration = "none";
+          rateLink.style.fontWeight = "bold";
+
+          bottomRow.appendChild(rateLink);
+        }
 
         const buttonRow = document.createElement("div");
         buttonRow.className = "category-button";
