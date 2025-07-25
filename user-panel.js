@@ -4,16 +4,16 @@ const userId = params.get("user");
 if (!userId) {
   document.body.innerHTML = "Greška: Nema ID korisnika.";
 } else {
+  const token = localStorage.getItem("token");
+
+  const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
   fetch(`https://selfmarking-backend.onrender.com/api/user/${userId}/panel`, {
-    headers: {
-      'Authorization': 'Bearer ' + localStorage.getItem("token")
-    }
+    headers: headers
   })
     .then(res => {
-      if (res.status === 401) {
-        alert("Molimo Vas da se prijavite.");
-        window.location.href = "login.html";
-        return;
+      if (!res.ok) {
+        throw new Error("Panel nije dostupan.");
       }
       return res.json();
     })
@@ -33,5 +33,6 @@ if (!userId) {
     })
     .catch(err => {
       console.error("Greška pri učitavanju panela:", err);
+      document.getElementById("panel").innerHTML = "Panel trenutno nije dostupan.";
     });
 }
