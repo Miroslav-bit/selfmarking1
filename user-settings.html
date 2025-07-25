@@ -68,6 +68,12 @@
       </button>
     </div>
 
+    <div style="margin-top: 15px;">
+      <button id="logout-btn" style="background-color: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+        Odjavi se
+     </button>
+    </div>
+
   <script>
     const token = localStorage.getItem("token");
     if (!token) {
@@ -78,14 +84,7 @@
     fetch("https://selfmarking-backend.onrender.com/api/user/me", {
       headers: { "Authorization": "Bearer " + token }
     })
-    .then(res => {
-      if (res.status === 401) {
-        alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
-        window.location.href = "login.html";
-        return;
-      }
-      return res.json();
-    })
+    .then(res => res.json())
     .then(user => {
       document.getElementById("name").value = user.name || "";
       document.getElementById("surname").value = user.surname || "";
@@ -116,12 +115,6 @@
           },
           body: JSON.stringify(updatedData)
         });
-
-        if (res.status === 401) {
-          alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
-          window.location.href = "login.html";
-          return;
-        }
 
         const data = await res.json();
         if (res.ok) {
@@ -159,12 +152,6 @@
           data.msg = "Nema dodatnih informacija od servera.";
         }
 
-        if (res.status === 401) {
-          alert("Sesija je istekla. Molimo Vas da se ponovo prijavite.");
-          window.location.href = "login.html";
-          return;
-        }
-
         if (res.ok) {
           alert("Vaš nalog je uspešno obrisan.");
           localStorage.clear();
@@ -184,6 +171,13 @@
         console.error(err);
       }
     });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      alert("Uspešno ste se odjavili.");
+      window.location.href = "login.html";
+    });
+
   </script>
 </body>
 </html>
