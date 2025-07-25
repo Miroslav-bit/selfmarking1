@@ -79,9 +79,9 @@
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
 
-    if (!token || !ownerId || !mainSlug) {
-      alert("Greška: Nedostaju parametri ili niste prijavljeni.");
-      window.location.href = "login.html";
+    if (!ownerId || !mainSlug) {
+      alert("Greška: Nedostaju parametri za prikaz podkategorija.");
+      window.location.href = "index.html";
     }
 
     const format = txt => {
@@ -89,9 +89,7 @@
       return text.charAt(0).toUpperCase() + text.slice(1);
     };
 
-    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
-      headers: { "Authorization": "Bearer " + token }
-    })
+fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
     .then(res => res.json())
     .then(data => {
       const block = document.getElementById("userIdBlock");
