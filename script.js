@@ -27,6 +27,12 @@ async function addPost() {
       body: JSON.stringify({ text })
     });
 
+    if (res.status === 401) {
+      alert("Molimo Vas da se prijavite.");
+      window.location.href = "login.html";
+      return;
+    }
+
     if (res.ok) {
       textArea.value = "";
       loadPosts();
