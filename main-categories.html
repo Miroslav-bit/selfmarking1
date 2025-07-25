@@ -201,7 +201,7 @@
 
         // Dohvati ocenjivače
         const cardName = `${data.name} ${data.surname}`;
-        const cardMain = cat.name.toLowerCase(); // za indirektne ocene
+        const cardMain = cat.name; // za indirektne ocene — zadrži originalan naziv
         const cardSub = cat.name; // za direktne ocene
 
         Promise.all([
