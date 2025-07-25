@@ -59,6 +59,16 @@
     <div class="breadcrumb" id="breadcrumb">Navigacija...</div>
 
 <h2 id="maincat-title">Ime i prezime</h2>
+
+<!-- Blok za ukupnu ocenu -->
+<div style="border: 3px solid red; padding: 15px; border-radius: 12px; margin: 20px 0;">
+  <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px;">Ukupna ocena</div>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <div id="totalStars" class="star-rating"></div>
+    <span id="totalScore" style="font-weight: bold; font-size: 14px;">0.00</span>
+  </div>
+</div>
+
 <h3 style="margin-top: -10px; margin-bottom: 20px; color: #444;">Glavne kategorije:</h3>
 <div id="categoryContainer">Učitavanje...</div>
 
@@ -102,6 +112,13 @@
       `;
       document.getElementById("breadcrumb").innerHTML = `<a href="index.html">Home</a> &gt; ${fullName}`;
       document.getElementById("maincat-title").innerText = fullName;
+
+      const totalScoreElem = document.getElementById("totalScore");
+      const totalStarsElem = document.getElementById("totalStars");
+      const initialTotalScore = 0;
+      totalScoreElem.innerText = initialTotalScore.toFixed(2);
+      const totalStars = createStarRating(initialTotalScore);
+      totalStarsElem.appendChild(totalStars);
 
       const container = document.getElementById("categoryContainer");
       container.innerHTML = "";
@@ -302,3 +319,4 @@
   </script>
 </body>
 </html>
+
