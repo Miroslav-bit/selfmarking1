@@ -282,10 +282,14 @@
           document.getElementById("averageScore").innerText = "–";
         });
 
-      document.querySelector(".rate").innerHTML = `
-        <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
-        <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(format(sub))}&user=${ownerId}">☆ Ocenite</a>
-      `;
+        if (viewerToken) {
+          document.querySelector(".rate").innerHTML = `
+            <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
+            <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${encodeURIComponent(main)}&sub=${encodeURIComponent(format(sub))}&user=${ownerId}">☆ Ocenite</a>
+          `;
+        } else {
+          document.querySelector(".rate").innerHTML = ""; // Nema dugmeta
+        }
     });
 
     async function addPost() {
