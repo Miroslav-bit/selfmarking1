@@ -187,12 +187,11 @@
       background-color: yellow;
       color: black;
       border: 1px solid #ccc;
-      padding: 2px 8px;
-      border-radius: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-left: 10px;
+     cursor: pointer;
       font-weight: bold;
-      cursor: pointer;
-      font-size: 12px;
-      margin-left: 6px;
     }
 
   </style>
@@ -235,8 +234,6 @@
 
   <script>
 
-    let panelOwnerId = "";
-
     function slugify(text) {
       return text.normalize("NFD")
                  .replace(/[\u0300-\u036f]/g, "")
@@ -276,21 +273,22 @@
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
       .then(res => res.json())
-      .then(data => {
-        panelOwnerId = data._id; // Sačuvaj vlasnika panela kao ID
-
-        const block = document.getElementById("userIdBlock");
-        block.innerHTML = `
-          <div class="user-block">
-            <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
-            <div>
-              <strong>${data.name || ''} ${data.surname || ''}</strong><br>
-              Živi u: ${data.city || 'Nepoznato'}<br>
-            </div>
+    .then(data => {
+      const block = document.getElementById("userIdBlock");
+      block.innerHTML = `
+        <div class="user-block">
+          <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
+          <div>
+            <strong>${data.name || ''} ${data.surname || ''}</strong><br>
+            Živi u: ${data.city || 'Nepoznato'}<br>
           </div>
-        `;
-        const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
-        document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
+        </div>
+      `;
+      const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
+      document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
+
+      localStorage.setItem("ime", data.name || "");
+      localStorage.setItem("prezime", data.surname || "");
 
       document.getElementById("breadcrumb").innerHTML = `
         <a href="index.html">Home</a> &gt;
@@ -332,8 +330,6 @@
         } else {
           document.querySelector(".rate").innerHTML = ""; // Nema dugmeta
         }
-
-        loadPosts(); // <-- OVDE DODAJ POZIV KAD JE SVE SPREMNO
     });
 
     async function addPost() {
@@ -489,14 +485,7 @@
               showRepliesBtn.textContent = "Replike (0)";
             });
 
-          showRepliesBtn.onclick = () => {
-            if (!panelOwnerId) {
-              alert("Molimo sačekajte da se podaci učitaju...");
-              return;
-            }
-            loadReplies(post._id, div);
-          };
-
+          showRepliesBtn.onclick = () => loadReplies(post._id, div);
           div.appendChild(showRepliesBtn);
 
           // Dugme za unos nove replike
@@ -658,12 +647,7 @@
     }
 
     function loadReplies(postId, container) {
-      // Ako panelOwnerId još nije postavljen, sačekaj i probaj ponovo
-      if (!panelOwnerId) {
-        setTimeout(() => loadReplies(postId, container), 100);
-        return;
-      }
-
+      // Očisti stare replike, ako ih ima
       const oldReplies = container.querySelector(".reply-list");
       if (oldReplies) oldReplies.remove();
 
@@ -673,7 +657,6 @@
           const replyList = document.createElement("div");
           replyList.className = "reply-list";
           replyList.style.marginTop = "10px";
-
           replies.forEach(reply => {
             const replyDiv = document.createElement("div");
             const authorName = reply.user?.name && reply.user?.surname
@@ -682,17 +665,23 @@
 
             replyDiv.innerHTML = `<strong>${authorName}:</strong> ${reply.text}`;
 
-            const viewerId = localStorage.getItem("userId");
-            if (viewerId === panelOwnerId) {
+            // Ako je korisnik vlasnik panela, prikaži dugme "Prikrij"
+            const currentUserId = localStorage.getItem("userId");
+            if (currentUserId === ownerId) {
               const hideBtn = document.createElement("button");
-              hideBtn.textContent = "Prikrij";
               hideBtn.className = "hide-reply-button";
+              hideBtn.textContent = "Prikrij";
+
+              // Funkcija još nije implementirana – samo estetski prikaz
+              hideBtn.onclick = () => {
+                alert("Prikazivanje/sakrivanje još nije aktivno.");
+              };
+
               replyDiv.appendChild(hideBtn);
             }
 
             replyList.appendChild(replyDiv);
           });
-
           container.appendChild(replyList);
         });
     }
@@ -734,6 +723,23 @@
       container.appendChild(formDiv);
     }
 
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window
+          .atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+        );
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    window.onload = loadPosts;
     function updateStarRating(score) {
       const starContainer = document.getElementById("starRating");
       if (!starContainer) return;
