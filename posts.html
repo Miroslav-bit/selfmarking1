@@ -402,7 +402,11 @@
     async function loadPosts() {
       const token = localStorage.getItem("token");
       try {
-        const res = await fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${ownerId}&mainCategory=${main}&subCategory=${sub}`);
+        const res = await fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${ownerId}&mainCategory=${main}&subCategory=${sub}`, {
+          headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+          }
+        });
         const posts = await res.json();
 
         const container = document.getElementById("postsContainer");
