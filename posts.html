@@ -182,6 +182,19 @@
       font-weight: bold;
       text-decoration: underline;
     }
+
+    .hide-reply-button {
+      background-color: yellow;
+      color: black;
+      border: 1px solid #ccc;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
   </style>
 </head>
 <body>
@@ -652,6 +665,21 @@
               : "Nepoznat član";
 
             replyDiv.innerHTML = `<strong>${authorName}:</strong> ${reply.text}`;
+
+            // === Provera da li je vlasnik panela ===
+            const panelName = localStorage.getItem("ime") || "";
+            const panelSurname = localStorage.getItem("prezime") || "";
+           const viewerName = localStorage.getItem("ime") || "";
+            const viewerSurname = localStorage.getItem("prezime") || "";
+
+            if (panelName === viewerName && panelSurname === viewerSurname) {
+              const hideBtn = document.createElement("button");
+              hideBtn.textContent = "Prikrij";
+              hideBtn.className = "hide-reply-button";
+              // Funkcionalnost će se dodati u sledećoj etapi
+              replyDiv.appendChild(hideBtn);
+            }
+
             replyList.appendChild(replyDiv);
           });
           container.appendChild(replyList);
