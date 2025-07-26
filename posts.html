@@ -194,6 +194,18 @@
       font-weight: bold;
     }
 
+    .hide-post-button {
+      background-color: yellow;
+      color: black;
+      border: 1px solid #ccc;
+      padding: 4px 10px;
+      border-radius: 6px;
+      float: right;
+      font-weight: bold;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
@@ -406,7 +418,26 @@
           datum.innerText = new Date(post.date).toLocaleString("sr-RS");
 
           const tekst = document.createElement("div");
-          tekst.innerText = post.text;
+          tekst.style.position = "relative";
+          tekst.style.minHeight = "30px";
+          tekst.style.paddingRight = "80px"; // prostor za dugme
+
+          // Dodaj tekst objave
+          const tekstSadrzaj = document.createElement("span");
+          tekstSadrzaj.innerText = post.text;
+          tekst.appendChild(tekstSadrzaj);
+
+          // Ako je korisnik vlasnik panela, dodaj dugme
+          const currentUserId = localStorage.getItem("userId");
+          if (currentUserId === ownerId) {
+            const dugmePrikrij = document.createElement("button");
+            dugmePrikrij.className = "hide-post-button";
+            dugmePrikrij.textContent = "Prikrij";
+            dugmePrikrij.onclick = () => {
+              alert("Prikazivanje/sakrivanje objave još nije aktivno.");
+            };
+            tekst.appendChild(dugmePrikrij);
+          }
 
           div.appendChild(autor);
           div.appendChild(datum);
