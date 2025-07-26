@@ -286,6 +286,10 @@
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
       .then(res => res.json())
     .then(data => {
+    const decoded = parseJwt(localStorage.getItem("token"));
+    if (decoded && decoded.id) {
+      localStorage.setItem("userId", decoded.id);  // Obavezno 'id' umesto 'userId'
+    }
       const block = document.getElementById("userIdBlock");
       block.innerHTML = `
         <div class="user-block">
