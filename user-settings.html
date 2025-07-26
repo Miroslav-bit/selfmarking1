@@ -74,6 +74,16 @@
      </button>
     </div>
 
+    <div style="margin-top: 30px;">
+      <h3>Podešavanje privatnosti self panela</h3>
+      <label>
+        <input type="radio" name="panelPrivacy" value="public"> Javno
+      </label><br>
+      <label>
+        <input type="radio" name="panelPrivacy" value="private"> Privatno
+      </label>
+    </div>
+
   <script>
     const token = localStorage.getItem("token");
     if (!token) {
@@ -91,6 +101,12 @@
       document.getElementById("city").value = user.city || "";
       document.getElementById("email").value = user.email || "";
       document.getElementById("avatarUrl").value = user.avatarUrl || "";
+
+      if (user.privacy === "private") {
+        document.querySelector('input[value="private"]').checked = true;
+      } else {
+        document.querySelector('input[value="public"]').checked = true;
+      }
     })
     .catch(err => {
       console.error("Greška pri učitavanju podataka:", err);
@@ -98,12 +114,15 @@
     });
 
     async function saveChanges() {
+      const selectedPrivacy = document.querySelector('input[name="panelPrivacy"]:checked')?.value || "public";
+
       const updatedData = {
         name: document.getElementById("name").value,
         surname: document.getElementById("surname").value,
         city: document.getElementById("city").value,
         email: document.getElementById("email").value,
-        avatarUrl: document.getElementById("avatarUrl").value
+        avatarUrl: document.getElementById("avatarUrl").value,
+        privacy: selectedPrivacy // ubacuješ ovde odmah
       };
 
       try {
