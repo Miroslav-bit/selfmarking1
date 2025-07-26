@@ -68,6 +68,7 @@
   <div id="results"></div>
 
   <button class="btn" onclick="window.location.href='my-log.html'">Moj dnevnik ocenjivanja</button>
+  <button class="btn" onclick="goToMyPanel()">Moj self panel</button>
 
   <script>
     document.getElementById("searchInput").addEventListener("input", async function () {
@@ -103,6 +104,14 @@
         console.error('Greška pri pretrazi:', error);
       }
     });
+    function goToMyPanel() {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Morate biti prijavljeni da biste pristupili svom panelu.");
+        return;
+      }
+      window.location.href = `main-categories.html?user=${userId}`;
+    }
   </script>
 </body>
 </html>
