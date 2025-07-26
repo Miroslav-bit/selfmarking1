@@ -8,6 +8,13 @@ if (!userId) {
     .then(res => res.json())
     .then(panel => {
       console.log("Panel:", panel);
+
+      const currentUserId = localStorage.getItem("userId");
+      if (panel.privacy === "private" && panel.ownerId !== currentUserId) {
+        document.body.innerHTML = "<h3>Ovaj self panel je privatan.</h3>";
+        return;
+      }
+
       const panelDiv = document.getElementById("panel");
       panelDiv.innerHTML = "";
 
