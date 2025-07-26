@@ -678,7 +678,6 @@
     }
 
     function loadReplies(postId, container) {
-      // Očisti stare replike, ako ih ima
       const oldReplies = container.querySelector(".reply-list");
       if (oldReplies) oldReplies.remove();
 
@@ -688,24 +687,50 @@
           const replyList = document.createElement("div");
           replyList.className = "reply-list";
           replyList.style.marginTop = "10px";
+
+          const currentUserId = localStorage.getItem("userId");
+          const token = localStorage.getItem("token");
+
           replies.forEach(reply => {
             const replyDiv = document.createElement("div");
+            replyDiv.className = "jedna-replika";
             const authorName = reply.user?.name && reply.user?.surname
               ? `${reply.user.name} ${reply.user.surname}`
               : "Nepoznat član";
 
-            replyDiv.innerHTML = `<strong>${authorName}:</strong> ${reply.text}`;
+            const isOwner = currentUserId === ownerId;
+            const prikazTeksta = (reply.isHidden && !isOwner)
+              ? "Poruka je prikrivena"
+              : `${authorName}: ${reply.text}`;
 
-            // Ako je korisnik vlasnik panela, prikaži dugme "Prikrij"
-            const currentUserId = localStorage.getItem("userId");
-            if (currentUserId === ownerId) {
+            const replyText = document.createElement("span");
+            replyText.textContent = prikazTeksta;
+            replyDiv.appendChild(replyText);
+
+            if (isOwner) {
               const hideBtn = document.createElement("button");
               hideBtn.className = "hide-reply-button";
-              hideBtn.textContent = "Prikrij";
+              hideBtn.textContent = reply.isHidden ? "Prikriveno" : "Prikrij";
 
-              // Funkcija još nije implementirana – samo estetski prikaz
-              hideBtn.onclick = () => {
-                alert("Prikazivanje/sakrivanje još nije aktivno.");
+              hideBtn.onclick = async () => {
+                try {
+                  const res = await fetch(`https://selfmarking-backend.onrender.com/api/replies/hide/${reply._id}`, {
+                    method: "PUT",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ hide: !reply.isHidden })
+                  });
+                  const data = await res.json();
+                  if (data.success) {
+                    reply.isHidden = !reply.isHidden;
+                    replyText.textContent = reply.isHidden ? "Poruka je prikrivena" : `${authorName}: ${reply.text}`;
+                    hideBtn.textContent = reply.isHidden ? "Prikriveno" : "Prikrij";
+                  }
+                } catch (err) {
+                  console.error("Greška prilikom skrivanja replike:", err);
+                }
               };
 
               replyDiv.appendChild(hideBtn);
@@ -713,6 +738,7 @@
 
             replyList.appendChild(replyDiv);
           });
+
           container.appendChild(replyList);
         });
     }
