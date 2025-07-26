@@ -428,6 +428,9 @@
 
           // Dodaj tekst objave
           const tekstSadrzaj = document.createElement("span");
+          const currentUserId = localStorage.getItem("userId");
+          const jeVlasnik = currentUserId === ownerId;
+          tekstSadrzaj.innerText = (post.isHidden && !jeVlasnik) ? "Poruka je prikrivena" : post.text;
           tekstSadrzaj.innerText = post.text;
           tekst.appendChild(tekstSadrzaj);
 
@@ -436,9 +439,27 @@
           if (currentUserId === ownerId) {
             const dugmePrikrij = document.createElement("button");
             dugmePrikrij.className = "hide-post-button";
-            dugmePrikrij.textContent = "Prikrij";
-            dugmePrikrij.onclick = () => {
-              alert("Prikazivanje/sakrivanje objave još nije aktivno.");
+            dugmePrikrij.textContent = post.isHidden ? "Prikriveno" : "Prikrij";
+            dugmePrikrij.onclick = async () => {
+              try {
+                const res = await fetch(`https://selfmarking-backend.onrender.com/api/posts/hide/${post._id}`, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                  },
+                  body: JSON.stringify({ hide: !post.isHidden })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                  post.isHidden = !post.isHidden;
+                  tekstSadrzaj.textContent = post.isHidden ? "Poruka je prikrivena" : post.text;
+                  dugmePrikrij.textContent = post.isHidden ? "Prikriveno" : "Prikrij";
+                }
+              } catch (err) {
+                console.error("Greška prilikom skrivanja objave:", err);
+              }
             };
             tekst.appendChild(dugmePrikrij);
           }
