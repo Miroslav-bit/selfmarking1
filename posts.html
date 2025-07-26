@@ -429,13 +429,11 @@
           // Dodaj tekst objave
           const tekstSadrzaj = document.createElement("span");
           const currentUserId = localStorage.getItem("userId");
-          const jeVlasnik = currentUserId === post.panelOwnerId;
+          const jeVlasnik = currentUserId === post.panelOwnerId.toString();
           tekstSadrzaj.innerText = (post.isHidden && !jeVlasnik) ? "Poruka je prikrivena" : post.text;
           tekst.appendChild(tekstSadrzaj);
 
-          // Ako je korisnik vlasnik panela, dodaj dugme
-          const currentUserId = localStorage.getItem("userId");
-          if (currentUserId === ownerId) {
+          if (jeVlasnik) {
             const dugmePrikrij = document.createElement("button");
             dugmePrikrij.className = "hide-post-button";
             dugmePrikrij.textContent = post.isHidden ? "Prikriveno" : "Prikrij";
