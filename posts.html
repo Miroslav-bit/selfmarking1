@@ -487,7 +487,14 @@
               showRepliesBtn.textContent = "Replike (0)";
             });
 
-          showRepliesBtn.onclick = () => loadReplies(post._id, div);
+          showRepliesBtn.onclick = () => {
+            if (!panelOwnerId) {
+              alert("Molimo sačekajte da se podaci učitaju...");
+              return;
+            }
+            loadReplies(post._id, div);
+          };
+
           div.appendChild(showRepliesBtn);
 
           // Dugme za unos nove replike
