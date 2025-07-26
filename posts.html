@@ -429,7 +429,7 @@
           // Dodaj tekst objave
           const tekstSadrzaj = document.createElement("span");
           const currentUserId = localStorage.getItem("userId");
-          const jeVlasnik = currentUserId === ownerId;
+          const jeVlasnik = currentUserId === post.panelOwnerId;
           tekstSadrzaj.innerText = (post.isHidden && !jeVlasnik) ? "Poruka je prikrivena" : post.text;
           tekst.appendChild(tekstSadrzaj);
 
@@ -901,4 +901,3 @@
   </script>
 </body>
 </html>
-
