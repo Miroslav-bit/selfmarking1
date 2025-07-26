@@ -412,6 +412,8 @@
         const container = document.getElementById("postsContainer");
         container.innerHTML = "";
 
+        const currentUserId = localStorage.getItem("userId");
+
         posts.forEach(post => {
           const div = document.createElement("div");
           div.className = "post";
@@ -438,7 +440,6 @@
           tekst.appendChild(tekstSadrzaj);
 
           // Ako je korisnik vlasnik panela, dodaj dugme
-          const currentUserId = localStorage.getItem("userId");
           if (currentUserId === ownerId) {
             const dugmePrikrij = document.createElement("button");
             dugmePrikrij.className = "hide-post-button";
