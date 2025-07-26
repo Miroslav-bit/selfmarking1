@@ -667,12 +667,12 @@
             replyDiv.innerHTML = `<strong>${authorName}:</strong> ${reply.text}`;
 
             // === Provera da li je vlasnik panela ===
-            const panelName = localStorage.getItem("ime") || "";
-            const panelSurname = localStorage.getItem("prezime") || "";
            const viewerName = localStorage.getItem("ime") || "";
-            const viewerSurname = localStorage.getItem("prezime") || "";
+           const viewerSurname = localStorage.getItem("prezime") || "";
+           const panelName = document.querySelector("#tema-naslov")?.innerText?.split("–")[0]?.trim().split(" ")[0] || "";
+           const panelSurname = document.querySelector("#tema-naslov")?.innerText?.split("–")[0]?.trim().split(" ")[1] || "";
 
-            if (panelName === viewerName && panelSurname === viewerSurname) {
+           if (viewerName === panelName && viewerSurname === panelSurname) {
               const hideBtn = document.createElement("button");
               hideBtn.textContent = "Prikrij";
               hideBtn.className = "hide-reply-button";
