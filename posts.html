@@ -649,7 +649,12 @@
     }
 
     function loadReplies(postId, container) {
-      // Očisti stare replike, ako ih ima
+      // Ako panelOwnerId još nije postavljen, sačekaj i probaj ponovo
+      if (!panelOwnerId) {
+        setTimeout(() => loadReplies(postId, container), 100);
+        return;
+      }
+
       const oldReplies = container.querySelector(".reply-list");
       if (oldReplies) oldReplies.remove();
 
@@ -659,6 +664,7 @@
           const replyList = document.createElement("div");
           replyList.className = "reply-list";
           replyList.style.marginTop = "10px";
+
           replies.forEach(reply => {
             const replyDiv = document.createElement("div");
             const authorName = reply.user?.name && reply.user?.surname
@@ -667,18 +673,17 @@
 
             replyDiv.innerHTML = `<strong>${authorName}:</strong> ${reply.text}`;
 
-            // === Provera da li je vlasnik panela ===
-           const viewerId = localStorage.getItem("userId");
-           if (viewerId === panelOwnerId) {
+            const viewerId = localStorage.getItem("userId");
+            if (viewerId === panelOwnerId) {
               const hideBtn = document.createElement("button");
               hideBtn.textContent = "Prikrij";
               hideBtn.className = "hide-reply-button";
-              // Funkcionalnost će se dodati u sledećoj etapi
               replyDiv.appendChild(hideBtn);
             }
 
             replyList.appendChild(replyDiv);
           });
+
           container.appendChild(replyList);
         });
     }
