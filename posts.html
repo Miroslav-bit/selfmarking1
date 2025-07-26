@@ -235,6 +235,8 @@
 
   <script>
 
+    let panelOwnerId = "";
+
     function slugify(text) {
       return text.normalize("NFD")
                  .replace(/[\u0300-\u036f]/g, "")
@@ -274,22 +276,21 @@
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
       .then(res => res.json())
-    .then(data => {
-      const block = document.getElementById("userIdBlock");
-      block.innerHTML = `
-        <div class="user-block">
-          <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
-          <div>
-            <strong>${data.name || ''} ${data.surname || ''}</strong><br>
-            Živi u: ${data.city || 'Nepoznato'}<br>
-          </div>
-        </div>
-      `;
-      const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
-      document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
+      .then(data => {
+        panelOwnerId = data._id; // Sačuvaj vlasnika panela kao ID
 
-      localStorage.setItem("ime", data.name || "");
-      localStorage.setItem("prezime", data.surname || "");
+        const block = document.getElementById("userIdBlock");
+        block.innerHTML = `
+          <div class="user-block">
+            <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
+            <div>
+              <strong>${data.name || ''} ${data.surname || ''}</strong><br>
+              Živi u: ${data.city || 'Nepoznato'}<br>
+            </div>
+          </div>
+        `;
+        const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
+        document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
 
       document.getElementById("breadcrumb").innerHTML = `
         <a href="index.html">Home</a> &gt;
@@ -667,12 +668,8 @@
             replyDiv.innerHTML = `<strong>${authorName}:</strong> ${reply.text}`;
 
             // === Provera da li je vlasnik panela ===
-           const viewerName = localStorage.getItem("ime") || "";
-           const viewerSurname = localStorage.getItem("prezime") || "";
-           const panelName = document.querySelector("#tema-naslov")?.innerText?.split("–")[0]?.trim().split(" ")[0] || "";
-           const panelSurname = document.querySelector("#tema-naslov")?.innerText?.split("–")[0]?.trim().split(" ")[1] || "";
-
-           if (viewerName === panelName && viewerSurname === panelSurname) {
+           const viewerId = localStorage.getItem("userId");
+           if (viewerId === panelOwnerId) {
               const hideBtn = document.createElement("button");
               hideBtn.textContent = "Prikrij";
               hideBtn.className = "hide-reply-button";
