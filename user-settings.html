@@ -138,6 +138,7 @@
         const data = await res.json();
         if (res.ok) {
           alert("Uspešno ste izmenili podatke.");
+          window.location.href = "index.html";
         } else {
           alert("Greška: " + data.msg);
         }
