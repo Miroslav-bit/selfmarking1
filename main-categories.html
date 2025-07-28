@@ -157,6 +157,25 @@
       const block = document.getElementById("userIdBlock");
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
       updateTotalRatersCount(fullName);
+
+      // Novi način za izračunavanje ukupne ocene iz total-raters API-ja
+fetch(`https://selfmarking-backend.onrender.com/api/ratings/total-raters?cardName=${encodeURIComponent(fullName)}`)
+        .then(res => res.json())
+        .then(data => {
+          const ocene = Array.isArray(data) ? data.map(r => parseFloat(r.score)).filter(s => !isNaN(s)) : [];
+          const zbir = ocene.reduce((a, b) => a + b, 0);
+          const prosek = ocene.length > 0 ? zbir / ocene.length : 0;
+
+          document.getElementById("totalScore").innerText = prosek.toFixed(2);
+          const starContainer = document.getElementById("totalStars");
+          starContainer.innerHTML = "";
+          starContainer.appendChild(createStarRating(prosek));
+        })
+        .catch(err => {
+          console.error("Greška pri dohvatu ukupnih ocena:", err);
+          document.getElementById("totalScore").innerText = "–";
+        });
+
       block.innerHTML = `
         <div class="user-block">
           <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
@@ -398,25 +417,6 @@
           document.getElementById("totalRatersBtn").innerText = "Ocenjivači (?)";
         });
     }
-
-    // Novi način za izračunavanje ukupne ocene iz total-raters API-ja
-fetch(`https://selfmarking-backend.onrender.com/api/ratings/total-raters?cardName=${encodeURIComponent(fullName)}`)
-      .then(res => res.json())
-      .then(data => {
-        const ocene = Array.isArray(data) ? data.map(r => parseFloat(r.score)).filter(s => !isNaN(s)) : [];
-        const zbir = ocene.reduce((a, b) => a + b, 0);
-        const prosek = ocene.length > 0 ? zbir / ocene.length : 0;
-
-        document.getElementById("totalScore").innerText = prosek.toFixed(2);
-        const starContainer = document.getElementById("totalStars");
-        starContainer.innerHTML = "";
-        starContainer.appendChild(createStarRating(prosek));
-      })
-      .catch(err => {
-        console.error("Greška pri dohvatu ukupnih ocena:", err);
-        document.getElementById("totalScore").innerText = "–";
-     });
-
   </script>
 </body>
 </html>
