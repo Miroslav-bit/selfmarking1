@@ -172,7 +172,17 @@ function ucitajOcene(loggedUser, ratedName) {
         const z = y > 0 ? x / y : "-";
 
         scoreCell.textContent = glavno ? (glavno.score ?? "-") : "";
-        paramCell.innerHTML = `a = ${a} ; b = ${b} ; x = ${x} ; v = ${v} ; w = ${w} ; y = ${y} ; z = ${z}`;
+        let q;
+        if (glavno && typeof glavno.score === "number") {
+          q = glavno.score;
+        } else {
+          q = z;
+        }
+
+        // Zaokruži q na 2 decimale ako je broj
+        const qFormatted = (typeof q === "number") ? Number(q).toFixed(2).replace(/\.?0+$/, '') : "-";
+
+        paramCell.innerHTML = `a = ${a} ; b = ${b} ; x = ${x} ; v = ${v} ; w = ${w} ; y = ${y} ; z = ${z} ; <span style="color:red">q = ${qFormatted}</span>`;
 
         mainRow.appendChild(mainCell);
         mainRow.appendChild(scoreCell);
