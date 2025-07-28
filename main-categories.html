@@ -25,6 +25,33 @@
     .category-rating {
       color: gray;
       font-size: 14px;
+    }<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Glavne kategorije - Selfmarking</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .category-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .category-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .category-icon {
+      width: 40px;
+    }
+    .category-rating {
+      color: gray;
+      font-size: 14px;
     }
     .category-button button {
       padding: 8px 16px;
@@ -130,6 +157,19 @@
     if (!ownerId) {
       alert("Greška: Nedostaje ID korisnika čiji panel želite da pregledate.");
       window.location.href = "index.html";
+    }
+
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
     }
 
     fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`, {
