@@ -153,6 +153,10 @@ function ucitajOcene(loggedUser, ratedName) {
       });
 
       // Dodaj statičnu rubriku "Ukupna ocena" na vrh tabele
+      // Priprema sabiranja svih q vrednosti
+      let ukupnoQ = 0;
+      let brojQ = 0;
+
       const ukupnaOcenaRow = document.createElement("tr");
 
       const ukupnaCell = document.createElement("td");
@@ -161,11 +165,12 @@ function ucitajOcene(loggedUser, ratedName) {
       ukupnaCell.colSpan = 1;
 
       const praznaCell1 = document.createElement("td");
-      const praznaCell2 = document.createElement("td");
+      const parametarCell = document.createElement("td");
 
+      // Unosi se odmah, vrednost p će se dopuniti kasnije
       ukupnaOcenaRow.appendChild(ukupnaCell);
       ukupnaOcenaRow.appendChild(praznaCell1);
-      ukupnaOcenaRow.appendChild(praznaCell2);
+      ukupnaOcenaRow.appendChild(parametarCell);
 
       tabela.appendChild(ukupnaOcenaRow);
 
