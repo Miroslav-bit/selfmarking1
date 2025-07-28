@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selfmarking - Početna</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      text-align: center;
+    }
+    .btn {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+    #searchInput {
+      width: 60%;
+      padding: 10px;
+      font-size: 16px;
+      margin: 20px 0;
+    }
+    #results {
+      margin-top: 20px;
+      text-align: left;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .user-card {
+      background: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-card img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    }
+    .user-info {
+      flex-grow: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dobrodošli na Selfmarking</h1>
+
+  <button class="btn" onclick="window.location.href='register.html'">Registruj se</button>
+  <button class="btn" onclick="window.location.href='login.html'">Prijavi se</button>
+  <button class="btn" onclick="window.location.href='user-settings.html'">Moji podaci</button>
+
+  <h2>Pretraži korisničke self panele</h2>
+  <input type="text" id="searchInput" placeholder="Unesite ime, prezime ili grad...">
+  <div id="results"></div>
+
+  <button class="btn" onclick="window.location.href='my-log.html'">Moj dnevnik ocenjivanja</button>
+  <button class="btn" onclick="goToMyPanel()">Moj self panel</button>
+
+  <script>
+    document.getElementById("searchInput").addEventListener("input", async function () {
+      const q = this.value.trim();
+      if (q.length < 2) return;
+
+      try {
+        const res = await fetch(`https://selfmarking-backend.onrender.com/api/user/search?query=${encodeURIComponent(q)}`);
+        const users = await res.json();
+
+        const container = document.getElementById("results");
+        container.innerHTML = "";
+
+        if (users.length === 0) {
+          container.innerHTML = "<p>Nema pronađenih korisnika.</p>";
+          return;
+        }
+
+        users.forEach(user => {
+          const div = document.createElement("div");
+          div.className = "user-card";
+          div.innerHTML = `
+            <img src="${user.avatarUrl || 'default-avatar.png'}" alt="Avatar">
+            <div class="user-info">
+              <strong>${user.name} ${user.surname}</strong><br>
+              Grad: ${user.city}<br>
+              <button class="btn" onclick="window.location.href='main-categories.html?user=${user._id}'">Vidi self panel</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Greška pri pretrazi:', error);
+      }
+    });
+    function goToMyPanel() {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Morate biti prijavljeni da biste pristupili svom panelu.");
+        return;
+      }
+      window.location.href = `main-categories.html?user=${userId}`;
+    }
+  </script>
+</body>
+</html>
