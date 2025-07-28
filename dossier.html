@@ -226,7 +226,8 @@ function ucitajOcene(loggedUser, ratedName) {
         });
       });
       const p = ukupnoQ.toFixed(2).replace(/\.?0+$/, '');
-      parametarCell.innerHTML = `p = ${p} ;`;
+      const r = Object.keys(grouped).length;
+      parametarCell.innerHTML = `p = ${p} ; r = ${r} ;`;
     })
     .catch(err => {
       console.error("Greška:", err);
