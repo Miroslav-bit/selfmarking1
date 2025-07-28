@@ -228,7 +228,8 @@ function ucitajOcene(loggedUser, ratedName) {
       const p = ukupnoQ.toFixed(2).replace(/\.?0+$/, '');
       const r = Object.keys(grouped).length;
       const s = (10 - r) * 5;
-      parametarCell.innerHTML = `p = ${p} ; r = ${r} ; s = ${s} ;`;
+      const u = ((parseFloat(p) + s) / 10).toFixed(2).replace(/\.?0+$/, '');
+      parametarCell.innerHTML = `p = ${p} ; r = ${r} ; s = ${s} ; <span style="color:red">u = ${u}</span>`;
     })
     .catch(err => {
       console.error("Greška:", err);
