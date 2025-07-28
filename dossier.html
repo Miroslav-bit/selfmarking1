@@ -152,6 +152,23 @@ function ucitajOcene(loggedUser, ratedName) {
         }
       });
 
+      // Dodaj statičnu rubriku "Ukupna ocena" na vrh tabele
+      const ukupnaOcenaRow = document.createElement("tr");
+
+      const ukupnaCell = document.createElement("td");
+      ukupnaCell.textContent = "Ukupna ocena";
+      ukupnaCell.style.fontWeight = "bold";
+      ukupnaCell.colSpan = 1;
+
+      const praznaCell1 = document.createElement("td");
+      const praznaCell2 = document.createElement("td");
+
+      ukupnaOcenaRow.appendChild(ukupnaCell);
+      ukupnaOcenaRow.appendChild(praznaCell1);
+      ukupnaOcenaRow.appendChild(praznaCell2);
+
+      tabela.appendChild(ukupnaOcenaRow);
+
       Object.entries(grouped).forEach(([main, { glavno, pods }]) => {
         const mainRow = document.createElement("tr");
 
