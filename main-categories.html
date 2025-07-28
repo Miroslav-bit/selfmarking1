@@ -25,33 +25,6 @@
     .category-rating {
       color: gray;
       font-size: 14px;
-    }<!DOCTYPE html>
-<html lang="sr">
-<head>
-  <meta charset="UTF-8">
-  <title>Glavne kategorije - Selfmarking</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .category-block {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
-    .category-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .category-icon {
-      width: 40px;
-    }
-    .category-rating {
-      color: gray;
-      font-size: 14px;
     }
     .category-button button {
       padding: 8px 16px;
@@ -119,14 +92,14 @@
     <span id="totalScore" style="font-weight: bold; font-size: 14px;">0.00</span>
   </div>
   <div style="margin-top: 10px;">
-    <button onclick="goToTotalRaters()" style="
-      padding: 6px 12px;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    ">Ocenjivači</button>
+  <button id="totalRatersBtn" onclick="goToTotalRaters()" style="
+    padding: 6px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  ">Ocenjivači (učitavanje...)</button>
   </div>
 </div>
 
@@ -183,6 +156,7 @@
       }
       const block = document.getElementById("userIdBlock");
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
+      updateTotalRatersCount(fullName);
       block.innerHTML = `
         <div class="user-block">
           <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
@@ -429,6 +403,18 @@
     function goToTotalRaters() {
       window.location.href = `total-raters.html?name=${encodeURIComponent(document.getElementById("maincat-title").innerText.split(" ")[0])}&surname=${encodeURIComponent(document.getElementById("maincat-title").innerText.split(" ")[1])}`;
 
+    function updateTotalRatersCount(fullName) {
+      fetch(`https://selfmarking-backend.onrender.com/api/ratings/total-raters?cardName=${encodeURIComponent(fullName)}`)
+        .then(res => res.json())
+        .then(data => {
+          const count = Array.isArray(data) ? data.length : 0;
+          document.getElementById("totalRatersBtn").innerText = `Ocenjivači (${count})`;
+        })
+        .catch(err => {
+          console.error("Greška pri dohvatu ukupnih ocenjivača:", err);
+          document.getElementById("totalRatersBtn").innerText = "Ocenjivači (?)";
+        });
+      }
     }
   </script>
 </body>
