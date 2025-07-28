@@ -1,156 +1,108 @@
-const express = require('express');
-const router = express.Router();
-const Rating = require('../models/Rating');
-const Panel = require('../models/Panel');
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ukupni ocenitelji</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .modal-box {
+      max-width: 600px;
+      margin: 50px auto;
+      border: 4px solid #87CEFA;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .close-btn {
+      float: right;
+      background: red;
+      color: white;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .columns {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .columns > div {
+      width: 48%;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
+    #raters-list {
+      margin-top: 10px;
+    }
+    .rater-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-box">
+    <button class="close-btn" onclick="goBack()">X</button>
+    <h2 id="naslov">Ime Prezime – Ukupno</h2>
 
-// ✅ Ruta 1: Snimi ocenu
-router.post('/save', async (req, res) => {
-  const { cardName, cardSub, rater, score } = req.body;
+    <div class="columns">
+      <div>Ukupni ocenjivači:</div>
+      <div>Ukupne ocene:</div>
+    </div>
 
-  if (!cardName || !cardSub || !rater || score === undefined) {
-    return res.status(400).json({ msg: 'Nedostaju podaci za ocenu.' });
-  }
+    <div id="raters-list">
+      <p>Učitavanje ocenjivača...</p>
+    </div>
+  </div>
 
-  try {
-    let existing = await Rating.findOne({ cardName, cardSub, rater });
-    if (existing) {
-      existing.score = score;
-      await existing.save();
-      return res.json({ msg: 'Ocena ažurirana.' });
+  <script>
+    function goBack() {
+      window.history.back();
     }
 
-    const nova = new Rating({ cardName, cardSub, rater, score });
-    await nova.save();
-    res.json({ msg: 'Ocena sačuvana.' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Greška na serveru.' });
-  }
-});
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || '';
+    const surname = params.get('surname') || '';
+    const fullName = `${name} ${surname}`;
+    document.getElementById("naslov").innerText = `${fullName} – Ukupno`;
 
-// ✅ Ruta 2: Dohvati ocenjivače određene kartice
-router.get('/raters', async (req, res) => {
-  const { cardName, cardSub } = req.query;
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/total-raters?cardName=${encodeURIComponent(fullName)}`)
+      .then(res => res.json())
+      .then(data => {
+        const listDiv = document.getElementById("raters-list");
+        listDiv.innerHTML = "";
 
-  if (!cardName || !cardSub) {
-    return res.status(400).json({ msg: 'Nedostaju parametri.' });
-  }
-
-  try {
-    const ocene = await Rating.find({
-      cardName,
-      cardSub: new RegExp(`^${cardSub}$`, 'i')  // ignorise velika/mala slova
-    });
-    const rezultat = ocene.map(r => ({
-      rater: r.rater,
-      score: r.score
-    }));
-    res.json(rezultat);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Greška prilikom dohvatanja ocenjivača.' });
-  }
-});
-
-// ✅ Ruta 3: Lista ocenjenih od strane korisnika (za my-log.html)
-router.get('/evaluated', async (req, res) => {
-  const { rater } = req.query;
-  if (!rater) return res.status(400).json({ msg: 'Nedostaje rater.' });
-
-  try {
-    const ocene = await Rating.find({ rater });
-    const jedinstveni = [...new Set(ocene.map(o => o.cardName))];
-    res.json(jedinstveni);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Greška na serveru.' });
-  }
-});
-
-// ✅ Ruta 4: Ocene za dosije jednog člana
-router.get('/dossier', async (req, res) => {
-  const { raterName, ratedName } = req.query;
-
-  if (!raterName || !ratedName) {
-    return res.status(400).json({ msg: 'Nedostaju parametri.' });
-  }
-
-  try {
-    const ocene = await Rating.find({ cardName: ratedName, rater: raterName });
-    res.json(ocene);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Greška na serveru.' });
-  }
-});
-
-// /api/ratings/indirect-raters?cardName=Ivan Nikolić&cardMain=Inteligencija
-router.get("/indirect-raters", async (req, res) => {
-  const { cardName, cardMain } = req.query;
-
-  if (!cardName || !cardMain) {
-    return res.status(400).json({ error: "Missing parameters" });
-  }
-
-  try {
-    // Dobavi direktne ocenjivače
-    const directRaters = await Rating.find({ cardName, cardSub: cardMain }).distinct("rater");
-
-    // Sve ocene koje je osoba dobila
-    const allRatings = await Rating.find({ cardName });
-
-    // Mapiraj potkategorije glavne kategorije
-    const subToMain = {
-      "matematika": "Obrazovanje",
-      "fizika": "Obrazovanje",
-      "hemija": "Obrazovanje",
-      "astronomija": "Obrazovanje",
-      "geologija": "Obrazovanje",
-      "logika": "Inteligencija",
-      "komunikativnost": "Inteligencija",
-      "duhovitost": "Inteligencija",
-      "hrabrost": "Karakterne osobine",
-      "samouverenost": "Karakterne osobine",
-      "smirenost": "Karakterne osobine",
-      "empatija": "Karakterne osobine"
-    };
-
-    const relevantSubs = Object.entries(subToMain)
-      .filter(([_, main]) => main.toLowerCase() === cardMain.toLowerCase())
-      .map(([sub]) => sub);
-
-    const y = relevantSubs.length;
-    const indirectMap = new Map();
-
-    allRatings.forEach(({ rater, cardSub, score }) => {
-      if (
-        relevantSubs.includes(cardSub?.toLowerCase()) &&
-        !directRaters.includes(rater)
-      ) {
-        if (!indirectMap.has(rater)) {
-          indirectMap.set(rater, []);
+        if (!data || data.length === 0) {
+          listDiv.innerHTML = "<p>Još uvek nema ocenjivača ukupne ocene.</p>";
+          return;
         }
-        indirectMap.get(rater).push(score);
-      }
-    });
 
-    const result = [];
-
-    for (const [rater, scores] of indirectMap.entries()) {
-      const v = scores.length;
-      const w = y - v;
-      const a = scores.reduce((acc, val) => acc + val, 0);
-      const b = w * 5;
-      const x = a + b;
-      const z = y > 0 ? +(x / y).toFixed(2) : null;
-      result.push({ rater, score: z });
-    }
-
-    res.json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-module.exports = router;
+        data.forEach(r => {
+          const row = document.createElement("div");
+          row.className = "rater-row";
+          row.innerHTML = `
+            <div>${r.rater}</div>
+            <div>${r.score !== undefined ? r.score : "-"}</div>
+          `;
+          listDiv.appendChild(row);
+        });
+      })
+      .catch(err => {
+        console.error("Greška pri dohvatu ocenjivača:", err);
+        document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
+      });
+  </script>
+</body>
+</html>
