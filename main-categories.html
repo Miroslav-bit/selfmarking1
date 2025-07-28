@@ -402,7 +402,9 @@
     }
     function goToTotalRaters() {
       window.location.href = `total-raters.html?name=${encodeURIComponent(document.getElementById("maincat-title").innerText.split(" ")[0])}&surname=${encodeURIComponent(document.getElementById("maincat-title").innerText.split(" ")[1])}`;
+    }
 
+    // ispod staviti van nje:
     function updateTotalRatersCount(fullName) {
       fetch(`https://selfmarking-backend.onrender.com/api/ratings/total-raters?cardName=${encodeURIComponent(fullName)}`)
         .then(res => res.json())
@@ -414,7 +416,6 @@
           console.error("Greška pri dohvatu ukupnih ocenjivača:", err);
           document.getElementById("totalRatersBtn").innerText = "Ocenjivači (?)";
         });
-      }
     }
   </script>
 </body>
