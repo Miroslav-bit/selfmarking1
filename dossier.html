@@ -225,7 +225,7 @@ function ucitajOcene(loggedUser, ratedName) {
           tabela.appendChild(row);
         });
       });
-      const p = brojQ > 0 ? (ukupnoQ / brojQ).toFixed(2).replace(/\.?0+$/, '') : "-";
+      const p = ukupnoQ.toFixed(2).replace(/\.?0+$/, '');
       parametarCell.innerHTML = `p = ${p} ;`;
     })
     .catch(err => {
