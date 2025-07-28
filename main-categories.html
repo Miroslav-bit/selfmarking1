@@ -91,6 +91,16 @@
     <div id="totalStars" class="star-rating"></div>
     <span id="totalScore" style="font-weight: bold; font-size: 14px;">0.00</span>
   </div>
+  <div style="margin-top: 10px;">
+    <button onclick="goToTotalRaters()" style="
+      padding: 6px 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    ">Ocenjivači</button>
+  </div>
 </div>
 
 <h3 style="margin-top: -10px; margin-bottom: 20px; color: #444;">Glavne kategorije:</h3>
@@ -127,6 +137,10 @@
     })
     .then(res => res.json())
     .then(data => {
+      const decoded = parseJwt(localStorage.getItem("token"));
+      if (decoded && decoded.userId) {
+        localStorage.setItem("userId", decoded.userId);
+      }
       const block = document.getElementById("userIdBlock");
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
       block.innerHTML = `
@@ -371,6 +385,10 @@
         }
       }
       return container;
+    }
+    function goToTotalRaters() {
+      window.location.href = `total-raters.html?name=${encodeURIComponent(document.getElementById("maincat-title").innerText.split(" ")[0])}&surname=${encodeURIComponent(document.getElementById("maincat-title").innerText.split(" ")[1])}`;
+
     }
   </script>
 </body>
