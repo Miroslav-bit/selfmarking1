@@ -205,6 +205,10 @@ function ucitajOcene(loggedUser, ratedName) {
         const qFormatted = (typeof q === "number") ? Number(q).toFixed(2).replace(/\.?0+$/, '') : "-";
 
         paramCell.innerHTML = `a = ${a} ; b = ${b} ; x = ${x} ; v = ${v} ; w = ${w} ; y = ${y} ; z = ${z} ; <span style="color:red">q = ${qFormatted}</span>`;
+        if (typeof q === "number") {
+          ukupnoQ += q;
+          brojQ += 1;
+        }
 
         mainRow.appendChild(mainCell);
         mainRow.appendChild(scoreCell);
@@ -221,6 +225,8 @@ function ucitajOcene(loggedUser, ratedName) {
           tabela.appendChild(row);
         });
       });
+      const p = brojQ > 0 ? (ukupnoQ / brojQ).toFixed(2).replace(/\.?0+$/, '') : "-";
+      parametarCell.innerHTML = `p = ${p} ;`;
     })
     .catch(err => {
       console.error("Greška:", err);
