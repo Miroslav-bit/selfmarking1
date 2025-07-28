@@ -2,116 +2,107 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Selfmarking - Početna</title>
+  <title>Ukupni ocenitelji</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+    .modal-box {
+      max-width: 600px;
+      margin: 50px auto;
+      border: 4px solid #87CEFA;
       padding: 20px;
-      text-align: center;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
-    .btn {
-      background: #007bff;
+    .close-btn {
+      float: right;
+      background: red;
       color: white;
-      padding: 10px 20px;
-      margin: 10px;
       border: none;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 5px 12px;
       border-radius: 5px;
       cursor: pointer;
     }
-    .btn:hover {
-      background: #0056b3;
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
     }
-    #searchInput {
-      width: 60%;
-      padding: 10px;
-      font-size: 16px;
-      margin: 20px 0;
-    }
-    #results {
-      margin-top: 20px;
-      text-align: left;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .user-card {
-      background: white;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
+    .columns {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
-    .user-card img {
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
+    .columns > div {
+      width: 48%;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
     }
-    .user-info {
-      flex-grow: 1;
+    #raters-list {
+      margin-top: 10px;
+    }
+    .rater-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <h1>Dobrodošli na Selfmarking</h1>
+  <div class="modal-box">
+    <button class="close-btn" onclick="goBack()">X</button>
+    <h2 id="naslov">Ime Prezime – Ukupno</h2>
 
-  <button class="btn" onclick="window.location.href='register.html'">Registruj se</button>
-  <button class="btn" onclick="window.location.href='login.html'">Prijavi se</button>
-  <button class="btn" onclick="window.location.href='user-settings.html'">Moji podaci</button>
+    <div class="columns">
+      <div>Ukupni ocenjivači:</div>
+      <div>Ukupne ocene:</div>
+    </div>
 
-  <h2>Pretraži korisničke self panele</h2>
-  <input type="text" id="searchInput" placeholder="Unesite ime, prezime ili grad...">
-  <div id="results"></div>
-
-  <button class="btn" onclick="window.location.href='my-log.html'">Moj dnevnik ocenjivanja</button>
-  <button class="btn" onclick="goToMyPanel()">Moj self panel</button>
+    <div id="raters-list">
+      <p>Učitavanje ocenjivača...</p>
+    </div>
+  </div>
 
   <script>
-    document.getElementById("searchInput").addEventListener("input", async function () {
-      const q = this.value.trim();
-      if (q.length < 2) return;
+    function goBack() {
+      window.history.back();
+    }
 
-      try {
-        const res = await fetch(`https://selfmarking-backend.onrender.com/api/user/search?query=${encodeURIComponent(q)}`);
-        const users = await res.json();
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || '';
+    const surname = params.get('surname') || '';
+    const fullName = `${name} ${surname}`;
+    document.getElementById("naslov").innerText = `${fullName} – Ukupno`;
 
-        const container = document.getElementById("results");
-        container.innerHTML = "";
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/total-raters?cardName=${encodeURIComponent(fullName)}`)
+      .then(res => res.json())
+      .then(data => {
+        const listDiv = document.getElementById("raters-list");
+        listDiv.innerHTML = "";
 
-        if (users.length === 0) {
-          container.innerHTML = "<p>Nema pronađenih korisnika.</p>";
+        if (!data || data.length === 0) {
+          listDiv.innerHTML = "<p>Još uvek nema ocenjivača ukupne ocene.</p>";
           return;
         }
 
-        users.forEach(user => {
-          const div = document.createElement("div");
-          div.className = "user-card";
-          div.innerHTML = `
-            <img src="${user.avatarUrl || 'default-avatar.png'}" alt="Avatar">
-            <div class="user-info">
-              <strong>${user.name} ${user.surname}</strong><br>
-              Grad: ${user.city}<br>
-              <button class="btn" onclick="window.location.href='main-categories.html?user=${user._id}'">Vidi self panel</button>
-            </div>
+        data.forEach(r => {
+          const row = document.createElement("div");
+          row.className = "rater-row";
+          row.innerHTML = `
+            <div>${r.rater}</div>
+            <div>${r.score !== undefined ? r.score : "-"}</div>
           `;
-          container.appendChild(div);
+          listDiv.appendChild(row);
         });
-      } catch (error) {
-        console.error('Greška pri pretrazi:', error);
-      }
-    });
-    function goToMyPanel() {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        alert("Morate biti prijavljeni da biste pristupili svom panelu.");
-        return;
-      }
-      window.location.href = `main-categories.html?user=${userId}`;
-    }
+      })
+      .catch(err => {
+        console.error("Greška pri dohvatu ocenjivača:", err);
+        document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
+      });
   </script>
 </body>
 </html>
