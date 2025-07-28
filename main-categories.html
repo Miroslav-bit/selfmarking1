@@ -321,25 +321,6 @@
         });
       });
 
-      // Očekujemo da su ocene glavnih kategorija već prikazane
-      const observer = new MutationObserver(() => {
-        const scoreElements = document.querySelectorAll(".category-block span");
-        const scores = Array.from(scoreElements)
-          .map(el => parseFloat(el.innerText))
-          .filter(score => !isNaN(score));
-
-        if (scores.length === data.categories.length) {
-          const zbir = scores.reduce((a, b) => a + b, 0);
-          const prosek = scores.length > 0 ? zbir / scores.length : 0;
-
-          document.getElementById("totalScore").innerText = prosek.toFixed(2);
-          const starContainer = document.getElementById("totalStars");
-          starContainer.innerHTML = "";
-          starContainer.appendChild(createStarRating(prosek));
-          observer.disconnect();
-        }
-      });
-
       observer.observe(document.getElementById("categoryContainer"), {
         childList: true,
         subtree: true,
@@ -417,6 +398,25 @@
           document.getElementById("totalRatersBtn").innerText = "Ocenjivači (?)";
         });
     }
+
+    // Novi način za izračunavanje ukupne ocene iz total-raters API-ja
+fetch(`https://selfmarking-backend.onrender.com/api/ratings/total-raters?cardName=${encodeURIComponent(fullName)}`)
+      .then(res => res.json())
+      .then(data => {
+        const ocene = Array.isArray(data) ? data.map(r => parseFloat(r.score)).filter(s => !isNaN(s)) : [];
+        const zbir = ocene.reduce((a, b) => a + b, 0);
+        const prosek = ocene.length > 0 ? zbir / ocene.length : 0;
+
+        document.getElementById("totalScore").innerText = prosek.toFixed(2);
+        const starContainer = document.getElementById("totalStars");
+        starContainer.innerHTML = "";
+        starContainer.appendChild(createStarRating(prosek));
+      })
+      .catch(err => {
+        console.error("Greška pri dohvatu ukupnih ocena:", err);
+        document.getElementById("totalScore").innerText = "–";
+     });
+
   </script>
 </body>
 </html>
