@@ -731,9 +731,11 @@
 
             // ✅ Prikaz GPT bodova ako postoje
             const isGptAuthor = authorName.toLowerCase().includes("gpt");
-            if (isGptAuthor && reply.gptScore !== null && reply.gptScore !== undefined) {
+            const scoreValue = reply.gptScore ?? reply.score ?? null;
+
+            if (isGptAuthor && scoreValue !== null) {
               const scoreBox = document.createElement("span");
-              scoreBox.textContent = `${reply.gptScore}`;
+              scoreBox.textContent = `${scoreValue}`;
               scoreBox.style.backgroundColor = "black";
               scoreBox.style.color = "white";
               scoreBox.style.padding = "2px 10px";
