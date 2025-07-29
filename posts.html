@@ -716,37 +716,31 @@
           replies.forEach(reply => {
             const replyDiv = document.createElement("div");
             replyDiv.className = "jedna-replika";
-            let authorName = "Nepoznat član";
-            if (typeof reply.user === "object" && reply.user !== null && reply.user.name) {
-              authorName = `${reply.user.name} ${reply.user.surname || ""}`;
-            } else if (reply.user === "gpt") {
-              authorName = "GPT";
-            }
+            const authorName = reply.user?.name && reply.user?.surname
+              ? `${reply.user.name} ${reply.user.surname}`
+              : "Nepoznat član";
 
             const isOwner = currentUserId === ownerId;
             const prikazTeksta = (reply.isHidden && !isOwner)
               ? "Poruka je prikrivena"
               : `${authorName}: ${reply.text}`;
 
-            const replyText = document.createElement("span");
-            replyText.textContent = prikazTeksta;
-            replyDiv.appendChild(replyText);
+              const replyText = document.createElement("span");
+              replyText.textContent = prikazTeksta;
+              replyDiv.appendChild(replyText);
 
-            // ✅ Prikaz GPT bodova ako postoje
-            const isGptAuthor = reply.user && reply.user.email === "gpt@selfmarking.com";
-
-            if (isGptAuthor && typeof reply.gptScore === "number") {
-              const scoreBox = document.createElement("span");
-              scoreBox.textContent = `${reply.gptScore}`;
-              scoreBox.style.backgroundColor = "black";
-              scoreBox.style.color = "white";
-              scoreBox.style.padding = "2px 10px";
-              scoreBox.style.marginLeft = "10px";
-              scoreBox.style.borderRadius = "4px";
-             scoreBox.style.fontWeight = "bold";
-              scoreBox.style.fontSize = "14px";
-              replyDiv.appendChild(scoreBox);
-            }
+              // Ako je GPT autor, prikaži bodove
+              if (reply.user?.email === "gpt@selfmarking.com" && typeof reply.gptScore === "number") {
+                const scoreBadge = document.createElement("span");
+                scoreBadge.style.backgroundColor = "black";
+                scoreBadge.style.color = "white";
+                scoreBadge.style.fontWeight = "bold";
+                scoreBadge.style.padding = "4px 8px";
+                scoreBadge.style.marginLeft = "10px";
+                scoreBadge.style.borderRadius = "6px";
+                scoreBadge.textContent = reply.gptScore > 0 ? `+${reply.gptScore}` : `${reply.gptScore}`;
+                replyDiv.appendChild(scoreBadge);
+              }
 
             if (isOwner) {
               const hideBtn = document.createElement("button");
