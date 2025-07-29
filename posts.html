@@ -730,18 +730,17 @@
             replyDiv.appendChild(replyText);
 
             // ✅ Prikaz GPT bodova ako postoje
-            const isGptAuthor = authorName.toLowerCase().includes("gpt");
-            const scoreValue = reply.gptScore ?? reply.score ?? null;
+            const isGptAuthor = (reply.user?.name?.toLowerCase().includes("gpt") || reply.user?.email === "gpt@selfmarking.com");
 
-            if (isGptAuthor && scoreValue !== null) {
+            if (isGptAuthor && reply.gptScore !== null && !isNaN(reply.gptScore)) {
               const scoreBox = document.createElement("span");
-              scoreBox.textContent = `${scoreValue}`;
+              scoreBox.textContent = `${reply.gptScore}`;
               scoreBox.style.backgroundColor = "black";
               scoreBox.style.color = "white";
               scoreBox.style.padding = "2px 10px";
               scoreBox.style.marginLeft = "10px";
               scoreBox.style.borderRadius = "4px";
-              scoreBox.style.fontWeight = "bold";
+             scoreBox.style.fontWeight = "bold";
               scoreBox.style.fontSize = "14px";
               replyDiv.appendChild(scoreBox);
             }
