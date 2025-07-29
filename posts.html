@@ -733,7 +733,7 @@
             replyDiv.appendChild(replyText);
 
             // ✅ Prikaz GPT bodova ako postoje
-            const isGptAuthor = authorName.toLowerCase() === "gpt";
+            const isGptAuthor = reply.user && reply.user.email === "gpt@selfmarking.com";
 
             if (isGptAuthor && typeof reply.gptScore === "number") {
               const scoreBox = document.createElement("span");
