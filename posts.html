@@ -716,9 +716,12 @@
           replies.forEach(reply => {
             const replyDiv = document.createElement("div");
             replyDiv.className = "jedna-replika";
-            const authorName = reply.user?.name && reply.user?.surname
-              ? `${reply.user.name} ${reply.user.surname}`
-              : "Nepoznat član";
+            let authorName = "Nepoznat član";
+            if (typeof reply.user === "object" && reply.user !== null && reply.user.name) {
+              authorName = `${reply.user.name} ${reply.user.surname || ""}`;
+            } else if (reply.user === "gpt") {
+              authorName = "GPT";
+            }
 
             const isOwner = currentUserId === ownerId;
             const prikazTeksta = (reply.isHidden && !isOwner)
@@ -730,9 +733,9 @@
             replyDiv.appendChild(replyText);
 
             // ✅ Prikaz GPT bodova ako postoje
-            const isGptAuthor = (reply.user?.name?.toLowerCase().includes("gpt") || reply.user?.email === "gpt@selfmarking.com");
+            const isGptAuthor = authorName.toLowerCase() === "gpt";
 
-            if (isGptAuthor && reply.gptScore !== null && !isNaN(reply.gptScore)) {
+            if (isGptAuthor && typeof reply.gptScore === "number") {
               const scoreBox = document.createElement("span");
               scoreBox.textContent = `${reply.gptScore}`;
               scoreBox.style.backgroundColor = "black";
