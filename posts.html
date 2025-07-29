@@ -729,8 +729,9 @@
             replyText.textContent = prikazTeksta;
             replyDiv.appendChild(replyText);
 
-            // Prikaz GPT bodova ako postoje
-            if (reply.user?.email === "gpt@selfmarking.com" && reply.gptScore !== null && reply.gptScore !== undefined) {
+            // ✅ Prikaz GPT bodova ako postoje
+            const isGptAuthor = authorName.toLowerCase().includes("gpt");
+            if (isGptAuthor && reply.gptScore !== null && reply.gptScore !== undefined) {
               const scoreBox = document.createElement("span");
               scoreBox.textContent = `${reply.gptScore}`;
               scoreBox.style.backgroundColor = "black";
