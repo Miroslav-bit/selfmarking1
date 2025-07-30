@@ -168,8 +168,10 @@ fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
             <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
             <strong>${sub.name}</strong>
           </div>
-          <div class="subcategory-button">
+          <div class="subcategory-button" style="display: flex; gap: 8px;">
+            <button onclick="goToTraining('${subSlug}')">Treninzi</button>
             <button onclick="goToPosts('${subSlug}')">Objave</button>
+            <button onclick="goToTests('${subSlug}')">Testovi</button>
           </div>
         `;
 
@@ -292,6 +294,15 @@ fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
     function goToPosts(subSlug) {
       window.location.href = `posts.html?main=${mainSlug}&sub=${subSlug}&user=${ownerId}`;
     }
+
+    function goToTraining(subSlug) {
+      window.location.href = `training.html?main=${mainSlug}&sub=${subSlug}&user=${ownerId}`;
+    }
+
+    function goToTests(subSlug) {
+      window.location.href = `tests.html?main=${mainSlug}&sub=${subSlug}&user=${ownerId}`;
+    }
+
     function createStarRating(score) {
       const container = document.createElement("div");
       container.className = "star-rating";
