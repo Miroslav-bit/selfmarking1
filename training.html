@@ -77,6 +77,8 @@
     <div class="breadcrumb" id="breadcrumb">Navigacija...</div>
     <h2 id="tema-naslov">Naslov</h2>
 
+    <div id="tab-buttons" style="margin-bottom: 20px;"></div>
+
     <div class="rating-box">
       <div style="font-weight: bold; text-align: center; margin-bottom: 5px;">Srednja ocena</div>
       <div class="average-score-box">
@@ -130,6 +132,39 @@
         `;
 
         document.getElementById("tema-naslov").innerText = `${fullName} – ${subFormatted}`;
+
+        // Dugmad za prebacivanje između Testovi / Objave / Treninzi
+        const page = location.pathname.split("/").pop(); // npr. posts.html
+        const tabButtons = document.getElementById("tab-buttons");
+
+        const pages = {
+          "posts.html": "Objave",
+          "tests.html": "Testovi",
+          "training.html": "Treninzi"
+        };
+
+        Object.entries(pages).forEach(([file, label]) => {
+          const button = document.createElement("button");
+          button.textContent = label;
+          button.style.marginRight = "10px";
+          button.style.padding = "8px 16px";
+          button.style.borderRadius = "6px";
+          button.style.border = "none";
+          button.style.fontWeight = "bold";
+          button.style.cursor = (file === page) ? "default" : "pointer";
+
+          if (file === page) {
+            button.style.backgroundColor = "#888";
+            button.style.color = "white";
+          } else {
+            button.style.backgroundColor = "#eee";
+            button.onclick = () => {
+              window.location.href = `${file}?main=${main}&sub=${sub}&user=${ownerId}`;
+            };
+          }
+
+          tabButtons.appendChild(button);
+        });
 
         fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(fullName)}&cardSub=${encodeURIComponent(subFormatted)}`)
           .then(res => res.json())
