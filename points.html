@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Moj dnevnik ocenjivanja</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .breadcrumb {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .main-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .sub-title {
+      font-size: 18px;
+      margin-top: 30px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    .evaluated-list {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> &gt; Moj dnevnik ocenjivanja
+    </div>
+
+    <div class="main-title">
+      Ocenjivač: <span id="ocenjivac-ime">Učitavanje...</span>
+    </div>
+
+    <div class="sub-title">Imenik ocenjenih članova:</div>
+    <div class="evaluated-list" id="evaluatedList">
+      <!-- Dinamički sadržaj dolazi u 2. etapi -->
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Niste prijavljeni.");
+      window.location.href = "login.html";
+    }
+
+    fetch("https://selfmarking-backend.onrender.com/api/user/me", {
+      headers: { "Authorization": "Bearer " + token }
+    })
+      .then(res => res.json())
+      .then(user => {
+        const punoIme = `${user.name} ${user.surname}`;
+        document.getElementById("ocenjivac-ime").innerText = punoIme;
+
+        // Sada pozivamo backend da nam vrati sve koje je ovaj korisnik ocenio
+        return fetch(`https://selfmarking-backend.onrender.com/api/ratings/evaluated?rater=${encodeURIComponent(punoIme)}`);
+      })
+      .then(res => res.json())
+      .then(ocenjeni => {
+        const container = document.getElementById("evaluatedList");
+        container.innerHTML = "";
+
+        if (!Array.isArray(ocenjeni) || ocenjeni.length === 0) {
+          container.innerHTML = "<p>Još niste ocenili nijednog člana.</p>";
+          return;
+        }
+
+        ocenjeni.forEach(imePrezime => {
+          const red = document.createElement("div");
+          red.style.display = "flex";
+          red.style.justifyContent = "space-between";
+          red.style.marginBottom = "8px";
+          red.style.alignItems = "center";
+
+          const imeDiv = document.createElement("div");
+          imeDiv.innerText = imePrezime;
+
+          const dugme = document.createElement("a");
+          dugme.innerText = "Ocene >>";
+          const [ime, prezime] = imePrezime.split(" ");
+          dugme.href = `dossier.html?name=${encodeURIComponent(ime)}&surname=${encodeURIComponent(prezime || "")}`;
+          dugme.style.color = "#007bff";
+          dugme.style.fontWeight = "bold";
+          dugme.style.textDecoration = "none";
+
+          red.appendChild(imeDiv);
+          red.appendChild(dugme);
+          container.appendChild(red);
+        });
+      })
+      .catch(err => {
+        console.error("Greška pri učitavanju podataka:", err);
+        document.getElementById("evaluatedList").innerHTML = "<p>Greška pri učitavanju dnevnika.</p>";
+      });
+  </script> 
+</body>
+</html>
