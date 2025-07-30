@@ -269,6 +269,8 @@ fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
             const starRating = createStarRating(prosek);
             starsWrapper.appendChild(starRating);
             scoreText.innerText = prosek.toFixed(2);
+
+            container.appendChild(div);
           });
       });
     })
