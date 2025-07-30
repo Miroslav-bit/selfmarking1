@@ -179,11 +179,17 @@ fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
         buttonGroup.style.display = "flex";
         buttonGroup.style.gap = "8px";
 
+        const destinations = {
+          "Treninzi": "training.html",
+          "Objave": "posts.html",
+          "Testovi": "tests.html"
+        };
+
          ["Treninzi", "Objave", "Testovi"].forEach(label => {
           const btn = document.createElement("button");
           btn.textContent = label;
           btn.onclick = () => {
-            const file = label.toLowerCase() + ".html";
+            const file = destinations[label];
             window.location.href = `${file}?main=${mainSlug}&sub=${subSlug}&user=${ownerId}`;
           };
           buttonGroup.appendChild(btn);
