@@ -156,61 +156,77 @@ fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
 
         const div = document.createElement("div");
         div.className = "subcategory-block";
+        div.style.display = "flex";
+        div.style.flexDirection = "column";
+        div.style.gap = "10px";
 
+        // GORNJI RED
         const topRow = document.createElement("div");
         topRow.style.display = "flex";
         topRow.style.justifyContent = "space-between";
         topRow.style.alignItems = "center";
-        topRow.style.width = "100%";
 
-        topRow.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 15px;">
-            <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
-            <strong>${sub.name}</strong>
-          </div>
-          <div class="subcategory-button" style="display: flex; gap: 8px;">
-            <button onclick="goToTraining('${subSlug}')">Treninzi</button>
-            <button onclick="goToPosts('${subSlug}')">Objave</button>
-            <button onclick="goToTests('${subSlug}')">Testovi</button>
-          </div>
+        const leftTop = document.createElement("div");
+        leftTop.style.display = "flex";
+        leftTop.style.alignItems = "center";
+        leftTop.style.gap = "15px";
+        leftTop.innerHTML = `
+          <img src="${iconPath}" alt="${sub.name}" class="subcategory-icon">
+          <strong>${sub.name}</strong>
         `;
 
-        const bottomRow = document.createElement("div");
-        bottomRow.style.display = "flex";
-        bottomRow.style.flexDirection = "column";
-        bottomRow.style.alignItems = "flex-start";
-        bottomRow.style.marginTop = "10px";
-        bottomRow.style.width = "100%";
+        const buttonGroup = document.createElement("div");
+        buttonGroup.style.display = "flex";
+        buttonGroup.style.gap = "8px";
+
+         ["Treninzi", "Objave", "Testovi"].forEach(label => {
+          const btn = document.createElement("button");
+          btn.textContent = label;
+          btn.onclick = () => {
+            const file = label.toLowerCase() + ".html";
+            window.location.href = `${file}?main=${mainSlug}&sub=${subSlug}&user=${ownerId}`;
+          };
+          buttonGroup.appendChild(btn);
+        });
+
+        topRow.appendChild(leftTop);
+        topRow.appendChild(buttonGroup);
+
+        // SREDNJI RED
+        const midRow = document.createElement("div");
+        midRow.style.display = "flex";
+        midRow.style.alignItems = "center";
+        midRow.style.justifyContent = "space-between";
 
         const label = document.createElement("div");
         label.innerText = "Srednja ocena";
         label.style.fontWeight = "bold";
-        label.style.fontSize = "14px";
+
+        const starAndScore = document.createElement("div");
+        starAndScore.style.display = "flex";
+        starAndScore.style.alignItems = "center";
+        starAndScore.style.gap = "10px";
 
         const starsWrapper = document.createElement("div");
         starsWrapper.className = "stars-placeholder";
         starsWrapper.style.display = "flex";
         starsWrapper.style.alignItems = "center";
-        starsWrapper.style.gap = "10px";
-
-        // Ovde dolazi brojčana vrednost
         const scoreText = document.createElement("span");
         scoreText.className = "score-text";
         scoreText.style.fontWeight = "bold";
         scoreText.style.fontSize = "14px";
         scoreText.style.color = "black";
 
-        starsWrapper.appendChild(scoreText);
+        starAndScore.appendChild(starsWrapper);
+        starAndScore.appendChild(scoreText);
 
-        bottomRow.appendChild(label);
-        bottomRow.appendChild(starsWrapper);
+        midRow.appendChild(label);
+        midRow.appendChild(starAndScore);
 
-        div.appendChild(topRow);
-        div.appendChild(bottomRow);
-
-        const raterButtonWrapper = document.createElement("div");
-        raterButtonWrapper.style.marginTop = "10px";
-        raterButtonWrapper.style.textAlign = "left";
+        // DONJI RED
+        const bottomRow = document.createElement("div");
+        bottomRow.style.display = "flex";
+        bottomRow.style.justifyContent = "space-between";
 
         const raterButton = document.createElement("button");
         raterButton.style.padding = "6px 12px";
@@ -219,71 +235,41 @@ fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
         raterButton.style.backgroundColor = "#3498db";
         raterButton.style.color = "white";
         raterButton.style.cursor = "pointer";
-
+        raterButton.innerText = "Ocenjivači (učitavanje...)";
         raterButton.addEventListener("click", () => {
-          const fullName = `${data.name || ''}`.trim();
-          const surname = `${data.surname || ''}`.trim();
-          const subName = sub.name.trim();
-          window.location.href = `raters.html?name=${encodeURIComponent(fullName)}&surname=${encodeURIComponent(surname)}&sub=${encodeURIComponent(subName)}`;
+          window.location.href = `raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}`;
         });
 
-        raterButton.innerText = "Ocenjivači (učitavanje...)";
-        raterButtonWrapper.appendChild(raterButton);
-        div.appendChild(raterButtonWrapper);
+        const rateButton = document.createElement("a");
+        rateButton.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}&return=${encodeURIComponent(window.location.href)}`;
+        rateButton.style.color = "#6b4dc4";
+        rateButton.style.textDecoration = "none";
+        rateButton.style.fontWeight = "bold";
+        rateButton.style.display = "inline-flex";
+        rateButton.style.alignItems = "center";
+        rateButton.style.gap = "5px";
+        rateButton.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
 
-        // Dugme "Oceni" – prikazuje se samo ako je korisnik prijavljen
-        if (token) {
-          const rateButtonWrapper = document.createElement("div");
-          rateButtonWrapper.style.marginTop = "8px";
-          rateButtonWrapper.style.textAlign = "right";
+        bottomRow.appendChild(raterButton);
+        if (token) bottomRow.appendChild(rateButton);
 
-          const returnUrl = encodeURIComponent(window.location.href);
-          const rateButton = document.createElement("a");
-          rateButton.href = `rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(sub.name)}&return=${returnUrl}`;
-          rateButton.style.color = "#6b4dc4";
-          rateButton.style.textDecoration = "none";
-          rateButton.style.fontWeight = "bold";
-          rateButton.style.display = "inline-flex";
-          rateButton.style.alignItems = "center";
-          rateButton.style.gap = "5px";
-          rateButton.innerHTML = `<img src="icons/star-outline.png" width="16" height="16"> Ocenite`;
+        // Spoji redove u glavni blok
+        div.appendChild(topRow);
+        div.appendChild(midRow);
+        div.appendChild(bottomRow);
 
-          rateButtonWrapper.appendChild(rateButton);
-          div.appendChild(rateButtonWrapper);
-        }
-
-        // Dovuci broj ocenjivača i ažuriraj dugme
+        // Dovuci podatke iz backenda (ocena, ocenjivači)
         fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(data.name + " " + data.surname)}&cardSub=${encodeURIComponent(sub.name)}`)
           .then(res => res.json())
           .then(raters => {
             raterButton.innerText = `Ocenjivači (${raters.length})`;
-          })
-          .catch(err => {
-            console.error("Greška pri dohvatu broja ocenjivača:", err);
-            raterButton.innerText = "Ocenjivači (?)";
-          });
-
-        container.appendChild(div);
-
-        // Dohvati prosečnu ocenu iz backenda
-        const cardName = `${data.name} ${data.surname}`;
-        const cardSub = sub.name;
-
-        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
-          .then(res => res.json())
-          .then(raters => {
             const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
             const broj = raters.length;
             const prosek = broj > 0 ? zbir / broj : 0;
             const starRating = createStarRating(prosek);
             starsWrapper.appendChild(starRating);
             scoreText.innerText = prosek.toFixed(2);
-          })
-          .catch(err => {
-            console.error("Greška pri dohvatu ocene:", err);
-         });
-
-        container.appendChild(div);
+          });
       });
     })
     .catch(err => {
