@@ -2,115 +2,97 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8">
-  <title>Moj dnevnik ocenjivanja</title>
+  <title>GPT bodovi</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .breadcrumb {
-      font-size: 14px;
-      margin-bottom: 20px;
-      color: #555;
+    .points-container {
+      max-width: 900px;
+      margin: 30px auto;
+      font-family: Arial, sans-serif;
     }
-
-    .breadcrumb a {
-      color: #007bff;
-      text-decoration: none;
+    .points-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-
-    .breadcrumb a:hover {
-      text-decoration: underline;
+    .points-header h2 {
+      margin: 0;
     }
-
-    .main-title {
-      font-size: 20px;
+    .close-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 12px;
       font-weight: bold;
-      margin-bottom: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
     }
-
-    .sub-title {
-      font-size: 18px;
-      margin-top: 30px;
-      font-weight: bold;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-    }
-
-    .evaluated-list {
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .summary-row {
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="breadcrumb">
-      <a href="index.html">Home</a> &gt; Moj dnevnik ocenjivanja
+  <div class="points-container">
+    <div class="points-header">
+      <h2 id="points-title">GPT bodovi</h2>
+      <button class="close-button" onclick="window.history.back()">✕</button>
     </div>
 
-    <div class="main-title">
-      Ocenjivač: <span id="ocenjivac-ime">Učitavanje...</span>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Objava</th>
+          <th>Verodostojnost</th>
+          <th>AI bodovi</th>
+          <th>Priznati AI bodovi</th>
+        </tr>
+      </thead>
+      <tbody id="points-table-body">
+        <!-- Dinamički redovi -->
+      </tbody>
+    </table>
 
-    <div class="sub-title">Imenik ocenjenih članova:</div>
-    <div class="evaluated-list" id="evaluatedList">
-      <!-- Dinamički sadržaj dolazi u 2. etapi -->
-    </div>
+    <table class="summary-row">
+      <thead>
+        <tr>
+          <th>Ukupni bodovi:</th>
+          <th>Parametri za ocenu:</th>
+          <th>Ocena:</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="total-points"></td>
+          <td id="score-params"></td>
+          <td id="gpt-grade"></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <script>
-    const token = localStorage.getItem("token");
+    const params = new URLSearchParams(window.location.search);
+    const ime = params.get("ime");
+    const prezime = params.get("prezime");
+    const sub = params.get("sub");
 
-    if (!token) {
-      alert("Niste prijavljeni.");
-      window.location.href = "login.html";
-    }
-
-    fetch("https://selfmarking-backend.onrender.com/api/user/me", {
-      headers: { "Authorization": "Bearer " + token }
-    })
-      .then(res => res.json())
-      .then(user => {
-        const punoIme = `${user.name} ${user.surname}`;
-        document.getElementById("ocenjivac-ime").innerText = punoIme;
-
-        // Sada pozivamo backend da nam vrati sve koje je ovaj korisnik ocenio
-        return fetch(`https://selfmarking-backend.onrender.com/api/ratings/evaluated?rater=${encodeURIComponent(punoIme)}`);
-      })
-      .then(res => res.json())
-      .then(ocenjeni => {
-        const container = document.getElementById("evaluatedList");
-        container.innerHTML = "";
-
-        if (!Array.isArray(ocenjeni) || ocenjeni.length === 0) {
-          container.innerHTML = "<p>Još niste ocenili nijednog člana.</p>";
-          return;
-        }
-
-        ocenjeni.forEach(imePrezime => {
-          const red = document.createElement("div");
-          red.style.display = "flex";
-          red.style.justifyContent = "space-between";
-          red.style.marginBottom = "8px";
-          red.style.alignItems = "center";
-
-          const imeDiv = document.createElement("div");
-          imeDiv.innerText = imePrezime;
-
-          const dugme = document.createElement("a");
-          dugme.innerText = "Ocene >>";
-          const [ime, prezime] = imePrezime.split(" ");
-          dugme.href = `dossier.html?name=${encodeURIComponent(ime)}&surname=${encodeURIComponent(prezime || "")}`;
-          dugme.style.color = "#007bff";
-          dugme.style.fontWeight = "bold";
-          dugme.style.textDecoration = "none";
-
-          red.appendChild(imeDiv);
-          red.appendChild(dugme);
-          container.appendChild(red);
-        });
-      })
-      .catch(err => {
-        console.error("Greška pri učitavanju podataka:", err);
-        document.getElementById("evaluatedList").innerHTML = "<p>Greška pri učitavanju dnevnika.</p>";
-      });
-  </script> 
+    const naslov = document.getElementById("points-title");
+    naslov.innerText = `${ime} ${prezime} - ${sub}`;
+  </script>
 </body>
 </html>
