@@ -107,6 +107,19 @@
     const sub = params.get('sub');
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
+      let currentUserId = null;
+      let isOwner = false;
+
+      // Ako postoji token, dekodiraj ga
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          currentUserId = payload.id;
+          if (currentUserId === ownerId) isOwner = true;
+        } catch (err) {
+          console.error("Neispravan token");
+        }
+      }
 
     const format = txt => {
       const text = txt.replace(/-/g, ' ');
@@ -244,7 +257,8 @@
     const testArea = document.getElementById("testArea");
     const testHistory = document.getElementById("testHistory");
 
-    document.getElementById("newTestBtn").onclick = async () => {
+    if (isOwner) {
+      document.getElementById("newTestBtn").onclick = async () => {
       testArea.innerHTML = "Učitavanje pitanja...";
 
       const response = await fetch("https://selfmarking-backend.onrender.com/api/tests/generate", {
@@ -272,12 +286,28 @@
         btn.textContent = ans.text;
         btn.style.margin = "5px";
         btn.style.display = "block";
-        btn.onclick = async () => {
-          const submitRes = await fetch("https://selfmarking-backend.onrender.com/api/tests/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ testId: test._id, selectedIndex: idx })
-          });
+        if (isOwner) {
+          btn.onclick = async () => {
+            const submitRes = await fetch("https://selfmarking-backend.onrender.com/api/tests/submit", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ testId: test._id, selectedIndex: idx })
+            });
+
+            const result = await submitRes.json();
+            questionHTML.innerHTML = `
+              <p><strong>${test.question}</strong></p>
+              <p><u>Tvoj odgovor:</u> ${ans.text}</p>
+              <p><strong>Osvojeni bodovi:</strong> ${result.points}</p>
+            `;
+            loadTestHistory();
+          };
+        } else {
+          btn.disabled = true;
+          btn.style.opacity = "0.5";
+          btn.style.cursor = "not-allowed";
+          btn.title = "Samo vlasnik self panela može odgovarati na pitanja.";
+        }
 
           const result = await submitRes.json();
           questionHTML.innerHTML = `
@@ -291,9 +321,15 @@
       });
 
       testArea.innerHTML = "";
-      testArea.appendChild(questionHTML);
-    };
-
+          testArea.appendChild(questionHTML);
+        };
+      } else {
+        const btn = document.getElementById("newTestBtn");
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+        btn.title = "Samo vlasnik self panela može pokrenuti novo pitanje.";
+      }
     async function loadTestHistory() {
       testHistory.innerHTML = "Učitavanje...";
       const res = await fetch(`https://selfmarking-backend.onrender.com/api/tests/user/${ownerId}?mainCategory=${main}&subCategory=${sub}`);
