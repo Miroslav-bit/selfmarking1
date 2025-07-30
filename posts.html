@@ -323,6 +323,15 @@
             <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">Ocenjivači (${broj})</a>
           `;
 
+          const aiScoreDiv = document.createElement("div");
+          aiScoreDiv.className = "raters";
+          aiScoreDiv.innerHTML = `
+            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
+            <a href="points.html?ime=${encodeURIComponent(data.name)}&prezime=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">AI bodovi</a>
+          `;
+
+          document.querySelector(".rating-buttons").insertBefore(aiScoreDiv, document.querySelector(".rate"));
+
           // Izračunavanje prosečne ocene
           const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
           const prosek = broj > 0 ? (zbir / broj).toFixed(2) : "–";
