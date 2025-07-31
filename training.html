@@ -91,8 +91,10 @@
       </div>
     </div>
 
-    <!-- OVDJE ĆE BITI DODATI SADRŽAJI TESTOVA -->
-  </div>
+    <div id="etapaSelection">
+      <h3>Odaberite etapu treninga:</h3>
+      <div id="etapaButtons" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+    </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -234,6 +236,24 @@
         }
       }
     }
+    const etapaButtons = document.getElementById("etapaButtons");
+
+    for (let i = 1; i <= 10; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = `Etapa ${i}`;
+      btn.style.padding = "10px";
+      btn.style.border = "1px solid #ccc";
+      btn.style.borderRadius = "6px";
+      btn.style.cursor = "pointer";
+      btn.onclick = () => startEtapa(i);
+      etapaButtons.appendChild(btn);
+    }
+
+    function startEtapa(etapa) {
+      console.log("Kliknuta etapa:", etapa);
+      // sledeći koraci: ažurirati ocenu + učitati sadržaj
+    }
+
   </script>
 </body>
 </html>
