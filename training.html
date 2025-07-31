@@ -250,29 +250,26 @@
     }
 
     function startEtapa(etapa) {
-      console.log("Kliknuta etapa:", etapa);
-      function startEtapa(etapa) {
-        const korigovanaOcena = etapa - 1;
-        console.log(`Odabrana etapa: ${etapa}, početna GPT ocena korigovana na: ${korigovanaOcena}`);
+      const korigovanaOcena = etapa - 1;
+      console.log(`Odabrana etapa: ${etapa}, početna GPT ocena korigovana na: ${korigovanaOcena}`);
 
-        // Privremeni prikaz dok se sadržaj učitava
-        document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
+      // Privremeni prikaz dok se sadržaj učitava
+      document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
 
-       // Učitavanje sadržaja iz odgovarajućeg fajla (npr. tutorials/hrabrost-4.js)
-        const path = `tutorials/hrabrost-${etapa}.js`;
+      // Učitavanje sadržaja iz odgovarajućeg fajla (npr. tutorials/hrabrost-4.js)
+      const path = `tutorials/hrabrost-${etapa}.js`;
 
-        fetch(path)
-          .then(res => {
-            if (!res.ok) throw new Error("Fajl ne postoji: " + path);
-            return res.text();
-          })
-          .then(scriptContent => {
-            eval(scriptContent); // ovo poziva prikaziPlanTreninga() iz učitanog fajla
-          })
-          .catch(err => {
-            document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška: ${err.message}</p>`;
-          });
-      }
+      fetch(path)
+        .then(res => {
+          if (!res.ok) throw new Error("Fajl ne postoji: " + path);
+          return res.text();
+        })
+        .then(scriptContent => {
+          eval(scriptContent); // ovo poziva prikaziPlanTreninga() iz učitanog fajla
+        })
+        .catch(err => {
+          document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška: ${err.message}</p>`;
+        });
     }
 
   </script>
