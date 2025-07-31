@@ -5,6 +5,6 @@ function prikaziPlanTreninga() {
     <p>Ovo je primer plana treninga za Etapu 2.</p>
     <p>Ovde će biti zadaci, dugmad za "Obavi", polje za ispit itd.</p>
   `;
-  document.querySelector(".container").appendChild(div);
+  document.getElementById("etapaSelection").appendChild(div);
 }
 prikaziPlanTreninga();
