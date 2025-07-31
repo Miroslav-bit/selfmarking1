@@ -263,15 +263,18 @@
       const prethodni = document.getElementById("scriptEtapa");
       if (prethodni) prethodni.remove();
 
-      // Dinamičko dodavanje <script> taga
-      const script = document.createElement("script");
-      script.id = "scriptEtapa";
-      script.src = `tutorials/hrabrost-${etapa}.js`;
-      script.onload = () => console.log("Skripta učitana.");
-      script.onerror = () => {
+    fetch(`tutorials/hrabrost-${etapa}.js`)
+      .then(response => {
+        if (!response.ok) throw new Error("Greška u učitavanju fajla");
+        return response.text();
+      })
+      .then(code => {
+        eval(code); // izvršava funkciju prikaziPlanTreninga() unutar učitanog fajla
+      })
+      .catch(error => {
+        console.error(error);
         document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška: Nije moguće učitati plan treninga.</p>`;
-      };
-      document.body.appendChild(script);
+      });
     }
   </script>
 </body>
