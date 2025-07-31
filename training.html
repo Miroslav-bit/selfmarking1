@@ -141,9 +141,7 @@
       document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
       const subCategory = sub.toLowerCase();
 
-      fetch(`/api/tutorials?sub=${subCategory}&etapa=${etapa}&user=${ownerId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      fetch(`/tutorials/${subCategory}/etapa-${etapa}.html`)
         .then(res => {
           if (!res.ok) throw new Error("Greška pri učitavanju treninga");
           return res.text();
