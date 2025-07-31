@@ -255,25 +255,20 @@
 
       document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
 
-      const path = `tutorials/hrabrost-${etapa}.js`;
+      const subCategory = sub.toLowerCase();
 
-      fetch(path)
+      fetch(`https://selfmarking-backend.onrender.com/api/training/${subCategory}/${etapa}`)
         .then(res => {
-          if (!res.ok) throw new Error("Greška u učitavanju skripte");
-          return res.text();
+          if (!res.ok) throw new Error("Etapa nije pronađena");
+          return res.json();
         })
-        .then(code => {
-         try {
-            new Function(code)();  // BEZ eval! sigurnija alternativa
-          } catch (e) {
-            console.error("Greška u izvršenju koda:", e);
-            document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška: Kod nije mogao da se izvrši.</p>`;
-          }
+        .then(data => {
+          document.getElementById("etapaSelection").innerHTML = data.html;
         })
         .catch(err => {
-          console.error("Greška u fetch-u:", err);
-          document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška: Fajl nije pronađen.</p>`;
-       });
+          console.error(err);
+          document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
+        });
     }
   </script>
 </body>
