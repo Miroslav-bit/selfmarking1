@@ -156,6 +156,8 @@
     }
 
     const etapaButtons = document.getElementById("etapaButtons");
+    const buttons = []; // <-- OVDE PRAVIMO LISTU
+
     for (let i = 1; i <= 10; i++) {
       const btn = document.createElement("button");
       btn.textContent = `Etapa ${i}`;
@@ -164,7 +166,7 @@
       btn.style.borderRadius = "6px";
       btn.style.cursor = "pointer";
       btn.onclick = () => startEtapa(i);
-      etapaButtons.appendChild(btn);
+      buttons.push(btn);
     }
 
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
@@ -177,7 +179,7 @@
 
         const dugmici = document.querySelectorAll('#etapaButtons button');
 
-        dugmici.forEach((btn, i) => {
+        buttons.forEach((btn, i) => {
           const desc = lines[i] || '';
           const wrapper = document.createElement('div');
           wrapper.style.display = 'flex';
