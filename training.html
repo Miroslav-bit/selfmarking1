@@ -5,78 +5,60 @@
   <title>Treninzi - Selfmarking</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .breadcrumb {
-      font-size: 16px;
-      margin-bottom: 10px;
-      color: #555;
-    }
-    .user-block {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 10px;
-    }
-    .user-block img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-    }
-    .rating-box {
+    .training-block {
       border: 1px solid #ccc;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      background-color: #f9f9f9;
+      padding: 10px;
+      margin: 20px 0;
+      border-radius: 6px;
+      background-color: #f0f0f0;
     }
-    .rating-buttons {
+    .intro-block p {
+      margin: 5px 0;
+    }
+    .training-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-    }
-    .raters a {
-      text-decoration: none;
-      color: #3498db;
-      font-weight: bold;
-    }
-    .average-score-box {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 10px;
       margin-bottom: 10px;
     }
-    .star-rating {
-      display: flex;
-      align-items: center;
+    .training-cell {
+      flex: 1;
+      margin: 5px;
+      border: 1px solid #aaa;
+      padding: 6px;
+      background-color: #fff;
     }
-    .star-rating svg {
-      width: 20px;
-      height: 20px;
+    .training-date {
+      color: #3498db;
+      margin-top: 2px;
     }
-    #averageScore {
-      width: 90px;
-      height: 30px;
-      background-color: white;
-      border: 3px solid red;
-      clip-path: polygon(50% 0%, 60% 35%, 100% 35%, 68% 60%, 80% 100%, 50% 75%, 20% 100%, 32% 60%, 0% 35%, 40% 35%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .training-button {
+      display: block;
+      margin: 20px auto;
+      background-color: yellow;
+      padding: 10px 20px;
       font-weight: bold;
-      color: black;
-      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .training-inline {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .training-inline .training-cell {
+      flex: none;
+    }
+    .training-cell p {
+      margin: 5px 0;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div id="userIdBlock">Učitavanje korisnika...</div>
-
     <div class="breadcrumb" id="breadcrumb">Navigacija...</div>
     <h2 id="tema-naslov">Naslov</h2>
-
     <div id="tab-buttons" style="margin-bottom: 20px;"></div>
 
     <div class="rating-box">
@@ -96,148 +78,100 @@
       <div id="etapaButtons" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
     </div>
 
+    <div id="planTreninga"></div>
+  </div>
+
   <script>
     const params = new URLSearchParams(window.location.search);
     const main = params.get('main');
     const sub = params.get('sub');
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
+    const planContainer = document.getElementById("planTreninga");
 
-    const format = txt => {
-      const text = txt.replace(/-/g, ' ');
-      return text.charAt(0).toUpperCase() + text.slice(1);
-    };
+    function renderPlan(data) {
+      const lines = data.split('\n').filter(line => line.trim());
+      let currentBlock = null;
+      let content = '';
 
-    document.getElementById("tema-naslov").innerText = format(sub);
+      lines.forEach(line => {
+        const match = line.match(/^<Tekst (\d+)><(.*)>$/);
+        if (!match) return;
+        const [_, num, txt] = match;
 
-    fetch(`https://selfmarking-backend.onrender.com/api/user/${ownerId}/panel`)
-      .then(res => res.json())
-      .then(data => {
-        const fullName = `${data.name} ${data.surname}`;
-        const subFormatted = format(sub);
+        if (num === '1') {
+          content += '<div class="intro-block training-block">';
+        }
+        if (['1', '2', '3'].includes(num)) {
+          content += `<p>${txt}</p>`;
+          if (num === '3') content += '</div>';
+        }
 
-        document.getElementById("userIdBlock").innerHTML = `
-          <div class="user-block">
-            <img src="${data.avatar || 'default-avatar.png'}" alt="avatar">
-            <div>
-              <strong>${fullName}</strong><br>
-              Živi u: ${data.city || 'Nepoznato'}
-            </div>
-          </div>
-        `;
-
-        document.getElementById("breadcrumb").innerHTML = `
-          <a href="index.html">Home</a> &gt;
-          <a href="main-categories.html?user=${ownerId}">${fullName}</a> &gt;
-          <a href="subcategories.html?user=${ownerId}&main=${main}">${format(main)}</a> &gt;
-          ${subFormatted}
-        `;
-
-        document.getElementById("tema-naslov").innerText = `${fullName} – ${subFormatted}`;
-
-        // Dugmad za prebacivanje između Testovi / Objave / Treninzi
-        const page = location.pathname.split("/").pop(); // npr. posts.html
-        const tabButtons = document.getElementById("tab-buttons");
-
-        const pages = {
-          "posts.html": "Objave",
-          "tests.html": "Testovi",
-          "training.html": "Treninzi"
-        };
-
-        Object.entries(pages).forEach(([file, label]) => {
-          const button = document.createElement("button");
-          button.textContent = label;
-          button.style.marginRight = "10px";
-          button.style.padding = "8px 16px";
-          button.style.borderRadius = "6px";
-          button.style.border = "none";
-          button.style.fontWeight = "bold";
-         button.style.cursor = (file === page) ? "default" : "pointer";
-
-          if (file === page) {
-            button.style.backgroundColor = "#888";
-            button.style.color = "white";
-          } else {
-            button.style.backgroundColor = "#eee";
-            button.style.color = "black";
-            button.onclick = () => {
-              window.location.href = `${file}?main=${main}&sub=${sub}&user=${ownerId}`;
-            };
-          }
-
-          tabButtons.appendChild(button);
-        });
-
-        fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(fullName)}&cardSub=${encodeURIComponent(subFormatted)}`)
-          .then(res => res.json())
-          .then(raters => {
-            const broj = raters.length;
-            document.querySelector(".raters").innerHTML = `
-              <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-              <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(subFormatted)}">Ocenjivači (${broj})</a>
-              &nbsp;&nbsp;
-              <a href="points.html?ime=${encodeURIComponent(data.name)}&prezime=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(subFormatted)}">AI bodovi</a>
-            `;
-
-            const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
-            const prosek = broj > 0 ? (zbir / broj).toFixed(2) : "–";
-            document.getElementById("averageScore").innerText = prosek;
-            updateStarRating(parseFloat(prosek));
-          });
-
-        if (token) {
-          document.querySelector(".rate").innerHTML = `
-            <img src="icons/rate.png" style="height:18px; vertical-align:middle;">
-            <a href="rate.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&main=${main}&sub=${subFormatted}&user=${ownerId}">☆ Ocenite</a>
-          `;
+        if (num === '4') {
+          if (currentBlock) content += currentBlock + '</div>';
+          currentBlock = '<div class="training-block">';
+          currentBlock += `<div class="training-row"><div class="training-cell">${txt}</div>`;
+        } else if (num === '5') {
+          currentBlock += `<div class="training-cell">${txt}</div>`;
+        } else if (num === '7') {
+          currentBlock += `<div class="training-cell">${txt}</div></div>`;
+        } else if (num === '6') {
+          currentBlock += `<div class="training-row"><div class="training-cell training-date">${txt}</div>`;
+        } else if (num === '8') {
+          currentBlock += `<div class="training-cell">${txt}</div></div>`;
+        } else if (num === '9') {
+          currentBlock += `<div class="training-row"><div class="training-cell">${txt}</div>`;
+        } else if (num === '10') {
+          const paragraphs = txt.split(/\\n/g).map(p => `<p>${p.trim()}</p>`).join('');
+          currentBlock += `<div class="training-cell" colspan="2">${paragraphs}</div></div>`;
+          currentBlock += '<button class="training-button">Obavi trening</button>';
+        } else if (num === '11') {
+          currentBlock += `<div class="training-inline"><div class="training-cell">${txt}</div>`;
+        } else if (num === '12') {
+          currentBlock += `<div class="training-cell">`;
+        } else if (num === '13') {
+          currentBlock += `${txt}</div></div>`;
         }
       });
-
-    function updateStarRating(score) {
-      const starContainer = document.getElementById("starRating");
-      if (!starContainer) return;
-      starContainer.innerHTML = "";
-
-      for (let i = 1; i <= 10; i++) {
-        let fill = 0;
-        if (i <= Math.floor(score)) fill = 1;
-        else if (i - score < 1) fill = score % 1;
-
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("viewBox", "0 0 24 24");
-
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", "M12 2l3 7h7l-5.7 4.1L18.6 21 12 16.8 5.4 21l2.3-7.9L2 9h7z");
-        path.setAttribute("fill", "white");
-        path.setAttribute("stroke", "red");
-        path.setAttribute("stroke-width", "1");
-
-        svg.appendChild(path);
-        starContainer.appendChild(svg);
-
-        if (fill > 0) {
-          const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-          fillRect.setAttribute("x", "0");
-          fillRect.setAttribute("y", "0");
-          fillRect.setAttribute("width", `${24 * fill}`);
-          fillRect.setAttribute("height", "24");
-          fillRect.setAttribute("fill", "red");
-
-          const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-          const maskId = `mask-${Math.random().toString(36).substr(2, 9)}`;
-          mask.setAttribute("id", maskId);
-          const maskPath = path.cloneNode();
-          maskPath.setAttribute("fill", "white");
-          mask.appendChild(maskPath);
-          svg.appendChild(mask);
-          fillRect.setAttribute("mask", `url(#${maskId})`);
-          svg.appendChild(fillRect);
-        }
-      }
+      if (currentBlock) content += currentBlock + '</div>';
+      planContainer.innerHTML = content;
     }
-    const etapaButtons = document.getElementById("etapaButtons");
 
+    function startEtapa(etapa) {
+      document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
+      const subCategory = sub.toLowerCase();
+
+      fetch(`/tutorials/${subCategory}/etapa-${etapa}.html`)
+        .then(res => {
+          if (!res.ok) throw new Error("Greška pri učitavanju treninga");
+          return res.text();
+        })
+        .then(data => {
+          document.getElementById("etapaSelection").innerHTML = '';
+          renderPlan(data);
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
+        });
+    }
+
+    // Nakon što je učitan sadržaj:
+document.getElementById("etapaSelection").innerHTML = data.html;
+
+    // Dinamičko učitavanje datuma iz posebnog fajla
+    fetch(`https://selfmarking-backend.onrender.com/api/training-dates/${subCategory}/${etapa}`)
+      .then(res => res.json())
+      .then(json => {
+        const datum = json.datum || "–";
+        const datumCell = document.getElementById("datum-treninga");
+        if (datumCell) datumCell.innerText = datum;
+      })
+      .catch(err => {
+        console.error("Greška pri učitavanju datuma:", err);
+      });
+
+    const etapaButtons = document.getElementById("etapaButtons");
     for (let i = 1; i <= 10; i++) {
       const btn = document.createElement("button");
       btn.textContent = `Etapa ${i}`;
@@ -248,28 +182,7 @@
       btn.onclick = () => startEtapa(i);
       etapaButtons.appendChild(btn);
     }
-
-    function startEtapa(etapa) {
-      const korigovanaOcena = etapa - 1;
-      console.log(`Odabrana etapa: ${etapa}, početna GPT ocena korigovana na: ${korigovanaOcena}`);
-
-      document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
-
-      const subCategory = sub.toLowerCase();
-
-      fetch(`https://selfmarking-backend.onrender.com/api/training/${subCategory}/${etapa}`)
-        .then(res => {
-          if (!res.ok) throw new Error("Etapa nije pronađena");
-          return res.json();
-        })
-        .then(data => {
-          document.getElementById("etapaSelection").innerHTML = data.html;
-        })
-        .catch(err => {
-          console.error(err);
-          document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
-        });
-    }
   </script>
 </body>
 </html>
+
