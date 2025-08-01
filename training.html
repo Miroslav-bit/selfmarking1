@@ -168,9 +168,6 @@
         });
     }
 
-    // Nakon što je učitan sadržaj:
-document.getElementById("etapaSelection").innerHTML = data.html;
-
     // Dinamičko učitavanje datuma iz posebnog fajla
     fetch(`https://selfmarking-backend.onrender.com/api/training-dates/${subCategory}/${etapa}`)
       .then(res => res.json())
