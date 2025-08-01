@@ -149,18 +149,6 @@
         .then(data => {
           document.getElementById("etapaSelection").innerHTML = '';
           renderPlan(data);
-
-          fetch(`https://selfmarking-backend.onrender.com/api/training-dates/${subCategory}/${etapa}`)
-            .then(res => res.json())
-            .then(json => {
-              const datum = json.datum || "–";
-              const datumCell = document.getElementById("datum-treninga");
-              if (datumCell) datumCell.innerText = datum;
-            })
-            .catch(err => {
-              console.error("Greška pri učitavanju datuma:", err);
-            });
-
        })
         .catch(err => {
           console.error(err);
