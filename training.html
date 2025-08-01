@@ -171,7 +171,7 @@ document.getElementById("etapaSelection").innerHTML = data.html;
         console.error("Greška pri učitavanju datuma:", err);
       });
 
-    const etapaButtons = document.getElementById("etapaButtons");
+    const buttonList = [];
     for (let i = 1; i <= 10; i++) {
       const btn = document.createElement("button");
       btn.textContent = `Etapa ${i}`;
@@ -180,7 +180,7 @@ document.getElementById("etapaSelection").innerHTML = data.html;
       btn.style.borderRadius = "6px";
       btn.style.cursor = "pointer";
       btn.onclick = () => startEtapa(i);
-      etapaButtons.appendChild(btn);
+      buttonList.push(btn);
     }
 
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
@@ -190,25 +190,25 @@ document.getElementById("etapaSelection").innerHTML = data.html;
         const doc = parser.parseFromString(html, 'text/html');
         const descriptions = doc.querySelectorAll('div');
 
-        const buttons = document.querySelectorAll('#etapaButtons button');
-        buttons.forEach((btn, i) => {
-          const desc = descriptions[i]?.innerHTML || '';
+        for (let i = 0; i < buttonList.length; i++) {
+          const btn = buttonList[i];
+          const descText = descriptions[i]?.innerHTML || '';
           const wrapper = document.createElement('div');
           wrapper.style.display = 'flex';
           wrapper.style.flexDirection = 'column';
           wrapper.style.alignItems = 'flex-start';
           wrapper.appendChild(btn);
 
-          const text = document.createElement('div');
-          text.style.border = '1px solid #ccc';
-          text.style.padding = '6px';
-          text.style.marginTop = '4px';
-          text.style.fontSize = '14px';
-          text.innerHTML = desc;
-          wrapper.appendChild(text);
+          const descDiv = document.createElement('div');
+          descDiv.style.border = '1px solid #ccc';
+          descDiv.style.padding = '6px';
+          descDiv.style.marginTop = '4px';
+          descDiv.style.fontSize = '14px';
+          descDiv.innerHTML = descText;
 
+          wrapper.appendChild(descDiv);
           etapaButtons.appendChild(wrapper);
-        });
+        }
       })
       .catch(err => {
         console.error("Ne mogu da učitam opise etapa:", err);
