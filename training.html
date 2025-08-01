@@ -149,14 +149,17 @@
         .then(data => {
           document.getElementById("etapaSelection").innerHTML = '';
           renderPlan(data);
-       })
+        })
         .catch(err => {
           console.error(err);
           document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
         });
     }
 
-    const buttonList = [];
+    // Nakon što je učitan sadržaj:
+document.getElementById("etapaSelection").innerHTML = data.html;
+
+    const etapaButtons = document.getElementById("etapaButtons");
     for (let i = 1; i <= 10; i++) {
       const btn = document.createElement("button");
       btn.textContent = `Etapa ${i}`;
@@ -165,7 +168,7 @@
       btn.style.borderRadius = "6px";
       btn.style.cursor = "pointer";
       btn.onclick = () => startEtapa(i);
-      buttonList.push(btn);
+      etapaButtons.appendChild(btn);
     }
 
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
@@ -175,27 +178,27 @@
         const doc = parser.parseFromString(html, 'text/html');
         const descriptions = doc.querySelectorAll('div');
 
-        for (let i = 0; i < buttonList.length; i++) {
-          const btn = buttonList[i];
-          const descText = descriptions[i]?.innerHTML || '';
+        const buttons = document.querySelectorAll('#etapaButtons button');
+        buttons.forEach((btn, i) => {
+          const desc = descriptions[i]?.innerHTML || '';
           const wrapper = document.createElement('div');
           wrapper.style.display = 'flex';
           wrapper.style.flexDirection = 'column';
           wrapper.style.alignItems = 'flex-start';
           wrapper.appendChild(btn);
 
-          const descDiv = document.createElement('div');
-          descDiv.style.border = '1px solid #ccc';
-          descDiv.style.padding = '6px';
-          descDiv.style.marginTop = '4px';
-          descDiv.style.fontSize = '14px';
-          descDiv.innerHTML = descText;
+          const text = document.createElement('div');
+          text.style.border = '1px solid #ccc';
+          text.style.padding = '6px';
+          text.style.marginTop = '4px';
+          text.style.fontSize = '14px';
+          text.innerHTML = desc;
+          wrapper.appendChild(text);
 
-          wrapper.appendChild(descDiv);
           etapaButtons.appendChild(wrapper);
-        }
+       });
       })
-      .catch(err => {
+     .catch(err => {
         console.error("Ne mogu da učitam opise etapa:", err);
       });
 
