@@ -181,6 +181,7 @@ document.getElementById("etapaSelection").innerHTML = data.html;
       btn.style.cursor = "pointer";
       btn.onclick = () => startEtapa(i);
       etapaButtons.appendChild(btn);
+    }
 
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
       .then(res => res.text())
@@ -212,7 +213,7 @@ document.getElementById("etapaSelection").innerHTML = data.html;
       .catch(err => {
         console.error("Ne mogu da učitam opise etapa:", err);
       });
-    }
+
   </script>
 </body>
 </html>
