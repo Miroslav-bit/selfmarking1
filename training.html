@@ -141,7 +141,7 @@
       document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
       const subCategory = sub.toLowerCase();
 
-      fetch(`https://selfmarking-backend.onrender.com/tutorials/${subCategory}/etapa-${etapa}.html`)
+      fetch(`/tutorials/${subCategory}/etapa-${etapa}.html`)
         .then(res => {
           if (!res.ok) throw new Error("Greška pri učitavanju treninga");
           return res.text();
@@ -152,12 +152,26 @@
         })
         .catch(err => {
           console.error(err);
+          document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
         });
     }
 
-    const etapaButtons = document.getElementById("etapaButtons");
-    const buttons = []; // <-- OVDE PRAVIMO LISTU
+    // Nakon što je učitan sadržaj:
+document.getElementById("etapaSelection").innerHTML = data.html;
 
+    // Dinamičko učitavanje datuma iz posebnog fajla
+    fetch(`https://selfmarking-backend.onrender.com/api/training-dates/${subCategory}/${etapa}`)
+      .then(res => res.json())
+      .then(json => {
+        const datum = json.datum || "–";
+        const datumCell = document.getElementById("datum-treninga");
+        if (datumCell) datumCell.innerText = datum;
+      })
+      .catch(err => {
+        console.error("Greška pri učitavanju datuma:", err);
+      });
+
+    const etapaButtons = document.getElementById("etapaButtons");
     for (let i = 1; i <= 10; i++) {
       const btn = document.createElement("button");
       btn.textContent = `Etapa ${i}`;
@@ -166,42 +180,8 @@
       btn.style.borderRadius = "6px";
       btn.style.cursor = "pointer";
       btn.onclick = () => startEtapa(i);
-      buttons.push(btn);
+      etapaButtons.appendChild(btn);
     }
-
-    fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
-      .then(res => res.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const allText = doc.body.textContent.trim();
-        const lines = allText.split('\n').filter(line => line.trim());
-
-        const dugmici = document.querySelectorAll('#etapaButtons button');
-
-        buttons.forEach((btn, i) => {
-          const desc = lines[i] || '';
-          const wrapper = document.createElement('div');
-          wrapper.style.display = 'flex';
-          wrapper.style.flexDirection = 'column';
-          wrapper.style.alignItems = 'flex-start';
-          wrapper.appendChild(btn);
-
-          const text = document.createElement('div');
-          text.style.border = '1px solid #ccc';
-          text.style.padding = '6px';
-          text.style.marginTop = '4px';
-          text.style.fontSize = '14px';
-          text.innerHTML = desc;
-          wrapper.appendChild(text);
-
-          etapaButtons.appendChild(wrapper);
-        });
-      })
-      .catch(err => {
-        console.error("Ne mogu da učitam opise etapa:", err);
-      });
-
   </script>
 </body>
 </html>
