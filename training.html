@@ -172,11 +172,11 @@
       .then(html => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const descriptions = doc.querySelectorAll('div');
+        const allText = doc.body.textContent.trim();
+        const lines = allText.split('\n').filter(line => line.trim());
 
-        const buttons = document.querySelectorAll('#etapaButtons button');
         buttons.forEach((btn, i) => {
-          const desc = descriptions[i]?.innerHTML || '';
+          const desc = lines[i] || '';
           const wrapper = document.createElement('div');
           wrapper.style.display = 'flex';
           wrapper.style.flexDirection = 'column';
