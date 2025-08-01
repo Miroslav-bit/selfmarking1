@@ -175,7 +175,9 @@
         const allText = doc.body.textContent.trim();
         const lines = allText.split('\n').filter(line => line.trim());
 
-        buttons.forEach((btn, i) => {
+        const dugmici = document.querySelectorAll('#etapaButtons button');
+
+        dugmici.forEach((btn, i) => {
           const desc = lines[i] || '';
           const wrapper = document.createElement('div');
           wrapper.style.display = 'flex';
@@ -192,9 +194,9 @@
           wrapper.appendChild(text);
 
           etapaButtons.appendChild(wrapper);
-       });
+        });
       })
-     .catch(err => {
+      .catch(err => {
         console.error("Ne mogu da učitam opise etapa:", err);
       });
 
