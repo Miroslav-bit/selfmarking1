@@ -141,7 +141,7 @@
       document.getElementById("etapaSelection").innerHTML = `<p>Učitavanje plana treninga za etapu ${etapa}...</p>`;
       const subCategory = sub.toLowerCase();
 
-      fetch(`/tutorials/${subCategory}/etapa-${etapa}.html`)
+      fetch(`https://selfmarking-backend.onrender.com/tutorials/${subCategory}/etapa-${etapa}.html`)
         .then(res => {
           if (!res.ok) throw new Error("Greška pri učitavanju treninga");
           return res.text();
