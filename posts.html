@@ -219,6 +219,8 @@
     <div class="breadcrumb" id="breadcrumb">Lična vrednost ></div>
     <h2 id="tema-naslov">Tema</h2>
 
+    <div id="tab-buttons" style="margin-bottom: 20px;"></div>
+
     <div class="rating-box">
       <div style="font-weight: bold; text-align: center; margin-bottom: 5px;">Srednja ocena</div>
       <div class="average-score-box">
@@ -303,6 +305,40 @@
       const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
       document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
 
+      // Dugmad za prebacivanje između Testovi / Objave / Treninzi
+      const page = location.pathname.split("/").pop(); // npr. posts.html
+      const tabButtons = document.getElementById("tab-buttons");
+
+      const pages = {
+        "posts.html": "Objave",
+        "tests.html": "Testovi",
+        "training.html": "Treninzi"
+      };
+
+      Object.entries(pages).forEach(([file, label]) => {
+        const button = document.createElement("button");
+        button.textContent = label;
+        button.style.marginRight = "10px";
+        button.style.padding = "8px 16px";
+        button.style.borderRadius = "6px";
+        button.style.border = "none";
+        button.style.fontWeight = "bold";
+        button.style.cursor = (file === page) ? "default" : "pointer";
+
+        if (file === page) {
+          button.style.backgroundColor = "#888";
+          button.style.color = "white";
+        } else {
+          button.style.backgroundColor = "#eee";
+          button.style.color = "black";
+          button.onclick = () => {
+            window.location.href = `${file}?main=${main}&sub=${sub}&user=${ownerId}`;
+          };
+        }
+
+        tabButtons.appendChild(button);
+      });
+
       localStorage.setItem("ime", data.name || "");
       localStorage.setItem("prezime", data.surname || "");
 
@@ -322,6 +358,15 @@
             <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
             <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">Ocenjivači (${broj})</a>
           `;
+
+          const aiScoreDiv = document.createElement("div");
+          aiScoreDiv.className = "raters";
+          aiScoreDiv.innerHTML = `
+            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
+            <a href="points.html?ime=${encodeURIComponent(data.name)}&prezime=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">AI bodovi</a>
+          `;
+
+          document.querySelector(".rating-buttons").insertBefore(aiScoreDiv, document.querySelector(".rate"));
 
           // Izračunavanje prosečne ocene
           const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
@@ -725,9 +770,22 @@
               ? "Poruka je prikrivena"
               : `${authorName}: ${reply.text}`;
 
-            const replyText = document.createElement("span");
-            replyText.textContent = prikazTeksta;
-            replyDiv.appendChild(replyText);
+              const replyText = document.createElement("span");
+              replyText.textContent = prikazTeksta;
+              replyDiv.appendChild(replyText);
+
+              // Ako je GPT autor, prikaži bodove
+              if (reply.user?.email === "gpt@selfmarking.com" && typeof reply.gptScore === "number") {
+                const scoreBadge = document.createElement("span");
+                scoreBadge.style.backgroundColor = "black";
+                scoreBadge.style.color = "white";
+                scoreBadge.style.fontWeight = "bold";
+                scoreBadge.style.padding = "4px 8px";
+                scoreBadge.style.marginLeft = "10px";
+                scoreBadge.style.borderRadius = "6px";
+                scoreBadge.textContent = reply.gptScore > 0 ? `+${reply.gptScore}` : `${reply.gptScore}`;
+                replyDiv.appendChild(scoreBadge);
+              }
 
             if (isOwner) {
               const hideBtn = document.createElement("button");
@@ -899,4 +957,3 @@
   </script>
 </body>
 </html>
-
