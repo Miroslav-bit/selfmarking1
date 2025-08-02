@@ -270,6 +270,38 @@
           document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
         });
     }
+
+    fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
+      .then(res => res.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const descriptions = doc.querySelectorAll('div');
+
+        const buttons = document.querySelectorAll('#etapaButtons button');
+        buttons.forEach((btn, i) => {
+          const desc = descriptions[i]?.innerHTML || '';
+          const wrapper = document.createElement('div');
+          wrapper.style.display = 'flex';
+          wrapper.style.flexDirection = 'column';
+          wrapper.style.alignItems = 'flex-start';
+          wrapper.appendChild(btn);
+
+          const text = document.createElement('div');
+          text.style.border = '1px solid #ccc';
+          text.style.padding = '6px';
+          text.style.marginTop = '4px';
+          text.style.fontSize = '14px';
+          text.innerHTML = desc;
+          wrapper.appendChild(text);
+
+          etapaButtons.appendChild(wrapper);
+        });
+      })
+      .catch(err => {
+        console.error("Ne mogu da učitam opise etapa:", err);
+      });
+
   </script>
 </body>
 </html>
