@@ -323,15 +323,6 @@
             <a href="raters.html?name=${encodeURIComponent(data.name)}&surname=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">Ocenjivači (${broj})</a>
           `;
 
-          const aiScoreDiv = document.createElement("div");
-          aiScoreDiv.className = "raters";
-          aiScoreDiv.innerHTML = `
-            <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-            <a href="points.html?ime=${encodeURIComponent(data.name)}&prezime=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">AI bodovi</a>
-          `;
-
-          document.querySelector(".rating-buttons").insertBefore(aiScoreDiv, document.querySelector(".rate"));
-
           // Izračunavanje prosečne ocene
           const zbir = raters.reduce((sum, r) => sum + (r.score || 0), 0);
           const prosek = broj > 0 ? (zbir / broj).toFixed(2) : "–";
@@ -734,22 +725,9 @@
               ? "Poruka je prikrivena"
               : `${authorName}: ${reply.text}`;
 
-              const replyText = document.createElement("span");
-              replyText.textContent = prikazTeksta;
-              replyDiv.appendChild(replyText);
-
-              // Ako je GPT autor, prikaži bodove
-              if (reply.user?.email === "gpt@selfmarking.com" && typeof reply.gptScore === "number") {
-                const scoreBadge = document.createElement("span");
-                scoreBadge.style.backgroundColor = "black";
-                scoreBadge.style.color = "white";
-                scoreBadge.style.fontWeight = "bold";
-                scoreBadge.style.padding = "4px 8px";
-                scoreBadge.style.marginLeft = "10px";
-                scoreBadge.style.borderRadius = "6px";
-                scoreBadge.textContent = reply.gptScore > 0 ? `+${reply.gptScore}` : `${reply.gptScore}`;
-                replyDiv.appendChild(scoreBadge);
-              }
+            const replyText = document.createElement("span");
+            replyText.textContent = prikazTeksta;
+            replyDiv.appendChild(replyText);
 
             if (isOwner) {
               const hideBtn = document.createElement("button");
