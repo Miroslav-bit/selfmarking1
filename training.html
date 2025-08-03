@@ -300,35 +300,21 @@
     function prihvatiTrening(originalHtml) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(originalHtml, 'text/html');
+
       const baner = document.getElementById("baner-trening");
       if (baner) baner.remove();
+
       const content = doc.body.innerHTML;
       document.getElementById("etapaSelection").innerHTML = content;
 
-      if (isOwner) {
-        fetch("https://selfmarking-backend.onrender.com/api/training/save", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userId: ownerId,
-            subcategory: sub.toLowerCase(),
-            html: content
-          })
-        });
-      }
-
+      // Dodaj funkcionalnost za dugme "Odustani"
       const odustaniBtns = Array.from(document.querySelectorAll("button"))
         .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
+
       odustaniBtns.forEach(btn => {
         btn.addEventListener("click", () => {
           const potvrda = confirm("Da li ste sigurni da želite da odustanete od ovog treninga?");
-          if (potvrda) {
-            fetch(`https://selfmarking-backend.onrender.com/api/training/reset?user=${ownerId}&sub=${sub.toLowerCase()}`, {
-              method: "DELETE"
-            }).then(() => location.reload());
-          }
+          if (potvrda) location.reload();
         });
       });
     }
@@ -363,40 +349,6 @@
       .catch(err => {
         console.error("Ne mogu da učitam opise etapa:", err);
       });
-
-      // --- PARSE PARAMETARA ---
-      const params = new URLSearchParams(window.location.search);
-      const main = params.get('main');
-      const sub = params.get('sub');
-      const ownerId = params.get('user');
-      const token = localStorage.getItem("token");
-      const isOwner = JSON.parse(localStorage.getItem("user"))?.id === ownerId;
-
-      // --- FUNKCIJA: prikaz sačuvanog treninga ---
-      function prikaziSacuvaniTrening(trening) {
-        document.getElementById("etapaSelection").innerHTML = trening;
-        const odustaniBtns = Array.from(document.querySelectorAll("button"))
-          .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
-        odustaniBtns.forEach(btn => {
-          btn.addEventListener("click", () => {
-            const potvrda = confirm("Da li ste sigurni da želite da odustanete od ovog treninga?");
-            if (potvrda) {
-              fetch(`https://selfmarking-backend.onrender.com/api/training/reset?user=${ownerId}&sub=${sub.toLowerCase()}`, {
-                method: "DELETE"
-              }).then(() => location.reload());
-            }
-          });
-        });
-      }
-
-      // --- UČITAJ SAČUVANI TRENING ZA VLASNIKA ---
-      if (isOwner) {
-        fetch(`https://selfmarking-backend.onrender.com/api/training/saved?user=${ownerId}&sub=${sub.toLowerCase()}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data?.html) prikaziSacuvaniTrening(data.html);
-          });
-      }
 
   </script>
 </body>
