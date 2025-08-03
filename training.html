@@ -304,7 +304,18 @@
       const baner = document.getElementById("baner-trening");
       if (baner) baner.remove();
 
-      document.getElementById("etapaSelection").innerHTML = doc.body.innerHTML;
+      const content = doc.body.innerHTML;
+      document.getElementById("etapaSelection").innerHTML = content;
+
+      // Dodaj funkcionalnost za dugme "Odustani"
+      const odustaniBtns = Array.from(document.querySelectorAll("button"))
+        .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
+
+      odustaniBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          location.reload(); // Povratak na izbornik etapa
+        });
+      });
     }
 
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
