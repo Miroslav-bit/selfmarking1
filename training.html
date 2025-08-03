@@ -313,7 +313,8 @@
 
       odustaniBtns.forEach(btn => {
         btn.addEventListener("click", () => {
-          location.reload(); // Povratak na izbornik etapa
+          const potvrda = confirm("Da li ste sigurni da želite da odustanete od ovog treninga?");
+          if (potvrda) location.reload();
         });
       });
     }
