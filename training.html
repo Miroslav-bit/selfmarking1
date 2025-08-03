@@ -288,7 +288,7 @@
           document.getElementById("etapaSelection").innerHTML = `${baner}${htmlWithoutActionButtons}`;
 
           // Dodavanje event listenere
-          document.getElementById("btn-prihvati").onclick = () => prihvatiTrening(data.html);
+          document.getElementById("btn-prihvati").onclick = () => prihvatiTrening(data.html, etapa);
           document.getElementById("btn-odbaci").onclick = () => location.reload();
         })
         .catch(err => {
