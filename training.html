@@ -263,12 +263,48 @@
           return res.json();
         })
         .then(data => {
-          document.getElementById("etapaSelection").innerHTML = data.html;
+          // Uklanjamo dugmad: "Potvrdi / Odloži / Odustani"
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(data.html, 'text/html');
+
+          const buttons = doc.querySelectorAll("button");
+          buttons.forEach(btn => btn.remove());
+
+          const htmlWithoutActionButtons = doc.body.innerHTML;
+
+          // Prikaz banera sa dva dugmeta: Prihvati / Odbaci
+          const baner = `
+            <div id="baner-trening" style="position:sticky; top:0; background: #fff8dc; border: 2px solid black; padding: 10px; margin-bottom: 20px; text-align:center; z-index:1000;">
+              <strong>Da li želite da započnete ovaj trening?</strong><br><br>
+              <button id="btn-prihvati" style="background-color: green; color: white; font-weight: bold; padding: 10px 20px; margin-right: 20px; border-radius: 6px; border: 2px solid black; cursor: pointer;">
+                ✅ Prihvati trening
+              </button>
+              <button id="btn-odbaci" style="background-color: crimson; color: white; font-weight: bold; padding: 10px 20px; border-radius: 6px; border: 2px solid black; cursor: pointer;">
+                ❌ Odbaci trening
+              </button>
+            </div>
+          `;
+
+          document.getElementById("etapaSelection").innerHTML = `${baner}${htmlWithoutActionButtons}`;
+
+          // Dodavanje event listenere
+          document.getElementById("btn-prihvati").onclick = () => prihvatiTrening(data.html);
+          document.getElementById("btn-odbaci").onclick = () => location.reload();
         })
         .catch(err => {
           console.error(err);
           document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
         });
+    }
+
+    function prihvatiTrening(originalHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(originalHtml, 'text/html');
+
+      const baner = document.getElementById("baner-trening");
+      if (baner) baner.remove();
+
+      document.getElementById("etapaSelection").innerHTML = doc.body.innerHTML;
     }
 
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
