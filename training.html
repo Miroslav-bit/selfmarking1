@@ -297,7 +297,7 @@
         });
     }
 
-    function prihvatiTrening(originalHtml) {
+    function prihvatiTrening(originalHtml, etapaNumber) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(originalHtml, 'text/html');
       const baner = document.getElementById("baner-trening");
@@ -313,8 +313,8 @@
           },
           body: JSON.stringify({
             userId: ownerId,
-            subcategory: sub.toLowerCase(),
-            html: content
+            sub: sub.toLowerCase(),
+            etapa: Number(etapaNumber)
           })
         });
       }
@@ -387,6 +387,22 @@
           .then(res => res.json())
           .then(data => {
             if (data?.html) prikaziSacuvaniTrening(data.html);
+          });
+      }
+
+      // --- Učitaj sačuvani broj etape ako postoji ---
+      if (isOwner) {
+        fetch(`https://selfmarking-backend.onrender.com/api/training/selected/${ownerId}/${sub.toLowerCase()}`)
+          .then(res => res.json())
+          .then(data => {
+            const etapa = data?.etapa;
+            if (etapa) {
+              fetch(`https://selfmarking-backend.onrender.com/api/training/${sub.toLowerCase()}/etapa-${etapa}`)
+                .then(res => res.text())
+                .then(html => {
+                  prihvatiTrening(html, etapa);
+                });
+            }
           });
       }
 
