@@ -348,7 +348,7 @@
       document.getElementById("etapaSelection").innerHTML = content;
 
       if (isOwner) {
-        fetch("https://selfmarking-backend.onrender.com/api/training/save", {
+        fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -356,7 +356,8 @@
           body: JSON.stringify({
             userId: ownerId,
             sub: sub.toLowerCase(),
-            etapa: Number(etapaNumber)
+            etapa: Number(etapaNumber),
+            html: content
           })
         });
       }
