@@ -424,28 +424,29 @@
         });
       }
 
-      // --- UČITAJ SAČUVANI TRENING ZA VLASNIKA ---
+      // --- UČITAJ SAČUVANI TRENING ILI BROJ ETAPE ZA VLASNIKA ---
       if (isOwner) {
         fetch(`https://selfmarking-backend.onrender.com/api/training/saved?user=${ownerId}&sub=${sub.toLowerCase()}`)
           .then(res => res.json())
           .then(data => {
-            if (data?.html) prikaziSacuvaniTrening(data.html);
-          });
-      }
-
-      // --- Učitaj sačuvani broj etape ako postoji ---
-      if (isOwner) {
-        fetch(`https://selfmarking-backend.onrender.com/api/training/selected/${ownerId}/${sub.toLowerCase()}`)
-          .then(res => res.json())
-          .then(data => {
-            const etapa = data?.etapa;
-            if (etapa) {
-              fetch(`https://selfmarking-backend.onrender.com/api/training/${sub.toLowerCase()}/etapa-${etapa}`)
-                .then(res => res.text())
-                .then(html => {
-                  prihvatiTrening(html, etapa);
-                });
+           if (data?.html) {
+              prikaziSacuvaniTrening(data.html);
+              return; // ✅ SPREČAVAMO DUPLO UČITAVANJE
             }
+
+            // Ako nije sačuvan HTML, pokušaj sa učitanjem samo etape
+            fetch(`https://selfmarking-backend.onrender.com/api/training/selected/${ownerId}/${sub.toLowerCase()}`)
+              .then(res => res.json())
+              .then(data => {
+                const etapa = data?.etapa;
+                if (etapa) {
+                  fetch(`https://selfmarking-backend.onrender.com/api/training/${sub.toLowerCase()}/etapa-${etapa}`)
+                    .then(res => res.text())
+                    .then(html => {
+                      prihvatiTrening(html, etapa);
+                    });
+                }
+              });
           });
       }
 
