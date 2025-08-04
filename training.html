@@ -312,6 +312,7 @@
         });
 
         const viewerId = localStorage.getItem("userId");
+        const isOwner = (viewerId && viewerId === ownerId);
 
         if (viewerId && viewerId === ownerId) {
           fetch("https://selfmarking-backend.onrender.com/api/training/save", {
