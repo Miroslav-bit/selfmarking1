@@ -135,6 +135,21 @@
 
         document.getElementById("tema-naslov").innerText = `${fullName} – ${subFormatted}`;
 
+        // Ako korisnik gleda sopstveni panel, automatski učitaj sačuvanu etapu
+        const viewerId = localStorage.getItem("userId");
+        if (viewerId && viewerId === ownerId) {
+          fetch(`https://selfmarking-backend.onrender.com/api/training/selected/${viewerId}/${sub}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.etapa) {
+                startEtapa(data.etapa);
+              }
+            })
+            .catch(err => {
+              console.error("Greška pri učitavanju sačuvane etape:", err);
+            });
+        }
+
         // Dugmad za prebacivanje između Testovi / Objave / Treninzi
         const page = location.pathname.split("/").pop(); // npr. posts.html
         const tabButtons = document.getElementById("tab-buttons");
@@ -295,6 +310,33 @@
           console.error(err);
           document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
         });
+
+        const viewerId = localStorage.getItem("userId");
+
+        if (viewerId && viewerId === ownerId) {
+          fetch("https://selfmarking-backend.onrender.com/api/training/save", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              userId: viewerId,
+              sub,
+              etapa
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              console.log("Etapa treninga uspešno sačuvana.");
+            } else {
+              console.warn("Etapa nije sačuvana:", data);
+            }
+          })
+          .catch(err => {
+            console.error("Greška pri čuvanju etape:", err);
+          });
+        }
     }
 
     function prihvatiTrening(originalHtml, etapaNumber) {
