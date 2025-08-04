@@ -102,7 +102,8 @@
     const sub = params.get('sub');
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
-
+    const isOwner = (viewerId && viewerId === ownerId);  
+     
     const format = txt => {
       const text = txt.replace(/-/g, ' ');
       return text.charAt(0).toUpperCase() + text.slice(1);
@@ -136,7 +137,6 @@
         document.getElementById("tema-naslov").innerText = `${fullName} – ${subFormatted}`;
 
         // Ako korisnik gleda sopstveni panel, automatski učitaj sačuvanu etapu
-        const viewerId = localStorage.getItem("userId");
         if (viewerId && viewerId === ownerId) {
           fetch(`https://selfmarking-backend.onrender.com/api/training/selected/${viewerId}/${sub}`)
             .then(res => res.json())
