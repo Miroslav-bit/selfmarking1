@@ -346,9 +346,12 @@ const isOwner = (viewerId && viewerId === ownerId);
       const doc = parser.parseFromString(originalHtml, 'text/html');
       const baner = document.getElementById("baner-trening");
       if (baner) baner.remove();
+
+      // Dobijamo čisti HTML bez banera
       const content = doc.body.innerHTML;
       document.getElementById("etapaSelection").innerHTML = content;
 
+      // ✅ Sačuvaj sadržaj HTML-a (plan + zadaci) u bazu
       if (isOwner) {
         fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
           method: "POST",
@@ -361,9 +364,17 @@ const isOwner = (viewerId && viewerId === ownerId);
             etapa: Number(etapaNumber),
             html: content
           })
-        });
+        })
+        .then(res => res.json())
+        .then(result => {
+          if (!result.success) {
+            console.warn("Greška pri čuvanju HTML treninga:", result);
+          }
+        })
+        .catch(err => console.error("Greška u save-full:", err));
       }
 
+      // Aktivacija dugmeta "Odustani" (ako postoji)
       const odustaniBtns = Array.from(document.querySelectorAll("button"))
         .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
       odustaniBtns.forEach(btn => {
