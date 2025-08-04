@@ -101,10 +101,8 @@
     const main = params.get('main');
     const sub = params.get('sub');
     const ownerId = params.get('user');
-const token = localStorage.getItem("token");
-const viewerId = localStorage.getItem("userId");
-const isOwner = (viewerId && viewerId === ownerId);
-     
+    const token = localStorage.getItem("token");
+
     const format = txt => {
       const text = txt.replace(/-/g, ' ');
       return text.charAt(0).toUpperCase() + text.slice(1);
@@ -136,20 +134,6 @@ const isOwner = (viewerId && viewerId === ownerId);
         `;
 
         document.getElementById("tema-naslov").innerText = `${fullName} – ${subFormatted}`;
-
-        // Ako korisnik gleda sopstveni panel, automatski učitaj sačuvanu etapu
-        if (viewerId && viewerId === ownerId) {
-          fetch(`https://selfmarking-backend.onrender.com/api/training/selected/${viewerId}/${sub}`)
-            .then(res => res.json())
-            .then(data => {
-              if (data.etapa) {
-                startEtapa(data.etapa);
-              }
-            })
-            .catch(err => {
-              console.error("Greška pri učitavanju sačuvane etape:", err);
-            });
-        }
 
         // Dugmad za prebacivanje između Testovi / Objave / Treninzi
         const page = location.pathname.split("/").pop(); // npr. posts.html
@@ -304,87 +288,33 @@ const isOwner = (viewerId && viewerId === ownerId);
           document.getElementById("etapaSelection").innerHTML = `${baner}${htmlWithoutActionButtons}`;
 
           // Dodavanje event listenere
-          document.getElementById("btn-prihvati").onclick = () => prihvatiTrening(data.html, etapa);
+          document.getElementById("btn-prihvati").onclick = () => prihvatiTrening(data.html);
           document.getElementById("btn-odbaci").onclick = () => location.reload();
         })
         .catch(err => {
           console.error(err);
           document.getElementById("etapaSelection").innerHTML = `<p style="color:red;">Greška pri učitavanju sadržaja.</p>`;
         });
-
-        const viewerId = localStorage.getItem("userId");
-        const isOwner = (viewerId && viewerId === ownerId);
-
-        if (viewerId && viewerId === ownerId) {
-          fetch("https://selfmarking-backend.onrender.com/api/training/save", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              userId: viewerId,
-              sub,
-              etapa
-            })
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              console.log("Etapa treninga uspešno sačuvana.");
-            } else {
-              console.warn("Etapa nije sačuvana:", data);
-            }
-          })
-          .catch(err => {
-            console.error("Greška pri čuvanju etape:", err);
-          });
-        }
     }
 
-    function prihvatiTrening(originalHtml, etapaNumber) {
+    function prihvatiTrening(originalHtml) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(originalHtml, 'text/html');
+
       const baner = document.getElementById("baner-trening");
       if (baner) baner.remove();
 
-      // Dobijamo čisti HTML bez banera
       const content = doc.body.innerHTML;
       document.getElementById("etapaSelection").innerHTML = content;
 
-      // ✅ Sačuvaj sadržaj HTML-a (plan + zadaci) u bazu
-      if (isOwner) {
-        fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userId: ownerId,
-            sub: sub.toLowerCase(),
-            etapa: Number(etapaNumber),
-            html: content
-          })
-        })
-        .then(res => res.json())
-        .then(result => {
-          if (!result.success) {
-            console.warn("Greška pri čuvanju HTML treninga:", result);
-          }
-        })
-        .catch(err => console.error("Greška u save-full:", err));
-      }
-
-      // Aktivacija dugmeta "Odustani" (ako postoji)
+      // Dodaj funkcionalnost za dugme "Odustani"
       const odustaniBtns = Array.from(document.querySelectorAll("button"))
         .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
+
       odustaniBtns.forEach(btn => {
         btn.addEventListener("click", () => {
           const potvrda = confirm("Da li ste sigurni da želite da odustanete od ovog treninga?");
-          if (potvrda) {
-            fetch(`https://selfmarking-backend.onrender.com/api/training/reset?user=${ownerId}&sub=${sub.toLowerCase()}`, {
-              method: "DELETE"
-            }).then(() => location.reload());
-          }
+          if (potvrda) location.reload();
         });
       });
     }
@@ -419,49 +349,6 @@ const isOwner = (viewerId && viewerId === ownerId);
       .catch(err => {
         console.error("Ne mogu da učitam opise etapa:", err);
       });
-
-      // --- FUNKCIJA: prikaz sačuvanog treninga ---
-      function prikaziSacuvaniTrening(trening) {
-        document.getElementById("etapaSelection").innerHTML = trening;
-        const odustaniBtns = Array.from(document.querySelectorAll("button"))
-          .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
-        odustaniBtns.forEach(btn => {
-          btn.addEventListener("click", () => {
-            const potvrda = confirm("Da li ste sigurni da želite da odustanete od ovog treninga?");
-            if (potvrda) {
-              fetch(`https://selfmarking-backend.onrender.com/api/training/reset?user=${ownerId}&sub=${sub.toLowerCase()}`, {
-                method: "DELETE"
-              }).then(() => location.reload());
-            }
-          });
-        });
-      }
-
-      // --- UČITAJ SAČUVANI TRENING ILI BROJ ETAPE ZA VLASNIKA ---
-      if (isOwner) {
-        fetch(`https://selfmarking-backend.onrender.com/api/training/saved?user=${ownerId}&sub=${sub.toLowerCase()}`)
-          .then(res => res.json())
-          .then(data => {
-           if (data?.html) {
-              prikaziSacuvaniTrening(data.html);
-              return; // ✅ SPREČAVAMO DUPLO UČITAVANJE
-            }
-
-            // Ako nije sačuvan HTML, pokušaj sa učitanjem samo etape
-            fetch(`https://selfmarking-backend.onrender.com/api/training/selected/${ownerId}/${sub.toLowerCase()}`)
-              .then(res => res.json())
-              .then(data => {
-                const etapa = data?.etapa;
-                if (etapa) {
-                  fetch(`https://selfmarking-backend.onrender.com/api/training/${sub.toLowerCase()}/etapa-${etapa}`)
-                    .then(res => res.text())
-                    .then(html => {
-                      prihvatiTrening(html, etapa);
-                    });
-                }
-              });
-          });
-      }
 
   </script>
 </body>
