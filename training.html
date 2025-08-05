@@ -366,23 +366,57 @@
             dugme.style.cursor = "pointer";
             dugme.style.fontWeight = "bold";
             dugme.onclick = () => {
-              // Povećaj kašnjenje za kliknuti dan
+              // 1. Povećaj kašnjenje za kliknuti dan
               delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
 
-              // Ažuriraj i trenutni datum (dan koji je kliknut)
-              const totalDelay = Object.entries(delayPerDay)
-                .filter(([key]) => parseInt(key) <= dayNum)
-                .reduce((sum, [_, val]) => sum + val, 0);
+              // 2. Izračunaj ukupno kašnjenje za dan koji se klikće
+              let delayForCurrent = 0;
+              for (let i = 1; i <= dayNum; i++) {
+                delayForCurrent += delayPerDay[i] || 0;
+              }
 
+              // 3. Ažuriraj datum za kliknuti dan
               const noviDatum = new Date(danas);
-              noviDatum.setDate(danas.getDate() + dayNum - 1 + totalDelay);
+              noviDatum.setDate(danas.getDate() + dayNum - 1 + delayForCurrent);
               const d = String(noviDatum.getDate()).padStart(2, '0');
               const m = String(noviDatum.getMonth() + 1).padStart(2, '0');
               const g = noviDatum.getFullYear();
               targetCell.textContent = `${d}.${m}.${g}.`;
 
-              // Ponovo iscrtaj ostale datume
-              prihvatiTrening(originalHtml);
+              // 4. Pomeraj datume svih narednih dana
+              for (let i = dayNum + 1; ; i++) {
+                const targetLabel = Array.from(dateCells).find(td => td.textContent.trim().toLowerCase().startsWith(`${i}. dan treninga`));
+                if (!targetLabel) break;
+                const cell = targetLabel.parentElement.nextElementSibling?.children[0];
+                if (!cell) continue;
+
+                let totalDelay = 0;
+                for (let j = 1; j <= i; j++) {
+                  totalDelay += delayPerDay[j] || 0;
+                }
+
+                const datum = new Date(danas);
+                datum.setDate(danas.getDate() + i - 1 + totalDelay);
+                const dd = String(datum.getDate()).padStart(2, '0');
+                const mm = String(datum.getMonth() + 1).padStart(2, '0');
+                const gg = datum.getFullYear();
+                cell.textContent = `${dd}.${mm}.${gg}.`;
+              }
+
+              // 5. Snimi nova pomeranja
+              fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  userId: ownerId,
+                  sub,
+                  etapa: currentEtapa,
+                  html: document.getElementById("etapaSelection").innerHTML,
+                  delayMap: delayPerDay
+                })
+              });
             };
 
             cell.appendChild(dugme);
