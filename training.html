@@ -103,6 +103,9 @@
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
 
+    let delayOffset = 0; // broj dana za koje je trening odložen
+    let currentEtapa = null; // trenutno izabrana etapa
+
     const format = txt => {
       const text = txt.replace(/-/g, ' ');
       return text.charAt(0).toUpperCase() + text.slice(1);
@@ -250,6 +253,8 @@
     }
 
     function startEtapa(etapa) {
+      currentEtapa = etapa;
+      delayOffset = 0;
       const korigovanaOcena = etapa - 1;
       console.log(`Odabrana etapa: ${etapa}, početna GPT ocena korigovana na: ${korigovanaOcena}`);
 
@@ -307,6 +312,25 @@
       const content = doc.body.innerHTML;
       document.getElementById("etapaSelection").innerHTML = content;
 
+      const prviDanTd = Array.from(document.querySelectorAll("td")).find(td =>
+        td.textContent.trim().toLowerCase().startsWith("1. dan treninga")
+      );
+      if (prviDanTd) {
+        const dugmeOdlozi = document.createElement("button");
+        dugmeOdlozi.textContent = "⏩ Odloži";
+        dugmeOdlozi.style.marginLeft = "10px";
+        dugmeOdlozi.style.padding = "5px 12px";
+        dugmeOdlozi.style.fontWeight = "bold";
+        dugmeOdlozi.style.cursor = "pointer";
+        dugmeOdlozi.style.backgroundColor = "#ffcc00";
+        dugmeOdlozi.style.border = "1px solid black";
+        dugmeOdlozi.onclick = () => {
+          delayOffset++;
+          prihvatiTrening(originalHtml); // ponovo učitaj datume sa povećanjem
+        };
+        prviDanTd.appendChild(dugmeOdlozi);
+      }
+
       // Računanje današnjih i narednih datuma za svaki dan treninga
       const danas = new Date();
       const dateCells = document.querySelectorAll("td");
@@ -318,7 +342,7 @@
           const targetCell = cell.parentElement.nextElementSibling?.children[0];
           if (targetCell && targetCell.textContent.trim() === "–") {
             const datum = new Date(danas);
-            datum.setDate(datum.getDate() + brojac);
+            datum.setDate(datum.getDate() + brojac + delayOffset);
             const dan = String(datum.getDate()).padStart(2, '0');
             const mesec = String(datum.getMonth() + 1).padStart(2, '0');
             const godina = datum.getFullYear();
@@ -361,7 +385,8 @@
           userId: ownerId,
           sub,
           etapa: parseInt(originalHtml.match(/Etapa\s*(\d+)/)?.[1] || "1"),
-          html: content
+          html: content,
+          delay: delayOffset
         })
       });
 
@@ -433,6 +458,7 @@
           .then(res => res.json())
           .then(data => {
             if (data.html) {
+              delayOffset = data.delay || 0;
               document.getElementById("etapaSelection").innerHTML = data.html;
 
               const odustaniBtns = Array.from(document.querySelectorAll("button"))
@@ -466,6 +492,7 @@
           });
       }
     }
+
   </script>
 </body>
 </html>
