@@ -366,8 +366,23 @@
             dugme.style.cursor = "pointer";
             dugme.style.fontWeight = "bold";
             dugme.onclick = () => {
+              // Povećaj kašnjenje za kliknuti dan
               delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
-              prihvatiTrening(originalHtml); // ponovo iscrtaj sve datume
+
+              // Ažuriraj i trenutni datum (dan koji je kliknut)
+              const totalDelay = Object.entries(delayPerDay)
+                .filter(([key]) => parseInt(key) <= dayNum)
+                .reduce((sum, [_, val]) => sum + val, 0);
+
+              const noviDatum = new Date(danas);
+              noviDatum.setDate(danas.getDate() + dayNum - 1 + totalDelay);
+              const d = String(noviDatum.getDate()).padStart(2, '0');
+              const m = String(noviDatum.getMonth() + 1).padStart(2, '0');
+              const g = noviDatum.getFullYear();
+              targetCell.textContent = `${d}.${m}.${g}.`;
+
+              // Ponovo iscrtaj ostale datume
+              prihvatiTrening(originalHtml);
             };
 
             cell.appendChild(dugme);
