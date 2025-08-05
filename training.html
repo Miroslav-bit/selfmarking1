@@ -350,25 +350,24 @@
             dugmePriblizi.style.border = "1px solid black";
             dugmePriblizi.style.cursor = "pointer";
             dugmePriblizi.style.fontWeight = "bold";
+
             dugmePriblizi.onclick = () => {
-              // Smanji kašnjenje
               delayPerDay[dayNum] = Math.max((delayPerDay[dayNum] || 0) - 1, 0);
 
-              // Provera da li se sme više približiti
               let totalDelay = 0;
               for (let i = 1; i < dayNum; i++) {
                 totalDelay += delayPerDay[i] || 0;
               }
 
               const prethodniDan = new Date(danas);
-              prethodniDan.setDate(danas.getDate() + dayNum - 2 + totalDelay + 1); // +1 da osigura barem 1 dan razmaka
+              prethodniDan.setDate(danas.getDate() + dayNum - 2 + totalDelay + 1);
 
               const noviDatum = new Date(danas);
               noviDatum.setDate(danas.getDate() + dayNum - 1 + delayPerDay[dayNum]);
 
               if (noviDatum <= prethodniDan) {
                 alert("❌ Ne možete dodatno približiti trening. Minimalni razmak je 1 dan u odnosu na prethodni.");
-                delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1; // Vrati na staro
+                delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
                 return;
               }
 
@@ -378,13 +377,11 @@
                 return;
               }
 
-              // Ažuriraj datum tekućeg dana
               const d = String(noviDatum.getDate()).padStart(2, '0');
               const m = String(noviDatum.getMonth() + 1).padStart(2, '0');
               const g = noviDatum.getFullYear();
               targetCell.textContent = `${d}.${m}.${g}.`;
 
-              // Ažuriraj naredne datume
               for (let i = dayNum + 1; ; i++) {
                 const targetLabel = Array.from(dateCells).find(td => td.textContent.trim().toLowerCase().startsWith(`${i}. dan treninga`));
                 if (!targetLabel) break;
@@ -404,7 +401,6 @@
                 cell.textContent = `${dd}.${mm}.${gg}.`;
               }
 
-              // Snimi
               fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
                 method: "POST",
                 headers: {
@@ -420,25 +416,23 @@
               });
             };
 
-            // Dodaj dugme "⏩ Odloži"
-            const dugme = document.createElement("button");
-            dugme.textContent = "⏩ Odloži";
-            dugme.style.marginLeft = "10px";
-            dugme.style.padding = "5px 10px";
-            dugme.style.backgroundColor = "#ffcc00";
-            dugme.style.border = "1px solid black";
-            dugme.style.cursor = "pointer";
-            dugme.style.fontWeight = "bold";
-            dugme.onclick = () => {
-              // 1. Povećaj kašnjenje za kliknuti dan
+            // === DUGME ⏩ ODLOŽI ===
+            const dugmeOdlozi = document.createElement("button");
+            dugmeOdlozi.textContent = "⏩ Odloži";
+            dugmeOdlozi.style.marginLeft = "5px";
+            dugmeOdlozi.style.padding = "5px 10px";
+            dugmeOdlozi.style.backgroundColor = "#ffcc00";
+            dugmeOdlozi.style.border = "1px solid black";
+            dugmeOdlozi.style.cursor = "pointer";
+            dugmeOdlozi.style.fontWeight = "bold";
+
+            dugmeOdlozi.onclick = () => {
               delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
 
-              // === PROVERA MAKSIMALNOG PREKIDA ===
               const maksimalniPrekidSpan = document.getElementById("maksimalni-prekid");
               const maksimalniPrekid = maksimalniPrekidSpan ? parseInt(maksimalniPrekidSpan.textContent.trim()) : null;
 
               if (maksimalniPrekid !== null) {
-                // Nađi početni datum treninga
                 const prviDatumTekst = Array.from(dateCells).find(td =>
                   td.textContent.trim().toLowerCase().startsWith("1. dan treninga")
                 )?.parentElement?.nextElementSibling?.children[0]?.textContent.trim();
@@ -447,29 +441,28 @@
                   const [dan, mesec, godina] = prviDatumTekst.split(".");
                   const startDate = new Date(`${godina}-${mesec}-${dan}`);
 
-                  // Proračun novog datuma
                   let delayForCurrent = 0;
                   for (let i = 1; i <= dayNum; i++) {
                     delayForCurrent += delayPerDay[i] || 0;
                   }
+
                   const noviDatum = new Date(danas);
                   noviDatum.setDate(danas.getDate() + dayNum - 1 + delayForCurrent);
 
                   const razlika = Math.floor((noviDatum - startDate) / (1000 * 60 * 60 * 24));
                   if (razlika > maksimalniPrekid) {
                     alert("❌ Dostignut je maksimalan prekid do sledećeg treninga.");
+                    delayPerDay[dayNum]--;
                     return;
                   }
                 }
               }
 
-              // 2. Izračunaj ukupno kašnjenje za dan koji se klikće
               let delayForCurrent = 0;
               for (let i = 1; i <= dayNum; i++) {
                 delayForCurrent += delayPerDay[i] || 0;
               }
 
-              // 3. Ažuriraj datum za kliknuti dan
               const noviDatum = new Date(danas);
               noviDatum.setDate(danas.getDate() + dayNum - 1 + delayForCurrent);
               const d = String(noviDatum.getDate()).padStart(2, '0');
@@ -477,7 +470,6 @@
               const g = noviDatum.getFullYear();
               targetCell.textContent = `${d}.${m}.${g}.`;
 
-              // 4. Pomeraj datume svih narednih dana
               for (let i = dayNum + 1; ; i++) {
                 const targetLabel = Array.from(dateCells).find(td => td.textContent.trim().toLowerCase().startsWith(`${i}. dan treninga`));
                 if (!targetLabel) break;
@@ -485,7 +477,7 @@
                 if (!cell) continue;
 
                 let totalDelay = 0;
-                for (let j = 1; j <= i; j++) {
+               for (let j = 1; j <= i; j++) {
                   totalDelay += delayPerDay[j] || 0;
                 }
 
@@ -497,7 +489,6 @@
                 cell.textContent = `${dd}.${mm}.${gg}.`;
               }
 
-              // 5. Snimi nova pomeranja
               fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
                 method: "POST",
                 headers: {
@@ -513,9 +504,10 @@
               });
             };
 
-            // Dodaj oba dugmeta u redosledu: Približi – Odloži
+            // === DODAJ OBA DUGMETA
             cell.appendChild(dugmePriblizi);
             cell.appendChild(dugmeOdlozi);
+
           }
         }
       });
