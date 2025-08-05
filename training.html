@@ -354,6 +354,36 @@
               // 1. Povećaj kašnjenje za kliknuti dan
               delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
 
+              // === PROVERA MAKSIMALNOG PREKIDA ===
+              const maksimalniPrekidSpan = document.getElementById("maksimalni-prekid");
+              const maksimalniPrekid = maksimalniPrekidSpan ? parseInt(maksimalniPrekidSpan.textContent.trim()) : null;
+
+              if (maksimalniPrekid !== null) {
+                // Nađi početni datum treninga
+                const prviDatumTekst = Array.from(dateCells).find(td =>
+                  td.textContent.trim().toLowerCase().startsWith("1. dan treninga")
+                )?.parentElement?.nextElementSibling?.children[0]?.textContent.trim();
+
+                if (prviDatumTekst && prviDatumTekst !== "–") {
+                  const [dan, mesec, godina] = prviDatumTekst.split(".");
+                  const startDate = new Date(`${godina}-${mesec}-${dan}`);
+
+                  // Proračun novog datuma
+                  let delayForCurrent = 0;
+                  for (let i = 1; i <= dayNum; i++) {
+                    delayForCurrent += delayPerDay[i] || 0;
+                  }
+                  const noviDatum = new Date(danas);
+                  noviDatum.setDate(danas.getDate() + dayNum - 1 + delayForCurrent);
+
+                  const razlika = Math.floor((noviDatum - startDate) / (1000 * 60 * 60 * 24));
+                  if (razlika > maksimalniPrekid) {
+                    alert("❌ Dostignut je maksimalan prekid do sledećeg treninga.");
+                    return;
+                  }
+                }
+              }
+
               // 2. Izračunaj ukupno kašnjenje za dan koji se klikće
               let delayForCurrent = 0;
               for (let i = 1; i <= dayNum; i++) {
@@ -553,4 +583,3 @@
   </script>
 </body>
 </html>
-
