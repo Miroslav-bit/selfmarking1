@@ -307,6 +307,29 @@
       const content = doc.body.innerHTML;
       document.getElementById("etapaSelection").innerHTML = content;
 
+      // Prikaz obaveštenja "Trening je prihvaćen!"
+      const notifikacija = document.createElement("div");
+      notifikacija.textContent = "✅ Trening je prihvaćen!";
+      notifikacija.style.backgroundColor = "#d4edda";
+      notifikacija.style.border = "2px solid #155724";
+      notifikacija.style.color = "#155724";
+      notifikacija.style.padding = "12px";
+      notifikacija.style.marginBottom = "15px";
+      notifikacija.style.fontWeight = "bold";
+      notifikacija.style.borderRadius = "6px";
+      notifikacija.style.textAlign = "center";
+      notifikacija.style.fontSize = "16px";
+      notifikacija.id = "prihvacenBanner";
+
+      // Ubaci baner iznad trening plana
+      const target = document.getElementById("etapaSelection");
+      target.prepend(notifikacija);
+
+      // Automatsko uklanjanje nakon 3 sekunde
+      setTimeout(() => {
+        notifikacija.remove();
+      }, 3000);
+
       // Slanje na backend da se trajno sačuva izabrani trening
       fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
         method: "POST",
