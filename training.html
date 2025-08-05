@@ -307,6 +307,27 @@
       const content = doc.body.innerHTML;
       document.getElementById("etapaSelection").innerHTML = content;
 
+      // Računanje današnjih i narednih datuma za svaki dan treninga
+      const danas = new Date();
+      const dateCells = document.querySelectorAll("td");
+      let brojac = 0;
+
+      dateCells.forEach(cell => {
+        const tekst = cell.textContent.trim().toLowerCase();
+        if (tekst.includes("dan treninga")) {
+          const targetCell = cell.parentElement.nextElementSibling?.children[0];
+          if (targetCell && targetCell.textContent.trim() === "–") {
+            const datum = new Date(danas);
+            datum.setDate(datum.getDate() + brojac);
+            const dan = String(datum.getDate()).padStart(2, '0');
+            const mesec = String(datum.getMonth() + 1).padStart(2, '0');
+            const godina = datum.getFullYear();
+            targetCell.textContent = `${dan}.${mesec}.${godina}.`;
+            brojac++;
+          }
+        }
+      });
+
       // Prikaz obaveštenja "Trening je prihvaćen!"
       const notifikacija = document.createElement("div");
       notifikacija.textContent = "✅ Trening je prihvaćen!";
