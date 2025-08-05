@@ -315,21 +315,6 @@
       const prviDanTd = Array.from(document.querySelectorAll("td")).find(td =>
         td.textContent.trim().toLowerCase().startsWith("1. dan treninga")
       );
-      if (prviDanTd) {
-        const dugmeOdlozi = document.createElement("button");
-        dugmeOdlozi.textContent = "⏩ Odloži";
-        dugmeOdlozi.style.marginLeft = "10px";
-        dugmeOdlozi.style.padding = "5px 12px";
-        dugmeOdlozi.style.fontWeight = "bold";
-        dugmeOdlozi.style.cursor = "pointer";
-        dugmeOdlozi.style.backgroundColor = "#ffcc00";
-        dugmeOdlozi.style.border = "1px solid black";
-        dugmeOdlozi.onclick = () => {
-          delayOffset++;
-          prihvatiTrening(originalHtml); // ponovo učitaj datume sa povećanjem
-        };
-        prviDanTd.appendChild(dugmeOdlozi);
-      }
 
       const danas = new Date();
       const dateCells = document.querySelectorAll("td");
@@ -568,3 +553,4 @@
   </script>
 </body>
 </html>
+
