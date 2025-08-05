@@ -433,10 +433,6 @@
               // 1. Povećaj kašnjenje za kliknuti dan
               delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
 
-            // Dodaj oba dugmeta u redosledu: Približi – Odloži
-            cell.appendChild(dugmePriblizi);
-            cell.appendChild(dugmeOdlozi);
-
               // === PROVERA MAKSIMALNOG PREKIDA ===
               const maksimalniPrekidSpan = document.getElementById("maksimalni-prekid");
               const maksimalniPrekid = maksimalniPrekidSpan ? parseInt(maksimalniPrekidSpan.textContent.trim()) : null;
@@ -517,7 +513,9 @@
               });
             };
 
-            cell.appendChild(dugme);
+            // Dodaj oba dugmeta u redosledu: Približi – Odloži
+            cell.appendChild(dugmePriblizi);
+            cell.appendChild(dugmeOdlozi);
           }
         }
       });
