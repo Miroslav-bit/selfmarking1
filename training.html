@@ -103,8 +103,8 @@
     const ownerId = params.get('user');
     const token = localStorage.getItem("token");
 
-    let delayOffset = 0; // broj dana za koje je trening odložen
-    let currentEtapa = null; // trenutno izabrana etapa
+    let delayPerDay = {}; // ključ = dan treninga, vrednost = broj dana odlaganja
+    let currentEtapa = null;
 
     const format = txt => {
       const text = txt.replace(/-/g, ' ');
@@ -254,7 +254,7 @@
 
     function startEtapa(etapa) {
       currentEtapa = etapa;
-      delayOffset = 0;
+      delayPerDay = {}; // reset svih pomeranja po danima
       const korigovanaOcena = etapa - 1;
       console.log(`Odabrana etapa: ${etapa}, početna GPT ocena korigovana na: ${korigovanaOcena}`);
 
@@ -331,23 +331,46 @@
         prviDanTd.appendChild(dugmeOdlozi);
       }
 
-      // Računanje današnjih i narednih datuma za svaki dan treninga
       const danas = new Date();
       const dateCells = document.querySelectorAll("td");
-      let brojac = 0;
 
       dateCells.forEach(cell => {
         const tekst = cell.textContent.trim().toLowerCase();
-        if (tekst.includes("dan treninga")) {
+        const match = tekst.match(/^(\d+)\.\s+dan treninga/);
+
+        if (match) {
+          const dayNum = parseInt(match[1]);
           const targetCell = cell.parentElement.nextElementSibling?.children[0];
+
           if (targetCell && targetCell.textContent.trim() === "–") {
+            // Izračunaj ukupan delay: zbir svih prethodnih dana
+            let totalDelay = 0;
+            for (let i = 1; i < dayNum; i++) {
+              totalDelay += delayPerDay[i] || 0;
+            }
+
             const datum = new Date(danas);
-            datum.setDate(datum.getDate() + brojac + delayOffset);
+            datum.setDate(datum.getDate() + dayNum - 1 + totalDelay);
             const dan = String(datum.getDate()).padStart(2, '0');
             const mesec = String(datum.getMonth() + 1).padStart(2, '0');
             const godina = datum.getFullYear();
             targetCell.textContent = `${dan}.${mesec}.${godina}.`;
-            brojac++;
+
+            // Dodaj dugme "⏩ Odloži"
+            const dugme = document.createElement("button");
+            dugme.textContent = "⏩ Odloži";
+            dugme.style.marginLeft = "10px";
+            dugme.style.padding = "5px 10px";
+            dugme.style.backgroundColor = "#ffcc00";
+            dugme.style.border = "1px solid black";
+            dugme.style.cursor = "pointer";
+            dugme.style.fontWeight = "bold";
+            dugme.onclick = () => {
+              delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
+              prihvatiTrening(originalHtml); // ponovo iscrtaj sve datume
+            };
+
+            cell.appendChild(dugme);
           }
         }
       });
@@ -386,7 +409,7 @@
           sub,
           etapa: parseInt(originalHtml.match(/Etapa\s*(\d+)/)?.[1] || "1"),
           html: content,
-          delay: delayOffset
+          delayMap: delayPerDay
         })
       });
 
@@ -458,7 +481,7 @@
           .then(res => res.json())
           .then(data => {
             if (data.html) {
-              delayOffset = data.delay || 0;
+              delayPerDay = data.delayMap || {};
               document.getElementById("etapaSelection").innerHTML = data.html;
 
               const odustaniBtns = Array.from(document.querySelectorAll("button"))
