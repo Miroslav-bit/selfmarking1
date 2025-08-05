@@ -341,6 +341,85 @@
             const godina = datum.getFullYear();
             targetCell.textContent = `${dan}.${mesec}.${godina}.`;
 
+            // === DUGME ⏪ PRIBLIŽI ===
+            const dugmePriblizi = document.createElement("button");
+            dugmePriblizi.textContent = "⏪ Približi";
+            dugmePriblizi.style.marginRight = "5px";
+            dugmePriblizi.style.padding = "5px 10px";
+            dugmePriblizi.style.backgroundColor = "#b3e5fc";
+            dugmePriblizi.style.border = "1px solid black";
+            dugmePriblizi.style.cursor = "pointer";
+            dugmePriblizi.style.fontWeight = "bold";
+            dugmePriblizi.onclick = () => {
+              // Smanji kašnjenje
+              delayPerDay[dayNum] = Math.max((delayPerDay[dayNum] || 0) - 1, 0);
+
+              // Provera da li se sme više približiti
+              let totalDelay = 0;
+              for (let i = 1; i < dayNum; i++) {
+                totalDelay += delayPerDay[i] || 0;
+              }
+
+              const prethodniDan = new Date(danas);
+              prethodniDan.setDate(danas.getDate() + dayNum - 2 + totalDelay + 1); // +1 da osigura barem 1 dan razmaka
+
+              const noviDatum = new Date(danas);
+              noviDatum.setDate(danas.getDate() + dayNum - 1 + delayPerDay[dayNum]);
+
+              if (noviDatum <= prethodniDan) {
+                alert("❌ Ne možete dodatno približiti trening. Minimalni razmak je 1 dan u odnosu na prethodni.");
+                delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1; // Vrati na staro
+                return;
+              }
+
+              if (dayNum === 1 && noviDatum < danas) {
+                alert("❌ Ne možete približiti prvi trening ispod današnjeg datuma.");
+                delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
+                return;
+              }
+
+              // Ažuriraj datum tekućeg dana
+              const d = String(noviDatum.getDate()).padStart(2, '0');
+              const m = String(noviDatum.getMonth() + 1).padStart(2, '0');
+              const g = noviDatum.getFullYear();
+              targetCell.textContent = `${d}.${m}.${g}.`;
+
+              // Ažuriraj naredne datume
+              for (let i = dayNum + 1; ; i++) {
+                const targetLabel = Array.from(dateCells).find(td => td.textContent.trim().toLowerCase().startsWith(`${i}. dan treninga`));
+                if (!targetLabel) break;
+                const cell = targetLabel.parentElement.nextElementSibling?.children[0];
+                if (!cell) continue;
+
+                let totalDelay = 0;
+                for (let j = 1; j <= i; j++) {
+                  totalDelay += delayPerDay[j] || 0;
+                }
+
+                const datum = new Date(danas);
+                datum.setDate(danas.getDate() + i - 1 + totalDelay);
+                const dd = String(datum.getDate()).padStart(2, '0');
+                const mm = String(datum.getMonth() + 1).padStart(2, '0');
+                const gg = datum.getFullYear();
+                cell.textContent = `${dd}.${mm}.${gg}.`;
+              }
+
+              // Snimi
+              fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  userId: ownerId,
+                  sub,
+                  etapa: currentEtapa,
+                  html: document.getElementById("etapaSelection").innerHTML,
+                  delayMap: delayPerDay
+                })
+              });
+            };
+
             // Dodaj dugme "⏩ Odloži"
             const dugme = document.createElement("button");
             dugme.textContent = "⏩ Odloži";
@@ -353,6 +432,10 @@
             dugme.onclick = () => {
               // 1. Povećaj kašnjenje za kliknuti dan
               delayPerDay[dayNum] = (delayPerDay[dayNum] || 0) + 1;
+
+            // Dodaj oba dugmeta u redosledu: Približi – Odloži
+            cell.appendChild(dugmePriblizi);
+            cell.appendChild(dugmeOdlozi);
 
               // === PROVERA MAKSIMALNOG PREKIDA ===
               const maksimalniPrekidSpan = document.getElementById("maksimalni-prekid");
