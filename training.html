@@ -481,6 +481,82 @@
         })
       });
 
+      function initializeTrainingButtons() {
+        const blocks = document.querySelectorAll("td");
+        let confirmedDays = 0;
+
+        // Deaktiviraj sve dugmadi
+        const allConfirmButtons = Array.from(document.querySelectorAll("button"))
+          .filter(btn => btn.textContent.trim().toLowerCase().includes("potvrdi"));
+        const allCancelButtons = Array.from(document.querySelectorAll("button"))
+          .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
+
+        allConfirmButtons.forEach(btn => {
+          btn.disabled = true;
+          btn.style.opacity = "0.3";
+          btn.style.cursor = "default";
+        });
+        allCancelButtons.forEach(btn => {
+          btn.disabled = true;
+          btn.style.opacity = "0.3";
+          btn.style.cursor = "default";
+        });
+
+        // Aktiviraj samo dugmad za prvi dan
+        activateButtonsForDay(1);
+      }
+
+      function activateButtonsForDay(dayNum) {
+        const allRows = Array.from(document.querySelectorAll("td"));
+        allRows.forEach(td => {
+          if (td.textContent.toLowerCase().startsWith(`${dayNum}. dan treninga`)) {
+            const btns = td.parentElement.nextElementSibling?.querySelectorAll("button");
+            if (!btns) return;
+            btns.forEach(btn => {
+              btn.disabled = false;
+              btn.style.opacity = "1";
+              btn.style.cursor = "pointer";
+
+              if (btn.textContent.toLowerCase().includes("potvrdi")) {
+                btn.onclick = () => {
+                  // Zaključaj trenutni dan
+                  btn.disabled = true;
+                  btn.style.opacity = "0.3";
+                  btn.style.cursor = "default";
+
+                  const cancelBtn = Array.from(btn.parentElement.children).find(b =>
+                    b !== btn && b.textContent.toLowerCase().includes("odustani")
+                  );
+                  if (cancelBtn) {
+                    cancelBtn.disabled = true;
+                    cancelBtn.style.opacity = "0.3";
+                    cancelBtn.style.cursor = "default";
+                  }
+
+                  // Aktiviraj sledeći dan
+                  activateButtonsForDay(dayNum + 1);
+
+                  // Snimi stanje
+                  fetch("https://selfmarking-backend.onrender.com/api/training/save-full", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                      userId: ownerId,
+                      sub,
+                      etapa: currentEtapa,
+                      html: document.getElementById("etapaSelection").innerHTML,
+                      delayMap: delayPerDay
+                    })
+                  });
+                };
+              }
+            });
+          }
+        });
+      }
+
       // Dodaj funkcionalnost za dugme "Odustani"
       const odustaniBtns = Array.from(document.querySelectorAll("button"))
         .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
@@ -551,6 +627,7 @@
             if (data.html) {
               delayPerDay = data.delayMap || {};
               document.getElementById("etapaSelection").innerHTML = data.html;
+              initializeTrainingButtons();
 
               const odustaniBtns = Array.from(document.querySelectorAll("button"))
                 .filter(btn => btn.textContent.trim().toLowerCase().includes("odustani"));
