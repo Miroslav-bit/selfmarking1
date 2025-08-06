@@ -506,6 +506,58 @@
           }
         });
       });
+
+      // === DODAVANJE ZAVRŠNE POTVRDE ===
+      const sveTabele = document.querySelectorAll("table");
+      if (sveTabele.length > 0) {
+        const poslednjaTabela = sveTabele[sveTabele.length - 1];
+
+        const dugmeZavrsna = document.createElement("button");
+        dugmeZavrsna.textContent = "Završna potvrda";
+        dugmeZavrsna.style.marginTop = "30px";
+        dugmeZavrsna.style.padding = "12px 24px";
+        dugmeZavrsna.style.fontWeight = "bold";
+        dugmeZavrsna.style.fontSize = "18px";
+        dugmeZavrsna.style.border = "3px solid black";
+        dugmeZavrsna.style.borderRadius = "8px";
+        dugmeZavrsna.style.backgroundColor = "yellow";
+        dugmeZavrsna.style.cursor = "pointer";
+        dugmeZavrsna.id = "zavrsnaPotvrdaBtn";
+
+        poslednjaTabela.insertAdjacentElement("afterend", dugmeZavrsna);
+
+        dugmeZavrsna.onclick = () => {
+          // Provera da li je poslednji dan već potvrđen (aktiviran)
+          if (aktivniTreningDan <= sveTabele.length) {
+            alert("❌ Prvo morate potvrditi sve dane treninga!");
+            return;
+          }
+
+          const box = document.createElement("div");
+          box.style.marginTop = "30px";
+          box.style.padding = "20px";
+          box.style.border = "3px solid black";
+          box.style.backgroundColor = "#fff8dc";
+          box.style.textAlign = "center";
+          box.style.fontSize = "18px";
+          box.id = "finalniRezultatBox";
+
+          box.innerHTML = `
+            <p><strong>Uspešno ste savladali ovu etapu treninga.</strong></p>
+            <p>Vrednost bodova: <span id="rezultat-bodova">–</span></p>
+            <p>Da li želite da započnete trening u sledećoj etapi?</p>
+            <div style="margin-top: 15px;">
+              <button style="background-color: green; color: white; font-weight: bold; padding: 10px 25px; margin: 0 10px; font-size: 16px; border: 2px solid black; border-radius: 6px;">DA</button>
+              <button style="background-color: red; color: white; font-weight: bold; padding: 10px 25px; margin: 0 10px; font-size: 16px; border: 2px solid black; border-radius: 6px;">NE</button>
+            </div>
+          `;
+
+          dugmeZavrsna.insertAdjacentElement("afterend", box);
+          dugmeZavrsna.disabled = true;
+          dugmeZavrsna.style.opacity = "0.5";
+          dugmeZavrsna.style.cursor = "default";
+        };
+      }
     }
 
     // Učitavanje opisa svih etapa
