@@ -526,9 +526,20 @@
 
         poslednjaTabela.insertAdjacentElement("afterend", dugmeZavrsna);
 
+        let poslednjiDanTreninga = sveTabele.length;
+        let potvrdeniDani = 0;
+
+        // Prebroji koliko dana ima potvrđena dugmad (žuto dugme je obično uklonjeno)
+        sveTabele.forEach(tabela => {
+          const dugmePotvrdi = tabela.querySelector('button');
+          if (!dugmePotvrdi || !dugmePotvrdi.textContent.includes("Potvrdi da si uspešno obavio trening")) {
+            potvrdeniDani++;
+          }
+        });
+
         dugmeZavrsna.onclick = () => {
           // Provera da li je poslednji dan već potvrđen (aktiviran)
-          if (aktivniTreningDan <= sveTabele.length) {
+          if (potvrdeniDani < poslednjiDanTreninga) {
             alert("❌ Prvo morate potvrditi sve dane treninga!");
             return;
           }
