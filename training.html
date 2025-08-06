@@ -539,8 +539,10 @@
         });
 
         dugmeZavrsna.onclick = () => {
-          // Provera da li je poslednji dan već potvrđen (aktiviran)
-          if (potvrdeniDani < poslednjiDanTreninga) {
+          const potvrde = Array.from(document.querySelectorAll("button.confirm"));
+          const sviPotvrdjeni = potvrde.every(btn => btn.disabled);
+
+          if (!sviPotvrdjeni) {
             alert("❌ Prvo morate potvrditi sve dane treninga!");
             return;
           }
@@ -556,7 +558,7 @@
 
           box.innerHTML = `
             <p><strong>Uspešno ste savladali ovu etapu treninga.</strong></p>
-            <p>Ocena za obavljen trening: <span id="rezultat-bodova">–</span></p>
+            <p>Ocena za obavljen trening: <span id="rezultat-bodova"></span></p>
             <p>Da li želite da započnete trening u sledećoj etapi?</p>
             <div style="margin-top: 15px;">
               <button style="background-color: green; color: white; font-weight: bold; padding: 10px 25px; margin: 0 10px; font-size: 16px; border: 2px solid black; border-radius: 6px;">DA</button>
@@ -564,17 +566,20 @@
             </div>
           `;
 
-          dugmeZavrsna.insertAdjacentElement("afterend", box);
+          const parent = document.getElementById("etapaSelection");
+          parent.appendChild(box);
+
+          const spanRezultat = document.getElementById("rezultat-bodova");
+          if (spanRezultat) {
+            spanRezultat.innerText = currentEtapa - 1;
+          }
+
           dugmeZavrsna.disabled = true;
           dugmeZavrsna.style.opacity = "0.5";
           dugmeZavrsna.style.cursor = "default";
         };
       }
     }
-
-     // Nakon što se HTML ubacio, sada popunjavaš broj bodova
-     document.getElementById("rezultat-bodova").innerText = currentEtapa - 1;
-
 
     // Učitavanje opisa svih etapa
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
