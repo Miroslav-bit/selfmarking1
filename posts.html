@@ -315,30 +315,31 @@
         "training.html": "Treninzi"
       };
 
-      if (isOwner) {
-        Object.entries(pages).forEach(([file, label]) => {
-          const button = document.createElement("button");
-          button.textContent = label;
-          button.style.marginRight = "10px";
-          button.style.padding = "8px 16px";
-          button.style.borderRadius = "6px";
-          button.style.border = "none";
-          button.style.fontWeight = "bold";
-          button.style.cursor = (file === page) ? "default" : "pointer";
+      Object.entries(pages).forEach(([file, label]) => {
+        if (!isOwner && label !== "Objave") return; // samo Objave za posmatrače
 
-          if (file === page) {
-            button.style.backgroundColor = "#888";
-           button.style.color = "white";
-          } else {
-            button.style.backgroundColor = "#eee";
-            button.style.color = "black";
-            button.onclick = () => {
-              window.location.href = `${file}?main=${main}&sub=${sub}&user=${ownerId}`;
-            };
-          }
+        const button = document.createElement("button");
+        button.textContent = label;
+        button.style.marginRight = "10px";
+        button.style.padding = "8px 16px";
+        button.style.borderRadius = "6px";
+        button.style.border = "none";
+        button.style.fontWeight = "bold";
+        button.style.cursor = (file === page) ? "default" : "pointer";
 
-          tabButtons.appendChild(button);
-        });
+        if (file === page) {
+          button.style.backgroundColor = "#888";
+          button.style.color = "white";
+        } else {
+          button.style.backgroundColor = "#eee";
+          button.style.color = "black";
+          button.onclick = () => {
+            window.location.href = `${file}?main=${main}&sub=${sub}&user=${ownerId}`;
+          };
+        }
+
+        tabButtons.appendChild(button);
+      });
 
       localStorage.setItem("ime", data.name || "");
       localStorage.setItem("prezime", data.surname || "");
