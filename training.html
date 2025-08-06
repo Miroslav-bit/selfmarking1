@@ -510,7 +510,7 @@
       // === DODAVANJE ZAVRŠNE POTVRDE ===
       const sveTabele = document.querySelectorAll("table");
       if (sveTabele.length > 0) {
-        const poslednjaTabela = sveTabele[sveTabele.length - 1];
+        const etapaDiv = document.getElementById("etapaSelection");
 
         const dugmeZavrsna = document.createElement("button");
         dugmeZavrsna.textContent = "Završna potvrda";
@@ -524,7 +524,7 @@
         dugmeZavrsna.style.cursor = "pointer";
         dugmeZavrsna.id = "zavrsnaPotvrdaBtn";
 
-        poslednjaTabela.insertAdjacentElement("afterend", dugmeZavrsna);
+        etapaDiv.appendChild(dugmeZavrsna);
 
         let poslednjiDanTreninga = sveTabele.length;
         let potvrdeniDani = 0;
