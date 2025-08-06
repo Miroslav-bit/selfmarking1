@@ -306,16 +306,16 @@
       document.getElementById("tema-naslov").innerText = `${fullName} – ${format(sub)}`;
 
       // Dugmad za prebacivanje između Testovi / Objave / Treninzi
+      const page = location.pathname.split("/").pop(); // npr. posts.html
+      const tabButtons = document.getElementById("tab-buttons");
+
+      const pages = {
+        "posts.html": "Objave",
+        "tests.html": "Testovi",
+        "training.html": "Treninzi"
+      };
+
       if (isOwner) {
-        const page = location.pathname.split("/").pop();
-        const tabButtons = document.getElementById("tab-buttons");
-
-        const pages = {
-          "posts.html": "Objave",
-          "tests.html": "Testovi",
-          "training.html": "Treninzi"
-        };
-
         Object.entries(pages).forEach(([file, label]) => {
           const button = document.createElement("button");
           button.textContent = label;
