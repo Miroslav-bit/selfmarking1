@@ -139,40 +139,38 @@
         document.getElementById("tema-naslov").innerText = `${fullName} – ${subFormatted}`;
 
         // Dugmad za prebacivanje između Testovi / Objave / Treninzi
-        if (isOwner) {
-          const page = location.pathname.split("/").pop();
-          const tabButtons = document.getElementById("tab-buttons");
+        const page = location.pathname.split("/").pop(); // npr. posts.html
+        const tabButtons = document.getElementById("tab-buttons");
 
-          const pages = {
-            "posts.html": "Objave",
-            "tests.html": "Testovi",
-            "training.html": "Treninzi"
-          };
+        const pages = {
+          "posts.html": "Objave",
+          "tests.html": "Testovi",
+          "training.html": "Treninzi"
+        };
 
-          Object.entries(pages).forEach(([file, label]) => {
-            const button = document.createElement("button");
-            button.textContent = label;
-            button.style.marginRight = "10px";
-            button.style.padding = "8px 16px";
-            button.style.borderRadius = "6px";
-            button.style.border = "none";
-            button.style.fontWeight = "bold";
-            button.style.cursor = (file === page) ? "default" : "pointer";
+        Object.entries(pages).forEach(([file, label]) => {
+          const button = document.createElement("button");
+          button.textContent = label;
+          button.style.marginRight = "10px";
+          button.style.padding = "8px 16px";
+          button.style.borderRadius = "6px";
+          button.style.border = "none";
+          button.style.fontWeight = "bold";
+         button.style.cursor = (file === page) ? "default" : "pointer";
 
-            if (file === page) {
-              button.style.backgroundColor = "#888";
-              button.style.color = "white";
-            } else {
-              button.style.backgroundColor = "#eee";
-              button.style.color = "black";
-              button.onclick = () => {
-                window.location.href = `${file}?main=${main}&sub=${sub}&user=${ownerId}`;
-              };
-            }
+          if (file === page) {
+            button.style.backgroundColor = "#888";
+            button.style.color = "white";
+          } else {
+            button.style.backgroundColor = "#eee";
+            button.style.color = "black";
+            button.onclick = () => {
+              window.location.href = `${file}?main=${main}&sub=${sub}&user=${ownerId}`;
+            };
+          }
 
-            tabButtons.appendChild(button);
-          });
-        }
+          tabButtons.appendChild(button);
+        });
 
         fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(fullName)}&cardSub=${encodeURIComponent(subFormatted)}`)
           .then(res => res.json())
