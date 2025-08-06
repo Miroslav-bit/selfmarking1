@@ -316,8 +316,6 @@
       };
 
       Object.entries(pages).forEach(([file, label]) => {
-        if (!isOwner && label !== "Objave") return; // samo Objave za posmatrače
-
         const button = document.createElement("button");
         button.textContent = label;
         button.style.marginRight = "10px";
