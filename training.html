@@ -563,6 +563,9 @@
             </div>
           `;
 
+          // ✳️ Dinamičko prikazivanje ocene
+          box.querySelector("#rezultat-bodova").innerText = currentEtapa;
+
           dugmeZavrsna.insertAdjacentElement("afterend", box);
           dugmeZavrsna.disabled = true;
           dugmeZavrsna.style.opacity = "0.5";
