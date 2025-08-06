@@ -564,9 +564,6 @@
             </div>
           `;
 
-          // Nakon što se HTML ubacio, sada popunjavaš broj bodova
-          document.getElementById("rezultat-bodova").innerText = currentEtapa - 1;
-
           dugmeZavrsna.insertAdjacentElement("afterend", box);
           dugmeZavrsna.disabled = true;
           dugmeZavrsna.style.opacity = "0.5";
@@ -574,6 +571,10 @@
         };
       }
     }
+
+     // Nakon što se HTML ubacio, sada popunjavaš broj bodova
+     document.getElementById("rezultat-bodova").innerText = currentEtapa - 1;
+
 
     // Učitavanje opisa svih etapa
     fetch(`https://selfmarking-backend.onrender.com/api/training-menu/${sub.toLowerCase()}`)
