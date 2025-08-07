@@ -149,7 +149,36 @@
               trainingCell.innerText = "–";
             }
           });
-      });
+
+    // 🆕 Učitaj datume objava i prikaži u postojećoj tabeli
+      fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${userId}&mainCategory=karakter&subCategory=${sub}`)
+        .then(res => res.json())
+        .then(posts => {
+          const tbody = document.getElementById("points-table-body");
+          tbody.innerHTML = "";
+
+          posts.reverse().forEach(post => {
+            const row = document.createElement("tr");
+
+            const cellDatum = document.createElement("td");
+            cellDatum.textContent = new Date(post.date).toLocaleString("sr-RS");
+
+            const cellVerodostojnost = document.createElement("td");
+            const cellAiBodovi = document.createElement("td");
+            const cellPriznati = document.createElement("td");
+
+            row.appendChild(cellDatum);
+            row.appendChild(cellVerodostojnost);
+            row.appendChild(cellAiBodovi);
+            row.appendChild(cellPriznati);
+
+            tbody.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error("Greška pri učitavanju objava:", err);
+        });
+    });
   </script>
 </body>
 </html>
