@@ -108,7 +108,7 @@
     const params = new URLSearchParams(window.location.search);
     const ime = params.get("ime");
     const prezime = params.get("prezime");
-    const sub = params.get("sub");
+    const sub = params.get("sub").toLowerCase(); // 🔹 Osigurano poklapanje
 
     fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
       .then(res => res.json())
@@ -119,13 +119,13 @@
         }
 
         const userId = data.userId;
-        console.log("🟢 userId:", userId);      // <== OVO DODAJ
-        console.log("🔵 sub:", sub);            // <== OVO DODAJ
+        console.log("🟢 userId:", userId);
+        console.log("🔵 sub:", sub);
 
         fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
           .then(res => res.json())
           .then(result => {
-            console.log("🟡 Rezultat:", result);  // <== OVO DODAJ
+            console.log("🟡 Rezultat:", result);
             if (result.trainingGrade) {
               document.getElementById("training-grade").innerText = result.trainingGrade;
             } else {
@@ -133,21 +133,6 @@
             }
           });
       });
-
-     fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
-       .then(res => res.json())
-       .then(data => {
-         if (!data.userId) return;
-
-         const userId = data.userId;
-         fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
-           .then(res => res.json())
-           .then(result => {
-             if (result.trainingGrade) {
-               document.getElementById("training-grade").innerText = result.trainingGrade;
-             }
-           });
-       });
 
     const naslov = document.getElementById("points-title");
     naslov.innerText = `${ime} ${prezime} - ${sub}`;
