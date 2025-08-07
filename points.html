@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>GPT bodovi</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .points-container {
+      max-width: 900px;
+      margin: 30px auto;
+      font-family: Arial, sans-serif;
+    }
+    .points-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .points-header h2 {
+      margin: 0;
+    }
+    .close-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .summary-row {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="points-container">
+    <div class="points-header">
+      <h2 id="points-title">GPT bodovi</h2>
+      <button class="close-button" onclick="window.history.back()">✕</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Početna ocena</th>
+          <th>Ocena treninga</th>
+          <th>Važeća početna ocena (vpo)</th>
+          <th>Bodovi početne ocene (vpo *200)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>5</td>
+          <td id="training-grade"></td>
+          <td id="valid-start-grade"></td>
+          <td id="start-grade-points"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Objava</th>
+          <th>Verodostojnost</th>
+          <th>AI bodovi</th>
+          <th>Priznati AI bodovi</th>
+        </tr>
+      </thead>
+      <tbody id="points-table-body">
+        <!-- Dinamički redovi -->
+      </tbody>
+    </table>
+
+    <table class="summary-row">
+      <thead>
+        <tr>
+          <th>Ukupni bodovi:</th>
+          <th>Parametri za ocenu:</th>
+          <th>Ocena:</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="total-points"></td>
+          <td id="score-params"></td>
+          <td id="gpt-grade"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+
+    function format(txt) {
+      const text = txt.replace(/-/g, ' ');
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+    
+    const params = new URLSearchParams(window.location.search);
+    const ime = params.get("ime");
+    const main = params.get("main");
+    const prezime = params.get("prezime");
+    const sub = params.get("sub");
+
+    const naslov = document.getElementById("points-title");
+    naslov.innerText = `${ime} ${prezime} - ${sub}`;
+
+    const pocetnaOcena = 5;
+
+    // ✅ Default prikaz VPO odmah
+    document.getElementById("valid-start-grade").innerText = pocetnaOcena;
+    document.getElementById("start-grade-points").innerText = pocetnaOcena * 200;
+
+    // fetch za backend kreće tek posle ovoga
+    fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.userId) {
+          console.error("❌ Korisnik nije pronađen");
+          return;
+        }
+
+        const userId = data.userId;
+
+        fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
+          .then(res => res.json())
+          .then(result => {
+            const trainingCell = document.getElementById("training-grade");
+            const vpoCell = document.getElementById("valid-start-grade");
+            const vpoPointsCell = document.getElementById("start-grade-points");
+
+            let trainingGrade = result.trainingGrade;
+            let vpo;
+
+            if (trainingGrade && !isNaN(trainingGrade)) {
+              trainingCell.innerText = trainingGrade;
+              vpo = Number(trainingGrade);
+              vpoCell.innerText = vpo;
+              vpoPointsCell.innerText = vpo * 200;
+           } else {
+              trainingCell.innerText = "–";
+            }
+          });
+      });
+  </script>
+</body>
+</html>
