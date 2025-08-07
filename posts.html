@@ -363,7 +363,7 @@
           aiScoreDiv.className = "raters";
           aiScoreDiv.innerHTML = `
             <img src="icons/raters.png" style="height:18px; vertical-align:middle;">
-            <a href="points.html?ime=${encodeURIComponent(data.name)}&prezime=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}">AI bodovi</a>
+            <a href="points.html?ime=${encodeURIComponent(data.name)}&prezime=${encodeURIComponent(data.surname)}&sub=${encodeURIComponent(format(sub))}&user=${ownerId}">
           `;
 
           document.querySelector(".rating-buttons").insertBefore(aiScoreDiv, document.querySelector(".rate"));
