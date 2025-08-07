@@ -108,7 +108,7 @@
     const params = new URLSearchParams(window.location.search);
     const ime = params.get("ime");
     const prezime = params.get("prezime");
-    const sub = params.get("sub").toLowerCase(); // 🔹 Osigurano poklapanje
+    const sub = params.get("sub");
 
     fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
       .then(res => res.json())
