@@ -119,66 +119,56 @@
     document.getElementById("valid-start-grade").innerText = pocetnaOcena;
     document.getElementById("start-grade-points").innerText = pocetnaOcena * 200;
 
-    // fetch za backend kreće tek posle ovoga
-    fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
+    const userId = params.get("user");
+    const main = localStorage.getItem("main") || "";
+
+    fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
       .then(res => res.json())
-      .then(data => {
-        if (!data.userId) {
-          console.error("❌ Korisnik nije pronađen");
-          return;
+      .then(result => {
+        const trainingCell = document.getElementById("training-grade");
+        const vpoCell = document.getElementById("valid-start-grade");
+        const vpoPointsCell = document.getElementById("start-grade-points");
+
+        let trainingGrade = result.trainingGrade;
+        let vpo;
+
+        if (trainingGrade && !isNaN(trainingGrade)) {
+          trainingCell.innerText = trainingGrade;
+          vpo = Number(trainingGrade);
+          vpoCell.innerText = vpo;
+          vpoPointsCell.innerText = vpo * 200;
+        } else {
+          trainingCell.innerText = "–";
         }
+      });
 
-        const userId = data.userId;
+    fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${userId}&mainCategory=${encodeURIComponent(main)}&subCategory=${sub}`)
+      .then(res => res.json())
+      .then(posts => {
+        const tbody = document.getElementById("points-table-body");
+        tbody.innerHTML = "";
 
-        fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
-          .then(res => res.json())
-          .then(result => {
-            const trainingCell = document.getElementById("training-grade");
-            const vpoCell = document.getElementById("valid-start-grade");
-            const vpoPointsCell = document.getElementById("start-grade-points");
+        posts.reverse().forEach(post => {
+          const row = document.createElement("tr");
 
-            let trainingGrade = result.trainingGrade;
-            let vpo;
+          const cellDatum = document.createElement("td");
+          cellDatum.textContent = new Date(post.date).toLocaleString("sr-RS");
 
-            if (trainingGrade && !isNaN(trainingGrade)) {
-              trainingCell.innerText = trainingGrade;
-              vpo = Number(trainingGrade);
-              vpoCell.innerText = vpo;
-              vpoPointsCell.innerText = vpo * 200;
-           } else {
-              trainingCell.innerText = "–";
-            }
-          });
+          const cellVerodostojnost = document.createElement("td");
+          const cellAiBodovi = document.createElement("td");
+          const cellPriznati = document.createElement("td");
 
-        const main = localStorage.getItem("main") || "";  // ✅ dodaj iznad fetch poziva
+          row.appendChild(cellDatum);
+          row.appendChild(cellVerodostojnost);
+          row.appendChild(cellAiBodovi);
+          row.appendChild(cellPriznati);
 
-        fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${userId}&mainCategory=${encodeURIComponent(main)}&subCategory=${sub}`)
-        .then(res => res.json())
-        .then(posts => {
-          const tbody = document.getElementById("points-table-body");
-          tbody.innerHTML = "";
-
-          posts.reverse().forEach(post => {
-            const row = document.createElement("tr");
-
-            const cellDatum = document.createElement("td");
-            cellDatum.textContent = new Date(post.date).toLocaleString("sr-RS");
-
-            const cellVerodostojnost = document.createElement("td");
-            const cellAiBodovi = document.createElement("td");
-            const cellPriznati = document.createElement("td");
-
-            row.appendChild(cellDatum);
-            row.appendChild(cellVerodostojnost);
-            row.appendChild(cellAiBodovi);
-            row.appendChild(cellPriznati);
-
-            tbody.appendChild(row);
-          });
-        })
-        .catch(err => {
-          console.error("Greška pri učitavanju objava:", err);
+          tbody.appendChild(row);
         });
+      })
+      .catch(err => {
+        console.error("Greška pri učitavanju objava:", err);
+      });
     });
   </script>
 </body>
