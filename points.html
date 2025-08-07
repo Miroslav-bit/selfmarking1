@@ -113,17 +113,26 @@
     fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
       .then(res => res.json())
       .then(data => {
-       if (!data.userId) return;
+        if (!data.userId) {
+          console.error("❌ Korisnik nije pronađen");
+          return;
+        }
 
         const userId = data.userId;
+        console.log("🟢 userId:", userId);      // <== OVO DODAJ
+        console.log("🔵 sub:", sub);            // <== OVO DODAJ
+
         fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
           .then(res => res.json())
           .then(result => {
+            console.log("🟡 Rezultat:", result);  // <== OVO DODAJ
             if (result.trainingGrade) {
               document.getElementById("training-grade").innerText = result.trainingGrade;
+            } else {
+              document.getElementById("training-grade").innerText = "–";
             }
           });
-     });
+      });
 
      fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
        .then(res => res.json())
