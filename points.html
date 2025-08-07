@@ -110,6 +110,19 @@
     const prezime = params.get("prezime");
     const sub = params.get("sub");
 
+    const token = localStorage.getItem("token");
+    if (token) {
+      const userId = JSON.parse(atob(token.split('.')[1])).id;
+
+      fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.trainingGrade) {
+            document.getElementById("training-grade").innerText = data.trainingGrade;
+          }
+        });
+    }
+
     const naslov = document.getElementById("points-title");
     naslov.innerText = `${ime} ${prezime} - ${sub}`;
   </script>
