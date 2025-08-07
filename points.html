@@ -151,7 +151,7 @@
           });
 
     // 🆕 Učitaj datume objava i prikaži u postojećoj tabeli
-      fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${userId}&mainCategory=karakter&subCategory=${sub}`)
+     fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${userId}&mainCategory=Karakterne osobine&subCategory=${sub}`)
         .then(res => res.json())
         .then(posts => {
           const tbody = document.getElementById("points-table-body");
