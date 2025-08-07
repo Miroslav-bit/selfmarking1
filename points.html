@@ -150,7 +150,7 @@
         });
 
       // Učitaj objave i njihove datume
-      fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${userId}&mainCategory=Karakter&subCategory=${sub}`)
+      fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${ownerId}&mainCategory=${main}&subCategory=${format(sub)}`);
         .then(res => res.json())
         .then(posts => {
           const tbody = document.getElementById("points-table-body");
