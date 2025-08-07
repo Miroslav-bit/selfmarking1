@@ -125,18 +125,20 @@
           });
      });
 
-    const token = localStorage.getItem("token");
-    if (token) {
-      const userId = JSON.parse(atob(token.split('.')[1])).id;
+     fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
+       .then(res => res.json())
+       .then(data => {
+         if (!data.userId) return;
 
-      fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.trainingGrade) {
-            document.getElementById("training-grade").innerText = data.trainingGrade;
-          }
-        });
-    }
+         const userId = data.userId;
+         fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
+           .then(res => res.json())
+           .then(result => {
+             if (result.trainingGrade) {
+               document.getElementById("training-grade").innerText = result.trainingGrade;
+             }
+           });
+       });
 
     const naslov = document.getElementById("points-title");
     naslov.innerText = `${ime} ${prezime} - ${sub}`;
