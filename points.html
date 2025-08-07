@@ -110,6 +110,11 @@
     const prezime = params.get("prezime");
     const sub = params.get("sub");
 
+    const naslov = document.getElementById("points-title");
+    naslov.innerText = `${ime} ${prezime} - ${sub}`;
+
+    const pocetnaOcena = 5;
+
     fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
       .then(res => res.json())
       .then(data => {
@@ -125,17 +130,25 @@
         fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
           .then(res => res.json())
           .then(result => {
-            console.log("🟡 Rezultat:", result);
-            if (result.trainingGrade) {
-              document.getElementById("training-grade").innerText = result.trainingGrade;
+            const trainingCell = document.getElementById("training-grade");
+            const vpoCell = document.getElementById("valid-start-grade");
+            const vpoPointsCell = document.getElementById("start-grade-points");
+
+            let trainingGrade = result.trainingGrade;
+            let vpo;
+
+            if (trainingGrade && !isNaN(trainingGrade)) {
+              trainingCell.innerText = trainingGrade;
+              vpo = Number(trainingGrade);
             } else {
-              document.getElementById("training-grade").innerText = "–";
+              trainingCell.innerText = "–";
+             vpo = pocetnaOcena;
             }
+
+            vpoCell.innerText = vpo;
+            vpoPointsCell.innerText = vpo * 200;
           });
       });
-
-    const naslov = document.getElementById("points-title");
-    naslov.innerText = `${ime} ${prezime} - ${sub}`;
   </script>
 </body>
 </html>
