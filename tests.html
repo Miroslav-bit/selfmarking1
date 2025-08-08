@@ -353,6 +353,10 @@
       zbirDiv.innerHTML = `Ukupan broj bodova: <span style="color:black;">+${ukupanZbir}</span>`;
       testHistory.appendChild(zbirDiv);
 
+      console.log("ownerId:", ownerId);
+      console.log("subCategory:", sub);
+      console.log("ukupanZbir:", ukupanZbir);
+
       // Pošalji bodove na backend da se trajno sačuvaju
       await fetch("https://selfmarking-backend.onrender.com/api/tests/update-score", {
        method: "PUT",
