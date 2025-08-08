@@ -77,8 +77,8 @@
         <tr>
           <th>AI bodovi za testove:</th>
           <th>AI bodovi za objave:</th>
-          <th>Ukupni AI bodovi:</th>
-          <th>Konačna AI ocena:</th>
+          <th>Ukupni AI bodovi (ub):</th>
+          <th>Konačna AI ocena (ub / 200):</th>
         </tr>
       </thead>
       <tbody>
@@ -187,12 +187,8 @@
         // Zaokruži na najviše dve decimale
         konacnaOcena = konacnaOcena.toFixed(2);
 
-        // Prikaz konačne ocene
-        const ocenaCell = document.createElement("td");
-        ocenaCell.innerText = konacnaOcena;
-
-        // Ubaci ocenu u poslednju ćeliju u poslednjem redu druge tabele
-        document.querySelector("table.summary-row tbody tr").appendChild(ocenaCell);
+        // Prikaz konačne ocene u postojeću ćeliju
+        document.getElementById("final-ai-grade").innerText = konacnaOcena;
 
       })
       .catch(err => {
