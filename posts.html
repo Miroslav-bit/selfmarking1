@@ -787,8 +787,8 @@
             .then(res => res.json())
             .then(data => console.log("✅ Bodovi poslati na backend:", data))
             .catch(err => console.error("❌ Greška pri slanju bodova:", err));
-        })
-      })
+        });
+      });
     function loadReplies(postId, container) {
       const oldReplies = container.querySelector(".reply-list");
       if (oldReplies) oldReplies.remove();
