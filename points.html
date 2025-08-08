@@ -149,6 +149,9 @@
               trainingCell.innerText = "–";
             }
           });
+
+          console.log("▶️ sub:", sub);
+
           // 🔸 Dohvati zbir test bodova iz panela
           fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`)
             .then(res => res.json())
