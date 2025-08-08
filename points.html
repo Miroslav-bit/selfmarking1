@@ -148,31 +148,19 @@
             }
           });
 
-// Prikaz test bodova
-fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`)
-  .then(res => res.json())
-  .then(panel => {
-    const testScore = panel.testScores?.find(
-      s => s.subcategory.toLowerCase() === sub.toLowerCase()
-    )?.totalPoints || 0;
-    document.getElementById("total-points").innerText = `+${testScore}`;
-  })
-  .catch(err => {
-    console.error("❗ Greška u test bodovima:", err);
-  });
-
-// Prikaz AI bodova iz objava
-fetch(`https://selfmarking-backend.onrender.com/api/posts/panel/${userId}`)
-  .then(res => res.json())
-  .then(panel => {
-    const postScore = panel.postScores?.find(
-      s => s.subcategory.toLowerCase() === sub.toLowerCase()
-    )?.totalPoints || 0;
-    document.getElementById("score-params").innerText = `+${postScore}`;
-  })
-  .catch(err => {
-    console.error("❗ Greška pri dohvatanju post bodova:", err);
-  });
+        // Prikaz test bodova
+        fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`)
+          .then(res => res.json())
+          .then(panel => {
+            const testScore = panel.testScores?.find(
+              s => s.subcategory.toLowerCase() === sub.toLowerCase()
+            )?.totalPoints || 0;
+            document.getElementById("total-points").innerText = `+${testScore}`;
+          });
+      })
+      .catch(err => {
+        console.error("❗ Greška:", err);
+      });
 
   </script>
 </body>
