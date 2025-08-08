@@ -772,6 +772,20 @@
           document.querySelector(".posts-section").appendChild(prikazZbira);
         });
 
+        console.log("ownerId:", ownerId);
+        console.log("subCategory:", sub);
+        console.log("ukupanGPTZbir:", ukupanGPTZbir);
+
+        await fetch("https://selfmarking-backend.onrender.com/api/posts/update-score", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: ownerId,
+            subCategory: format(sub),
+            totalPoints: ukupanGPTZbir
+          })
+        });
+
       } catch (err) {
         console.error("Greška:", err);
         alert("Greška pri učitavanju objava.");
