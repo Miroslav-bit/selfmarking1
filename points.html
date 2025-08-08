@@ -152,7 +152,9 @@
         fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`)
           .then(res => res.json())
           .then(panel => {
-            const testScore = panel.testScores?.find(s => s.subcategory === sub)?.totalPoints || 0;
+            const testScore = panel.testScores?.find(
+              s => s.subcategory.toLowerCase() === sub.toLowerCase()
+            )?.totalPoints || 0;
             document.getElementById("total-points").innerText = `+${testScore}`;
           });
       })
