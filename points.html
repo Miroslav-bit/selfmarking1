@@ -153,7 +153,7 @@
           console.log("▶️ sub:", sub);
 
           // 🔸 Dohvati zbir test bodova iz panela
-          fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`)
+          fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
             .then(res => res.json())
             .then(panel => {
               const testScore = panel.testScores?.find(s => s.subcategory === sub)?.totalPoints || 0;
