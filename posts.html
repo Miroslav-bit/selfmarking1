@@ -768,29 +768,26 @@
           prikazZbira.style.padding = "12px";
           prikazZbira.style.borderRadius = "10px";
           prikazZbira.innerHTML = `Ukupan broj bodova: <span style="color:black;">+${ukupanGPTZbir}</span>`;
+          document.body.appendChild(prikazZbira);
 
-          document.querySelector(".posts-section").appendChild(prikazZbira);
-        });
+          // 🔸 Pošalji bodove na backend TEK NAKON što je ukupanGPTZbir izračunat
+          console.log("ownerId:", ownerId);
+          console.log("subCategory:", sub);
+          console.log("ukupanGPTZbir:", ukupanGPTZbir);
 
-        console.log("ownerId:", ownerId);
-        console.log("subCategory:", sub);
-        console.log("ukupanGPTZbir:", ukupanGPTZbir);
-
-        await fetch("https://selfmarking-backend.onrender.com/api/posts/update-score", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: ownerId,
-            subCategory: format(sub),
-            totalPoints: ukupanGPTZbir
+          fetch("https://selfmarking-backend.onrender.com/api/posts/update-score", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: ownerId,
+              subCategory: format(sub),
+              totalPoints: ukupanGPTZbir
+            })
           })
+            .then(res => res.json())
+            .then(data => console.log("✅ Bodovi poslati na backend:", data))
+            .catch(err => console.error("❌ Greška pri slanju bodova:", err));
         });
-
-      } catch (err) {
-        console.error("Greška:", err);
-        alert("Greška pri učitavanju objava.");
-      }
-    }
 
     function loadReplies(postId, container) {
       const oldReplies = container.querySelector(".reply-list");
