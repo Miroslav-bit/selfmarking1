@@ -159,6 +159,30 @@
     console.error("❗ Greška:", err);
   });
 
+    // ⏳ Sačekaj da se oba fetch poziva završe
+    Promise.all([
+      fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`).then(res => res.json()),
+      fetch(`https://selfmarking-backend.onrender.com/api/posts/panel/${userId}`).then(res => res.json())
+    ])
+    .then(([testPanel, postPanel]) => {
+      const testPoints = testPanel.testScores?.find(
+        s => s.subcategory.toLowerCase() === sub.toLowerCase()
+      )?.totalPoints || 0;
+
+      const postPoints = postPanel.postScores?.find(
+        s => s.subcategory.toLowerCase() === sub.toLowerCase()
+      )?.totalPoints || 0;
+
+      const vpoPointsText = document.getElementById("start-grade-points").innerText;
+      const vpoPoints = parseInt(vpoPointsText.replace(/[^\d]/g, "")) || 0;
+
+      const ukupniBodovi = vpoPoints + testPoints + postPoints;
+      document.getElementById("gpt-grade").innerText = ukupniBodovi;
+    })
+    .catch(err => {
+      console.error("❗ Greška pri sabiranju AI bodova:", err);
+    });
+
   </script>
 </body>
 </html>
