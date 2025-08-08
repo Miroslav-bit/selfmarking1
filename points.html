@@ -130,36 +130,50 @@
 
         const userId = data.userId;
 
-        fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
-          .then(res => res.json())
-          .then(result => {
-            const trainingCell = document.getElementById("training-grade");
-            const vpoCell = document.getElementById("valid-start-grade");
-            const vpoPointsCell = document.getElementById("start-grade-points");
-
-            let trainingGrade = result.trainingGrade;
-            let vpo;
-
-            if (trainingGrade && !isNaN(trainingGrade)) {
-              trainingCell.innerText = trainingGrade;
-              vpo = Number(trainingGrade);
-              vpoCell.innerText = vpo;
-              vpoPointsCell.innerText = vpo * 200;
-           } else {
-              trainingCell.innerText = "–";
+        fetch(`https://selfmarking-backend.onrender.com/api/tests/user-id?name=${ime}&surname=${prezime}`)
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP greška ${res.status}`);
+            return res.json();
+          })
+          .then(data => {
+            if (!data.userId) {
+              console.error("❌ Korisnik nije pronađen");
+              return;
             }
-          });
 
-          console.log("▶️ sub:", sub);
+            const userId = data.userId;
 
-          // 🔸 Dohvati zbir test bodova iz panela
-          fetch(`https://selfmarking-backend.onrender.com/api/user-id?name=${ime}&surname=${prezime}`)
-            .then(res => res.json())
-            .then(panel => {
-              const testScore = panel.testScores?.find(s => s.subcategory === sub)?.totalPoints || 0;
-              document.getElementById("total-points").innerText = `+${testScore}`;
-            });
-        });
+            fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
+              .then(res => res.json())
+              .then(result => {
+                const trainingCell = document.getElementById("training-grade");
+                const vpoCell = document.getElementById("valid-start-grade");
+                const vpoPointsCell = document.getElementById("start-grade-points");
+
+                let trainingGrade = result.trainingGrade;
+                let vpo;
+
+                if (trainingGrade && !isNaN(trainingGrade)) {
+                  trainingCell.innerText = trainingGrade;
+                  vpo = Number(trainingGrade);
+                  vpoCell.innerText = vpo;
+                  vpoPointsCell.innerText = vpo * 200;
+                } else {
+                  trainingCell.innerText = "–";
+                }
+              });
+
+            console.log("▶️ sub:", sub);
+
+            // 🔸 Dohvati zbir test bodova iz panela
+    fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`)
+              .then(res => res.json())
+              .then(panel => {
+                const testScore = panel.testScores?.find(s => s.subcategory === sub)?.totalPoints || 0;
+                document.getElementById("total-points").innerText = `+${testScore}`;
+              });
+          })
+          .catch(err => console.error("❗ Greška:", err));
     </script>
 </body>
 </html>
