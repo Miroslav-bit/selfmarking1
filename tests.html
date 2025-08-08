@@ -327,17 +327,31 @@
       }
 
       testHistory.innerHTML = "";
+      let ukupanZbir = 0;
+
       data.forEach(entry => {
         const div = document.createElement("div");
         const selected = entry.selectedIndex !== null ? entry.answers[entry.selectedIndex] : null;
+        const poeni = selected && typeof selected.points === "number" ? selected.points : 0;
+        ukupanZbir += poeni;
+
         div.innerHTML = `
           <p><strong>Pitanje:</strong> ${entry.question}</p>
           <p><strong>Odgovor:</strong> ${selected ? selected.text : "<i>nije odgovoreno</i>"}</p>
-          <p><strong>Bodovi:</strong> ${selected ? selected.points : 0}</p>
+          <p><strong>Bodovi:</strong> ${poeni}</p>
           <hr>
         `;
         testHistory.appendChild(div);
       });
+
+      // === Prikaz ukupnog zbira ===
+      const zbirDiv = document.createElement("div");
+      zbirDiv.style.textAlign = "center";
+      zbirDiv.style.fontSize = "20px";
+      zbirDiv.style.fontWeight = "bold";
+      zbirDiv.style.marginTop = "20px";
+      zbirDiv.innerHTML = `Ukupan broj bodova: <span style="color:black;">+${ukupanZbir}</span>`;
+      testHistory.appendChild(zbirDiv);
     }
 
     loadTestHistory();
