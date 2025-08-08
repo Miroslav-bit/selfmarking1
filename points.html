@@ -105,16 +105,10 @@
   </div>
 
   <script>
-
-    function format(txt) {
-      const text = txt.replace(/-/g, ' ');
-      return text.charAt(0).toUpperCase() + text.slice(1);
-    }
-    
     const params = new URLSearchParams(window.location.search);
     const ime = params.get("ime");
-    const main = params.get("main");
     const prezime = params.get("prezime");
+    const main = params.get("main");
     const sub = params.get("sub");
 
     const naslov = document.getElementById("points-title");
@@ -155,6 +149,49 @@
            } else {
               trainingCell.innerText = "–";
             }
+          });
+
+        fetch(`https://selfmarking-backend.onrender.com/api/posts/filter?ownerId=${userId}&mainCategory=${main || ""}&subCategory=${sub}`)
+          .then(res => res.json())
+          .then(async posts => {
+            const tbody = document.getElementById("points-table-body");
+            let totalGPTPoints = 0;
+
+            for (const post of posts) {
+      const postId = post._id;
+              const postText = post.text || "Bez teksta";
+
+              let aiPoints = 0;
+
+              try {
+                const repliesRes = await fetch(`https://selfmarking-backend.onrender.com/api/replies/${postId}`);
+                const replies = await repliesRes.json();
+
+                replies.forEach(reply => {
+                  if (reply.user?.email === "gpt@selfmarking.com" && typeof reply.gptScore === "number") {
+                    aiPoints += reply.gptScore;
+                  }
+                });
+
+                totalGPTPoints += aiPoints;
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                  <td>${postText}</td>
+                  <td>–</td>
+                  <td>${aiPoints}</td>
+                  <td>${aiPoints}</td>
+                `;
+                tbody.appendChild(row);
+              } catch (err) {
+                console.error("Greška u dohvatanju replika:", err);
+              }
+            }
+
+            // Popuni donju tabelu
+            document.getElementById("total-points").innerText = totalGPTPoints;
+            document.getElementById("score-params").innerText = "AI bodovi";
+            document.getElementById("gpt-grade").innerText = Math.round(totalGPTPoints / 100);
           });
       });
   </script>
