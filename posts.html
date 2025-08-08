@@ -742,6 +742,35 @@
         console.error("Greška:", err);
         alert("Greška pri učitavanju objava.");
       }
+
+      // === SABIRANJE GPT BODOVA I PRIKAZ UKUPNOG ZBIRA ===
+      let ukupanGPTZbir = 0;
+
+      const gptReplyFetches = posts.map(post =>
+        fetch(`https://selfmarking-backend.onrender.com/api/replies/${post._id}`)
+          .then(res => res.json())
+          .then(replies => {
+            replies.forEach(reply => {
+              if (reply.user?.email === "gpt@selfmarking.com" && typeof reply.gptScore === "number") {
+                ukupanGPTZbir += reply.gptScore;
+              }
+            });
+          })
+      );
+
+      Promise.all(gptReplyFetches).then(() => {
+        const prikazZbira = document.createElement("div");
+        prikazZbira.style.marginTop = "20px";
+        prikazZbira.style.fontSize = "18px";
+        prikazZbira.style.fontWeight = "bold";
+        prikazZbira.style.textAlign = "center";
+        prikazZbira.style.backgroundColor = "#f0f0f0";
+        prikazZbira.style.padding = "12px";
+        prikazZbira.style.borderRadius = "10px";
+        prikazZbira.innerHTML = `Ukupan broj bodova: <span style="color:black;">+${ukupanGPTZbir}</span>`;
+
+        document.querySelector(".posts-section").appendChild(prikazZbira);
+      });
     }
 
     function loadReplies(postId, container) {
