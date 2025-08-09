@@ -437,22 +437,6 @@
                 });
               };
 
-              // Normalizuj potkategoriju pre slanja
-              const cleanSub = sub
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // ukloni dijakritike
-                .trim()
-                .toLowerCase();
-
-              // ➕ Nakon završne potvrde treninga, preracunaj i upiši AI ocenu
-              fetch("https://selfmarking-backend.onrender.com/api/ratings/save-ai", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  userId: ownerId,
-                  cardSub: cleanSub
-                })
-              });
-
               cell.appendChild(dugme);
             }
           }
