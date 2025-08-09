@@ -189,24 +189,39 @@
 
         // Prikaz konačne ocene u postojeću ćeliju
         document.getElementById("final-ai-grade").innerText = konacnaOcena;
-        // [BEGIN SAVE AI RATING — points.html]
-        // Snimi AI ocenu kao direktnu ocenu (rater: "AI") u kolekciju Rating
-        const scoreForDB = Math.max(0, Math.min(10, Math.round((ukupniBodovi / 200) * 100) / 100));
 
+        // [BEGIN — Slanje AI ocene na backend — points.html]
+        // Preuzmi podatke iz trenutne stranice
+        const aiCardName = `${ime} ${prezime}`; // npr. "Ana Popov"
+        const aiCardSub = sub; // npr. "Hrabrost"
+        const aiRater = "AI";
+        const aiScore = konacnaOcena; // koristi već izračunatu ocenu
+
+        // Po uzoru na rate.html — fetch POST ka /api/ratings/save
         fetch("https://selfmarking-backend.onrender.com/api/ratings/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            cardName: `${ime} ${prezime}`, // npr. "Ana Popov"
-            cardSub: sub,                  // npr. "Geologija"
-            rater: "AI",
-            score: scoreForDB              // broj sa max dve decimale
+            cardName: aiCardName,
+            cardSub: aiCardSub,
+            rater: aiRater,
+            score: aiScore
           })
         })
-          .then(r => r.json())
-          .then(() => console.log("✅ AI ocena sačuvana/ažurirana u Rating:", scoreForDB))
-          .catch(e => console.error("❌ Greška pri čuvanju AI ocene:", e));
-        // [END SAVE AI RATING — points.html]
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Greška pri slanju ocene: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log("✅ AI ocena sačuvana:", data);
+          })
+          .catch(error => {
+            console.error("❌ Greška pri slanju AI ocene:", error);
+          });
+        // [END — Slanje AI ocene na backend — points.html]
+
       })
       .catch(err => {
         console.error("❗ Greška pri sabiranju AI bodova:", err);
