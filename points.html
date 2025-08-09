@@ -106,7 +106,7 @@
     document.getElementById("valid-start-grade").innerText = pocetnaOcena;
     document.getElementById("start-grade-points").innerText = pocetnaOcena * 200;
 
-  fetch(`https://selfmarking-backend.onrender.com/api/tests/user-id?name=${ime}&surname=${prezime}`)
+  fetch(`https://selfmarking-backend.onrender.com/api/tests/user-id?name=${encodeURIComponent(ime)}&surname=${encodeURIComponent(prezime)}`)
    .then(res => {
       if (!res.ok) throw new Error(`Greška ${res.status}`);
       return res.json();
@@ -206,10 +206,6 @@
           .then(r => r.json())
           .then(data => console.log("✅ AI ocena sačuvana:", data))
           .catch(err => console.error("❌ Greška pri čuvanju AI ocene:", err));
-
-        .then(r => r.json())
-        .then(data => console.log("✅ AI ocena sačuvana:", data))
-        .catch(err => console.error("❌ Greška pri čuvanju AI ocene:", err));
       })
       .catch(err => {
         console.error("❗ Greška pri sabiranju AI bodova:", err);
