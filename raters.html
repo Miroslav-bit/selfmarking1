@@ -96,25 +96,48 @@
       window.history.back();
     }
 
+    // [BEGIN REPLACEMENT — params + naslov + sub normalizacija / raw vrednost]
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     const surname = params.get('surname') || '';
-    const sub = params.get('sub') || '';
+    const subRaw = (params.get('sub') || '').trim(); // ⬅️ sirova vrednost iz URL-a — IDE U API UPIT
 
-    const cardName = `${name} ${surname}`;
+    function slugify(text) {
+      return text.normalize("NFD")
+                 .replace(/[\u0300-\u036f]/g, "")
+                 .toLowerCase()
+                 .replace(/\s+/g, "-")
+                 .replace(/[^\w\-]+/g, "")
+                 .replace(/\-\-+/g, "-")
+                 .replace(/^-+/, "")
+                 .replace(/-+$/, "");
+    }
+
+    function formatText(txt) {
+      return txt.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
     function normalizeSub(sub) {
       const map = {
         "karakterne-osobine": "Karakterne osobine",
-        // Dodaj sve glavne kategorije koje imaju više reči
+        // Dodaj po potrebi još specifičnih mapa za glavne kategorije
       };
-      return map[sub.toLowerCase()] || formatText(sub);
+      const key = (sub || '').toLowerCase();
+      return map[key] || formatText(sub || '');
     }
 
-const cardSub = normalizeSub(sub);
-    const naslov = `${cardName} – ${cardSub}`;
-    document.getElementById("naslov").innerText = naslov;
+    function goBack() {
+      window.history.back();
+    }
 
-    fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSub)}`)
+    const cardName = `${name} ${surname}`;
+    const cardSubForTitle = normalizeSub(subRaw);   // ⬅️ lep prikaz u naslovu
+    const cardSubForQuery = subRaw;                 // ⬅️ TAČNO ono što je u URL-u / bazi
+
+    document.getElementById("naslov").innerText = `${cardName} – ${cardSubForTitle}`;
+    // [END REPLACEMENT]
+
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSubForQuery)}`)
       .then(res => res.json())
       .then(data => {
         const listDiv = document.getElementById("raters-list");
@@ -141,7 +164,7 @@ const cardSub = normalizeSub(sub);
       });
 
     // NOVO: Prikaz indirektnih ocenjivača glavne kategorije
-fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSubForQuery)}`)
       .then(res => res.json())
       .then(data => {
         const indirectDiv = document.getElementById("indirect-raters-list");
