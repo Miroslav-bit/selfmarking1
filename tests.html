@@ -368,6 +368,12 @@
         })
       });
 
+      // Normalizuj potkategoriju pre slanja
+      const cleanSub = sub
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // ukloni dijakritike
+        .trim()
+        .toLowerCase();
+
       // ➕ Odmah po upisu test poena, preracunaj AI u bazi
       await fetch("https://selfmarking-backend.onrender.com/api/ratings/save-ai", {
         method: "POST",
