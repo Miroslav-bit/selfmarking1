@@ -437,6 +437,16 @@
                 });
               };
 
+              // ➕ Nakon završne potvrde treninga, preracunaj i upiši AI ocenu
+              fetch("https://selfmarking-backend.onrender.com/api/ratings/save-ai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId: ownerId,
+                  cardSub: sub // ili format(sub) ako koristiš formatiranje
+                })
+              });
+
               cell.appendChild(dugme);
             }
           }
