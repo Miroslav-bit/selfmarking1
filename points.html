@@ -106,7 +106,7 @@
     document.getElementById("valid-start-grade").innerText = pocetnaOcena;
     document.getElementById("start-grade-points").innerText = pocetnaOcena * 200;
 
-  fetch(`https://selfmarking-backend.onrender.com/api/tests/user-id?name=${encodeURIComponent(ime)}&surname=${encodeURIComponent(prezime)}`)
+  fetch(`https://selfmarking-backend.onrender.com/api/tests/user-id?name=${ime}&surname=${prezime}`)
    .then(res => {
       if (!res.ok) throw new Error(`Greška ${res.status}`);
       return res.json();
@@ -119,7 +119,7 @@
     }
 
     // Prikaz ocene treninga
-    fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${encodeURIComponent(sub)}`)
+    fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
       .then(res => res.json())
       .then(result => {
         const trainingCell = document.getElementById("training-grade");
@@ -189,35 +189,28 @@
 
         // Prikaz konačne ocene u postojeću ćeliju
         document.getElementById("final-ai-grade").innerText = konacnaOcena;
-
-        // Snimi AI ocenu u backend — obrazac kao u rate.html
-        const scoreForDB = Math.round((ukupniBodovi / 200) * 100) / 100;
+        // [BEGIN SAVE AI RATING — points.html]
+        // Snimi AI ocenu kao direktnu ocenu (rater: "AI") u kolekciju Rating
+        const scoreForDB = Math.max(0, Math.min(10, Math.round((ukupniBodovi / 200) * 100) / 100));
 
         fetch("https://selfmarking-backend.onrender.com/api/ratings/save", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-            // ovde nema Authorization, AI ocenjuje sistemski
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            cardName: `${ime} ${prezime}`.trim(),
-            cardSub: sub.trim(), // isto kao u bazi
+            cardName: `${ime} ${prezime}`, // npr. "Ana Popov"
+            cardSub: sub,                  // npr. "Geologija"
             rater: "AI",
-            score: scoreForDB
+            score: scoreForDB              // broj sa max dve decimale
           })
         })
-        .then(res => res.json())
-        .then(res => {
-          console.log("✅ AI ocena sačuvana:", res);
-          // ovde po potrebi može i redirekcija ili refresh
-        })
-        .catch(err => {
-          console.error("❌ Greška pri upisu AI ocene u bazu:", err);
-        });
+          .then(r => r.json())
+          .then(() => console.log("✅ AI ocena sačuvana/ažurirana u Rating:", scoreForDB))
+          .catch(e => console.error("❌ Greška pri čuvanju AI ocene:", e));
+        // [END SAVE AI RATING — points.html]
       })
       .catch(err => {
         console.error("❗ Greška pri sabiranju AI bodova:", err);
-    });
+      });
 
   })
   .catch(err => {
