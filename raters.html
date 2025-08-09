@@ -120,9 +120,15 @@ const cardSub = normalizeSub(sub);
         await fetch("https://selfmarking-backend.onrender.com/api/ratings/save-ai", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          // Normalizacija potkategorije pre slanja backendu
+          const cleanSub = sub
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // ukloni dijakritike
+            .trim()
+            .toLowerCase();
+
           body: JSON.stringify({
-            cardName: cardName,   // iz parametara URL-a
-            cardSub: sub          // sirova potkategorija iz URL-a
+            cardName: cardName,
+            cardSub: cleanSub
           })
         });
       } catch (err) {
