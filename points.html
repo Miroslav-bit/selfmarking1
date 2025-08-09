@@ -190,7 +190,9 @@
         // Prikaz konačne ocene u postojeću ćeliju
         document.getElementById("final-ai-grade").innerText = konacnaOcena;
 
-        // Snimi AI ocenu u backend
+        // Snimi AI ocenu u backend (kao BROJ sa najviše 2 decimale)
+        const scoreForDB = Math.round((ukupniBodovi / 200) * 100) / 100;
+
         fetch(`https://selfmarking-backend.onrender.com/api/ratings/save`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -198,9 +200,13 @@
             cardName: `${ime} ${prezime}`,
             cardSub: sub,
             rater: "AI",
-            score: Number(konacnaOcena)
+            score: scoreForDB
           })
         })
+          .then(r => r.json())
+          .then(data => console.log("✅ AI ocena sačuvana:", data))
+          .catch(err => console.error("❌ Greška pri čuvanju AI ocene:", err));
+
         .then(r => r.json())
         .then(data => console.log("✅ AI ocena sačuvana:", data))
         .catch(err => console.error("❌ Greška pri čuvanju AI ocene:", err));
