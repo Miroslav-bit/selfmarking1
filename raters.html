@@ -115,17 +115,17 @@ const cardSub = normalizeSub(sub);
     document.getElementById("naslov").innerText = naslov;
 
      (async function initRaters() {
-      // Najpre backend neka osveži AI ocenu za ovog korisnika i potkategoriju
+      // 1) Normalizuj potkategoriju PRE nego što pozoveš fetch
+      const cleanSub = sub
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+
+      // 2) Osveži AI ocenu
       try {
         await fetch("https://selfmarking-backend.onrender.com/api/ratings/save-ai", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // Normalizacija potkategorije pre slanja backendu
-          const cleanSub = sub
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // ukloni dijakritike
-            .trim()
-            .toLowerCase();
-
           body: JSON.stringify({
             cardName: cardName,
             cardSub: cleanSub
@@ -135,8 +135,8 @@ const cardSub = normalizeSub(sub);
         console.error("Greška pri osvežavanju AI ocene:", err);
       }
 
-      // Sada učitaj listu ocenjivača
-      fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(sub)}`)
+      // 3) Učitaj listu ocenjivača (koristi isti cleanSub!)
+      fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cleanSub)}`)
         .then(res => res.json())
         .then(data => {
           const listDiv = document.getElementById("raters-list");
@@ -151,7 +151,7 @@ const cardSub = normalizeSub(sub);
             const row = document.createElement("div");
             row.className = "rater-row";
             row.innerHTML = `
-             <div>${r.rater}</div>
+              <div>${r.rater}</div>
               <div>${r.score !== undefined ? r.score : "-"}</div>
             `;
             listDiv.appendChild(row);
@@ -159,12 +159,17 @@ const cardSub = normalizeSub(sub);
         })
         .catch(err => {
           console.error("Greška pri dohvatu ocenjivača:", err);
-         document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
+          document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
         });
     })();
 
     // NOVO: Prikaz indirektnih ocenjivača glavne kategorije
-fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cardSub)}`)
+    const cleanMain = sub
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+
+    fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?cardName=${encodeURIComponent(cardName)}&cardMain=${encodeURIComponent(cleanMain)}`)
       .then(res => res.json())
       .then(data => {
         const indirectDiv = document.getElementById("indirect-raters-list");
@@ -187,7 +192,7 @@ fetch(`https://selfmarking-backend.onrender.com/api/ratings/indirect-raters?card
       .catch(err => {
         console.error("Greška pri dohvatu indirektnih ocenjivača:", err);
         document.getElementById("indirect-raters-list").innerHTML = "<p>Greška pri učitavanju indirektnih ocenjivača.</p>";
-      });
+     });
 
   </script>
 </body>
