@@ -197,10 +197,10 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            cardName: `${ime} ${prezime}`,
-            cardSub: sub,
+            cardName: `${ime} ${prezime}`.trim(),
+            cardSub: sub.trim(),
             rater: "AI",
-            score: scoreForDB
+            score: Number(scoreForDB)
           })
         })
           .then(r => r.json())
