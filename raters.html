@@ -202,12 +202,16 @@
         const listDiv = document.getElementById("raters-list");
         listDiv.innerHTML = "";
 
-        const hasAI = Array.isArray(data) && data.some(r => (r.rater || "").toUpperCase() === "AI");
+        // pronađi AI unos (ako postoji)
+        const aiEntry = Array.isArray(data) ? data.find(r => (r.rater || "").toUpperCase() === "AI") : null;
+        // potreban recalcul ako AI ne postoji ili mu je score neispravan (0, NaN, null, undefined)
+        const aiScoreBad = !aiEntry || typeof aiEntry.score !== "number" || isNaN(aiEntry.score);
 
-        // Ako nema AI – izračunaj i snimi odmah
-        if (!hasAI) {
-          const aiScore = await computeAndSaveAIRating(cardName, name, surname, cardSubForQuery);
-          if (aiScore !== null) {
+        if (aiScoreBad) {
+          const aiScore = await computeAndSaveAIRating(cardName, name, surname, cardSubForQuery); // izračuna i snimi
+          if (aiEntry) {
+            aiEntry.score = aiScore;             // ispravi prikaz u trenutnoj listi
+          } else {
             data = [...(data || []), { rater: "AI", score: aiScore }];
           }
         }
@@ -222,7 +226,7 @@
           row.className = "rater-row";
           row.innerHTML = `
             <div>${r.rater}</div>
-            <div>${r.score !== undefined ? r.score : "-"}</div>
+            <div>${(r.score ?? "-")}</div>
           `;
           listDiv.appendChild(row);
         });
