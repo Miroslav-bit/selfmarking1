@@ -374,13 +374,24 @@
         .trim()
         .toLowerCase();
 
+      // Pošalji bodove na backend da se trajno sačuvaju
+      await fetch("https://selfmarking-backend.onrender.com/api/tests/update-score", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: ownerId,
+          subCategory: cleanSub,
+          totalPoints: ukupanZbir
+        })
+      });
+
       // ➕ Odmah po upisu test poena, preracunaj AI u bazi
       await fetch("https://selfmarking-backend.onrender.com/api/ratings/save-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: ownerId,
-          cardSub: sub
+          cardSub: cleanSub
         })
       });
     }
