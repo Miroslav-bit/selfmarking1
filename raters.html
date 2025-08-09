@@ -137,11 +137,80 @@
     document.getElementById("naslov").innerText = `${cardName} – ${cardSubForTitle}`;
     // [END REPLACEMENT]
 
+    async function computeAndSaveAIRating(cardName, name, surname, subRaw) {
+      try {
+        // 1) userId
+        const uidRes = await fetch(`https://selfmarking-backend.onrender.com/api/tests/user-id?name=${encodeURIComponent(name)}&surname=${encodeURIComponent(surname)}`);
+        const uidData = await uidRes.json();
+        const userId = uidData.userId;
+        if (!userId) return console.warn("⚠️ Nema userId — ne mogu izračunati AI ocenu.");
+
+        // 2) VPO (trening ocena ili 5)
+        let vpo = 5;
+        try {
+          const trRes = await fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${encodeURIComponent(subRaw)}`);
+          const trData = await trRes.json();
+          const trainingGrade = Number(trData?.trainingGrade);
+          if (!isNaN(trainingGrade)) vpo = trainingGrade;
+        } catch (_) {}
+
+        const vpoPoints = vpo * 200;
+
+        // 3) Test bodovi
+        const testsRes = await fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`);
+        const testsPanel = await testsRes.json();
+        const testPoints = testsPanel?.testScores?.find(
+          s => s.subcategory?.toLowerCase() === subRaw.toLowerCase()
+        )?.totalPoints || 0;
+
+        // 4) Post bodovi
+        const postsRes = await fetch(`https://selfmarking-backend.onrender.com/api/posts/panel/${userId}`);
+        const postsPanel = await postsRes.json();
+        const postPoints = postsPanel?.postScores?.find(
+          s => s.subcategory?.toLowerCase() === subRaw.toLowerCase()
+        )?.totalPoints || 0;
+
+        // 5) Ukupni bodovi i ocena
+        const ukupniBodovi = vpoPoints + Number(testPoints) + Number(postPoints);
+        const scoreForDB = Math.max(0, Math.min(10, Math.round((ukupniBodovi / 200) * 100) / 100));
+
+        // 6) Snimi u Rating (AI)
+        const saveRes = await fetch(`https://selfmarking-backend.onrender.com/api/ratings/save`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cardName,
+            cardSub: subRaw,
+            rater: "AI",
+            score: scoreForDB
+          })
+        });
+        await saveRes.json();
+        console.log("✅ AI ocena izračunata i sačuvana:", scoreForDB);
+
+        // 7) Vrati vrednost da je možemo odmah prikazati
+        return scoreForDB;
+      } catch (err) {
+        console.error("❌ Greška pri auto-obračunu AI ocene:", err);
+        return null;
+      }
+    }
+
     fetch(`https://selfmarking-backend.onrender.com/api/ratings/raters?cardName=${encodeURIComponent(cardName)}&cardSub=${encodeURIComponent(cardSubForQuery)}`)
       .then(res => res.json())
-      .then(data => {
+      .then(async data => {
         const listDiv = document.getElementById("raters-list");
         listDiv.innerHTML = "";
+
+        const hasAI = Array.isArray(data) && data.some(r => (r.rater || "").toUpperCase() === "AI");
+
+        // Ako nema AI – izračunaj i snimi odmah
+        if (!hasAI) {
+          const aiScore = await computeAndSaveAIRating(cardName, name, surname, cardSubForQuery);
+          if (aiScore !== null) {
+            data = [...(data || []), { rater: "AI", score: aiScore }];
+          }
+        }
 
         if (!data || data.length === 0) {
           listDiv.innerHTML = "<p>Još uvek nema ocenjivača.</p>";
@@ -158,6 +227,7 @@
           listDiv.appendChild(row);
         });
       })
+
       .catch(err => {
         console.error("Greška pri dohvatu ocenjivača:", err);
         document.getElementById("raters-list").innerHTML = "<p>Greška pri učitavanju ocenjivača.</p>";
