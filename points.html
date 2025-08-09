@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>GPT bodovi</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .points-container {
+      max-width: 900px;
+      margin: 30px auto;
+      font-family: Arial, sans-serif;
+    }
+    .points-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .points-header h2 {
+      margin: 0;
+    }
+    .close-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .summary-row {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="points-container">
+    <div class="points-header">
+      <h2 id="points-title">GPT bodovi</h2>
+      <button class="close-button" onclick="window.history.back()">✕</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Početna ocena</th>
+          <th>Ocena treninga</th>
+          <th>Važeća početna ocena (vpo)</th>
+          <th>Bodovi početne ocene (vpo *200)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>5</td>
+          <td id="training-grade"></td>
+          <td id="valid-start-grade"></td>
+          <td id="start-grade-points"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="summary-row">
+      <thead>
+        <tr>
+          <th>AI bodovi za testove:</th>
+          <th>AI bodovi za objave:</th>
+          <th>Ukupni AI bodovi (ub):</th>
+          <th>Konačna AI ocena (ub / 200):</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="total-points"></td>
+          <td id="score-params"></td>
+          <td id="gpt-grade"></td>
+          <td id="final-ai-grade"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ime = params.get("ime");
+    const prezime = params.get("prezime");
+    const sub = params.get("sub");
+
+    const naslov = document.getElementById("points-title");
+    naslov.innerText = `${ime} ${prezime} - ${sub}`;
+
+    const pocetnaOcena = 5;
+
+    document.getElementById("valid-start-grade").innerText = pocetnaOcena;
+    document.getElementById("start-grade-points").innerText = pocetnaOcena * 200;
+
+  fetch(`https://selfmarking-backend.onrender.com/api/tests/user-id?name=${ime}&surname=${prezime}`)
+   .then(res => {
+      if (!res.ok) throw new Error(`Greška ${res.status}`);
+      return res.json();
+    })
+  .then(data => {
+    const userId = data.userId;
+    if (!userId) {
+      console.error("❌ Korisnik nije pronađen");
+      return;
+    }
+
+    // Prikaz ocene treninga
+    fetch(`https://selfmarking-backend.onrender.com/api/training/grade?user=${userId}&sub=${sub}`)
+      .then(res => res.json())
+      .then(result => {
+        const trainingCell = document.getElementById("training-grade");
+        const vpoCell = document.getElementById("valid-start-grade");
+        const vpoPointsCell = document.getElementById("start-grade-points");
+
+        let trainingGrade = result.trainingGrade;
+        if (trainingGrade && !isNaN(trainingGrade)) {
+          trainingCell.innerText = trainingGrade;
+          vpoCell.innerText = trainingGrade;
+          vpoPointsCell.innerText = trainingGrade * 200;
+        } else {
+          trainingCell.innerText = "–";
+        }
+      });
+
+    // Prikaz test bodova
+    fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`)
+      .then(res => res.json())
+      .then(panel => {
+        const testScore = panel.testScores?.find(
+          s => s.subcategory.toLowerCase() === sub.toLowerCase()
+        )?.totalPoints || 0;
+        document.getElementById("total-points").innerText = `+${testScore}`;
+      });
+
+    // Prikaz AI bodova iz objava
+    fetch(`https://selfmarking-backend.onrender.com/api/posts/panel/${userId}`)
+      .then(res => res.json())
+      .then(panel => {
+        const postScore = panel.postScores?.find(
+          s => s.subcategory.toLowerCase() === sub.toLowerCase()
+        )?.totalPoints || 0;
+        document.getElementById("score-params").innerText = `+${postScore}`;
+      });
+
+    // ✅ Računanje ukupnih AI bodova nakon što se preuzmu testovi i objave
+    Promise.all([
+      fetch(`https://selfmarking-backend.onrender.com/api/tests/panel/${userId}`).then(res => res.json()),
+      fetch(`https://selfmarking-backend.onrender.com/api/posts/panel/${userId}`).then(res => res.json())
+    ])
+      .then(([testPanel, postPanel]) => {
+        const testPoints = testPanel.testScores?.find(
+          s => s.subcategory.toLowerCase() === sub.toLowerCase()
+        )?.totalPoints || 0;
+
+        const postPoints = postPanel.postScores?.find(
+          s => s.subcategory.toLowerCase() === sub.toLowerCase()
+        )?.totalPoints || 0;
+
+        const vpoPointsText = document.getElementById("start-grade-points").innerText;
+        const vpoPoints = parseInt(vpoPointsText.replace(/[^\d]/g, "")) || 0;
+
+        const ukupniBodovi = vpoPoints + testPoints + postPoints;
+
+        // Prikaz ukupnih AI bodova
+        document.getElementById("gpt-grade").innerText = ukupniBodovi;
+
+        // Izračunaj konačnu AI ocenu
+        let konacnaOcena = ukupniBodovi / 200;
+
+        // Ograničenje vrednosti: maksimalno 10, minimalno 0
+        konacnaOcena = Math.max(0, Math.min(10, konacnaOcena));
+
+        // Zaokruži na najviše dve decimale
+        konacnaOcena = konacnaOcena.toFixed(2);
+
+        // Prikaz konačne ocene u postojeću ćeliju
+        document.getElementById("final-ai-grade").innerText = konacnaOcena;
+
+      })
+      .catch(err => {
+        console.error("❗ Greška pri sabiranju AI bodova:", err);
+      });
+
+  })
+  .catch(err => {
+    console.error("❗ Greška:", err);
+  });
+
+  </script>
+</body>
+</html>
