@@ -788,13 +788,18 @@
           .then(data => console.log("✅ Bodovi poslati na backend:", data))
           .catch(err => console.error("❌ Greška pri slanju bodova:", err));
 
-          // ➕ Nakon upisa bodova objava, preracunaj i upiši AI ocenu
+          // Normalizuj potkategoriju pre slanja
+          const cleanSub = sub
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // ukloni dijakritike
+            .trim()
+            .toLowerCase();
+
           fetch("https://selfmarking-backend.onrender.com/api/ratings/save-ai", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userId: ownerId,
-              cardSub: sub
+              cardSub: cleanSub
             })
           })
           .then(res => res.json())
